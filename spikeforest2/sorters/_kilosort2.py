@@ -1,42 +1,37 @@
 import random
 import hither
 
-@hither.function('mountainsort4', '0.1.0')
+@hither.function('kilosort2', '0.1.0')
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-mountainsort4:latest')
+@hither.container(default='docker://magland/sf-kilosort2:latest')
 @hither.local_module('../../spikeforest2_utils')
-def mountainsort4(recording, sorting_out):
+def kilosort2(recording, sorting_out):
     import spiketoolkit as st
     import spikesorters as ss
     import spikeextractors as se
     from spikeforest2_utils import AutoRecordingExtractor
     import kachery as ka
+    from ._kilosort2sorter import Kilosort2Sorter
 
     # TODO: need to think about how to deal with this
     ka.set_config(fr='default_readonly')
 
     recording = AutoRecordingExtractor(dict(path=recording), download=True)
 
-    # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 10)
-    
-    # Preprocessing
-    print('Preprocessing...')
-    recording = st.preprocessing.bandpass_filter(recording, freq_min=300, freq_max=6000)
-    recording = st.preprocessing.whiten(recording)
-
     # Sorting
     print('Sorting...')
-    sorter = ss.Mountainsort4Sorter(
+    sorter = Kilosort2Sorter(
         recording=recording,
-        output_folder='/tmp/tmp_mountainsort4_' + _random_string(8),
+        output_folder='/tmp/tmp_kilosort2_' + _random_string(8),
         delete_output_folder=True
     )
 
     sorter.set_params(
         detect_sign=-1,
-        adjacency_radius=50,
-        detect_threshold=4
+        detect_threshold=5,
+        freq_min=150,
+        pc_per_chan=3
     )     
     timer = sorter.run()
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))

@@ -166,6 +166,7 @@ def run_function_in_container(*,
                 #!/bin/bash
 
                 docker run -it \\
+                    --gpus all \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -v {temp_path}:/run_in_container \\

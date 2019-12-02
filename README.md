@@ -4,7 +4,7 @@ SpikeForest -- spike sorting analysis for website -- version 2
 
 ## Installation
 
-Prerequisites: you must have docker installed.
+Prerequisites: you must have Docker >= 19 (or Singularity >= 3.3) installed. If you would like to use singularity (rather than docker) then set the environment variable `HITHER_USE_SINGULARITY=TRUE`.
 
 After cloning this repo
 

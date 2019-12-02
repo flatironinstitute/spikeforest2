@@ -2,6 +2,15 @@
 
 SpikeForest -- spike sorting analysis for website -- version 2
 
+## Installation
+
+After cloning this repo
+
+```
+cd spikeforest2
+pip install -e .
+```
+
 ## Recordings
 
 The SpikeForest recordings (arranged into studies and study sets) may be found here: [spikeforest_recordings](https://github.com/flatironinstitute/spikeforest_recordings)

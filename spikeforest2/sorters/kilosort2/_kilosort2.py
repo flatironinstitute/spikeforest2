@@ -1,11 +1,11 @@
 import random
 import hither
 
-@hither.function('kilosort2', '0.1.0')
+@hither.function('kilosort2', '0.1.0-w1')
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-kilosort2:latest')
-@hither.local_module('../../spikeforest2_utils')
+@hither.container(default='docker://magland/sf-kilosort2:0.1.0')
+@hither.local_module('../../../spikeforest2_utils')
 def kilosort2(recording, sorting_out):
     import spiketoolkit as st
     import spikesorters as ss

@@ -1,11 +1,11 @@
 import random
 import hither
 
-@hither.function('ironclust', '0.1.0')
+@hither.function('ironclust', '5.0.5-w1')
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-ironclust:latest')
-@hither.local_module('../../spikeforest2_utils')
+@hither.container(default='docker://magland/sf-ironclust:5.0.5')
+@hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording, sorting_out):
     import spiketoolkit as st
     import spikesorters as ss

@@ -5,7 +5,7 @@ import hither
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-spykingcircus:0.8.6')
-@hither.local_module('../../spikeforest2_utils')
+@hither.local_module('../../../spikeforest2_utils')
 def spykingcircus(recording, sorting_out):
     import spiketoolkit as st
     import spikesorters as ss

@@ -1,10 +1,10 @@
 import random
 import hither
 
-@hither.function('mountainsort4', '0.1.0')
+@hither.function('mountainsort4', '0.3.2-w1')
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-mountainsort4:latest')
+@hither.container(default='docker://magland/sf-mountainsort4:0.3.2')
 @hither.local_module('../../spikeforest2_utils')
 def mountainsort4(recording, sorting_out):
     import spiketoolkit as st

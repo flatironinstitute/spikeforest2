@@ -4,6 +4,8 @@ SpikeForest -- spike sorting analysis for website -- version 2
 
 ## Installation
 
+Prerequisites: you must have docker installed.
+
 After cloning this repo
 
 ```

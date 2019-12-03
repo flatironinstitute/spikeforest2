@@ -152,7 +152,7 @@ def run_function_in_container(*,
                     -B $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -B {temp_path}:/run_in_container \\
                     -B /tmp:/tmp \\
-                    -B ~/.kachery:$HOME/.kachery \\
+                    -B $HOME:$HOME \\
                     {binds_str} \\
                     {container} \\
                     bash /run_in_container/run.sh

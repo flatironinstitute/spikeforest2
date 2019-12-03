@@ -15,7 +15,7 @@ cd spikeforest2
 pip install -e .
 ```
 
-See below for instructions on [installing spikeforest_widgets](#installing-spikeforest-widgets).
+See below for instructions on [installing spikeforest_widgets](#installing-spikeforest_widgets).
 
 ## Recordings
 
@@ -34,7 +34,7 @@ Python wrappers for the spike sorters, including the docker container definition
 
 ## SpikeForest widgets
 
-Once you have spikeforest_widgets installed ([see below](#installing-spikeforest-widgets)), you may use the following commands to visualize recordings, sorting results, and full analyses:
+Once you have spikeforest_widgets installed ([see below](#installing-spikeforest_widgets)), you may use the following commands to visualize recordings, sorting results, and full analyses:
 
 ```bash
 sf-view-timeseries [path-to-recording]
@@ -56,7 +56,7 @@ sf-view-recording sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_T
 sf-view-analysis sha1://3f0bdafedb3757dc3eddb9d3aeccd890830ac181/analysis.json
 ```
 
-## Installing spikeForest widgets
+## Installing spikeforest_widgets
 
 Prerequisites: Python >=3.6, NodeJS >=8
 

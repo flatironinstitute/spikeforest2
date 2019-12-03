@@ -17,6 +17,9 @@ class Analysis:
         if not obj:
             self._set_error('Unable to load object: {}'.format(path))
         
+        # delete this because it takes a long time to transfer
+        del obj['StudyAnalysisResults']
+        
         self._set_state(
             object=obj
         )

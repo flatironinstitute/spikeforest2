@@ -12,7 +12,8 @@
         ],
         "scripts": [
             "bin/sf-view-recording",
-            "bin/sf-view-timeseries"
+            "bin/sf-view-timeseries",
+            "bin/sf-view-analysis"
         ]
     }
 }

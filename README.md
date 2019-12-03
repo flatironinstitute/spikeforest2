@@ -34,12 +34,14 @@ Python wrappers for the spike sorters, including the docker container definition
 
 ## SpikeForest widgets
 
-Once you have spikeforest_widgets installed ([see below](#installing-spikeforest-widgets)), you may use the following commands to visualize recordings and sorting results:
+Once you have spikeforest_widgets installed ([see below](#installing-spikeforest-widgets)), you may use the following commands to visualize recordings, sorting results, and full analyses:
 
 ```bash
 sf-view-timeseries [path-to-recording]
 
 sf-view-recording [path-to-recording]
+
+sf-view-analysis [path-to-analysis]
 
 # coming soon ...
 sf-view-sorting --sorting [path] --recording [optional-path]
@@ -50,13 +52,15 @@ For example:
 
 ```
 sf-view-recording sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_TETRODE/synth_mearec_tetrode_noise10_K10_C4/002_synth.json
+
+sf-view-analysis sha1://3f0bdafedb3757dc3eddb9d3aeccd890830ac181/analysis.json
 ```
 
 ## Installing spikeForest widgets
 
 Prerequisites: Python >=3.6, NodeJS >=8
 
-To use the spikeforest_widgets package for visualizing recordings and sorting results, you need to first install reactopya:
+To use the spikeforest_widgets package for visualizing recordings, sorting results, and full analyses, you need to first install reactopya:
 
 ```
 pip install --upgrade reactopya

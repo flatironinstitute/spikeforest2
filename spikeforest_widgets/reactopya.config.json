@@ -1,0 +1,18 @@
+{
+    "project_name": "spikeforest_widgets",
+    "version": "0.1.1",
+    "description": "Widgets for visualizing a SpikeForest analysis",
+    "author": "Jeremy Magland",
+    "license": "Apache-2.0",
+    "setup_py": {
+        "install_requires": [
+            "kachery",
+            "spikeextractors",
+            "scipy"
+        ],
+        "scripts": [
+            "bin/sf-view-recording",
+            "bin/sf-view-timeseries"
+        ]
+    }
+}

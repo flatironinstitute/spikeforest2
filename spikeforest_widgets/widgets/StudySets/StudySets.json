@@ -1,0 +1,6 @@
+{
+    "project_name": "spikeforest_widgets",
+    "type": "StudySets",
+    "description": "View analysis study sets",
+    "defaultProps": {}
+}

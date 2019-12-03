@@ -1,0 +1,6 @@
+{
+    "project_name": "spikeforest_widgets",
+    "type": "Recording",
+    "description": "View a recording from a SpikeForest analysis",
+    "defaultProps": {}
+}

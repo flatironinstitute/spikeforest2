@@ -1,0 +1,6 @@
+{
+    "project_name": "spikeforest_widgets",
+    "type": "Analysis",
+    "description": "View a SpikeForest analysis",
+    "defaultProps": {}
+}

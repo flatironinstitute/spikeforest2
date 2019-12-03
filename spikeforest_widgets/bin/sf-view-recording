@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import argparse
+import spikeforest_widgets as sw
+import kachery as ka
+
+def main():
+    parser = argparse.ArgumentParser(description='View an ephys recording')
+    parser.add_argument('path', help='Path to the ephys recording.')
+
+    args = parser.parse_args()
+
+    path = args.path
+    # e.g., sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_TETRODE/synth_mearec_tetrode_noise10_K10_C4/002_synth.json
+
+    sw.init_electron()
+
+    with ka.config(fr='default_readonly'):
+        W = sw.Recording(
+            recording=dict(
+                path=path
+            )
+        )
+        W.show()
+
+if __name__ == "__main__":
+    main()

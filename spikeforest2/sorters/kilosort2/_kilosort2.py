@@ -7,18 +7,17 @@ import hither
 @hither.container(default='docker://magland/sf-kilosort2:0.1.0')
 @hither.local_module('../../../spikeforest2_utils')
 def kilosort2(recording, sorting_out):
-    import spiketoolkit as st
-    import spikesorters as ss
-    import spikeextractors as se
-    from spikeforest2_utils import AutoRecordingExtractor
-    import kachery as ka
+    from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._kilosort2sorter import Kilosort2Sorter
+    import kachery as ka
 
     # TODO: need to think about how to deal with this
     ka.set_config(fr='default_readonly')
 
     recording = AutoRecordingExtractor(dict(path=recording), download=True)
 
+    # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 10)
+    
     # Sorting
     print('Sorting...')
     sorter = Kilosort2Sorter(
@@ -37,7 +36,7 @@ def kilosort2(recording, sorting_out):
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
     sorting = sorter.get_result()
 
-    se.MdaSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
+    AutoSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
 
 def _random_string(num_chars: int) -> str:
     chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'

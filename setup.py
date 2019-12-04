@@ -9,7 +9,9 @@ setuptools.setup(
     author_email="jmagland@flatironinstitute.org",
     description="SpikeForest -- spike sorting analysis for website -- version 2",
     packages=setuptools.find_packages() + setuptools.find_namespace_packages(include=['spikeforest2.*']),
-    scripts=[],
+    scripts=[
+        'bin/sf-sort'
+    ],
     install_requires=[
         'kachery'
     ],

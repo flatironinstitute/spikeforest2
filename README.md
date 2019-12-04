@@ -4,7 +4,9 @@ SpikeForest -- spike sorting analysis for website -- version 2
 
 ## Installation
 
-Prerequisites: you must have Docker >= 19 (or Singularity >= 3.3) installed. If you would like to use singularity (rather than docker) then set the environment variable `HITHER_USE_SINGULARITY=TRUE`.
+Because this project is under active and early-stage development, we provide instructions for installing the development version of SpikeForest2. This allows the software to be updated via `git pull && pip install -e .` in most cases.
+
+Prerequisites: We have containerized the processing methods. Therefore, to run the spike sorters and other processing, you must have Docker >=19 (or Singularity >= 3.3) installed. These versions are needed in order to provide GPU support. If you would like to use singularity (rather than docker) then set the environment variable `HITHER_USE_SINGULARITY=TRUE`.
 
 Be sure to have Python >=3.6 as well as numpy installed.
 
@@ -16,6 +18,8 @@ pip install -e .
 ```
 
 See below for instructions on [installing spikeforest_widgets](#installing-spikeforest_widgets).
+
+Hint: it is useful to operate in a conda environment or a virtualenv to avoid potential package conflicts.
 
 ## Recordings
 

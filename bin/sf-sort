@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import json
+import argparse
+import spikeforest_widgets as sw
+import hither
+import kachery as ka
+from spikeforest2 import sorters
+
+def main():
+    parser = argparse.ArgumentParser(description='Run spike sorting')
+    parser.add_argument('--algorithm', '-a', help='Name of the algorithm to use: mountainsort4, ironclust, kilosort2, spykingcircus')
+    parser.add_argument('--recording', '-r', help='Path to the recording to sort')
+    parser.add_argument('--sorting_out', '-o', help='Optional path to the output sorting file', required=False, default=None)
+    parser.add_argument('--cache', help='Optional cache to use: e.g., "local" if mongodb is installed.', required=False, default=None)
+
+    args = parser.parse_args()
+
+    algorithm = args.algorithm
+    recording_path = args.recording
+    sorting_out_path = args.sorting_out
+    cache = args.cache
+
+    with ka.config(fr='default_readonly'):
+        with hither.config(container='default', cache=cache):
+            sorting_path = sort(algorithm=algorithm, recording_path=recording_path)
+            print('SORTING: {}'.format(sorting_path))
+            if sorting_out_path is not None:
+                with open(sorting_out_path, 'w') as f:
+                    json.dump(ka.load_object(sorting_path), f, indent=4)
+
+def sort(algorithm: str, recording_path: str):
+    if not hasattr(sorters, algorithm):
+        raise Exception('Sorter not found: {}'.format(algorithm))
+    sorter = getattr(sorters, algorithm)
+    result = sorter.run(recording=recording_path, sorting_out=hither.File())
+    print('SORTING')
+    print('-------')
+    print(ka.load_object(result.outputs.sorting_out._path))
+    return ka.store_file(result.outputs.sorting_out._path, basename='sorting_out.json')
+            
+
+if __name__ == "__main__":
+    main()

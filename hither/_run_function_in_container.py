@@ -148,11 +148,10 @@ def run_function_in_container(*,
             run_outside_script = """
                 #!/bin/bash
 
-                singularity exec -e --contain \\
+                singularity exec -e \\
                     -B $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -B {temp_path}:/run_in_container \\
-                    -B /tmp:/tmp \\
-                    -B $HOME:$HOME \\
+                    --nv \\
                     {binds_str} \\
                     {container} \\
                     bash /run_in_container/run.sh

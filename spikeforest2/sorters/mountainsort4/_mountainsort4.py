@@ -1,16 +1,16 @@
+import json
 import random
 import hither
 
-@hither.function('mountainsort4', '0.3.2-w1')
+@hither.function('mountainsort4', '0.3.2-w3')
 @hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-mountainsort4:0.3.2')
 @hither.local_module('../../../spikeforest2_utils')
-def mountainsort4(recording, sorting_out):
+def mountainsort4(recording: str, sorting_out: str) -> str:
     import spiketoolkit as st
     import spikesorters as ss
-    import spikeextractors as se
-    from spikeforest2_utils import AutoRecordingExtractor
+    from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     import kachery as ka
 
     # TODO: need to think about how to deal with this
@@ -42,7 +42,7 @@ def mountainsort4(recording, sorting_out):
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
     sorting = sorter.get_result()
 
-    se.MdaSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
+    AutoSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
 
 def _random_string(num_chars: int) -> str:
     chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'

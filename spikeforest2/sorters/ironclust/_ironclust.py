@@ -7,18 +7,15 @@ import hither
 @hither.container(default='docker://magland/sf-ironclust:5.0.5')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording, sorting_out):
-    import spiketoolkit as st
-    import spikesorters as ss
-    import spikeextractors as se
-    from spikeforest2_utils import AutoRecordingExtractor
-    import kachery as ka
+    from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._ironclustsorter import IronClustSorter
+    import kachery as ka
 
     # TODO: need to think about how to deal with this
     ka.set_config(fr='default_readonly')
 
     recording = AutoRecordingExtractor(dict(path=recording), download=True)
-
+    
     # Sorting
     print('Sorting...')
     sorter = IronClustSorter(
@@ -58,7 +55,7 @@ def ironclust(recording, sorting_out):
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
     sorting = sorter.get_result()
 
-    se.MdaSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
+    AutoSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)
 
 def _random_string(num_chars: int) -> str:
     chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'

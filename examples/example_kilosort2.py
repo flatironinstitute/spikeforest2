@@ -8,7 +8,7 @@ recording_path = 'sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_T
 
 with ka.config(fr='default_readonly'):
     #with hither.config(cache='default_readwrite'):
-        with hither.config(container='default'):
+        with hither.config(container='default', gpu=True):
             result = sorters.kilosort2.run(
                 recording=recording_path,
                 sorting_out=hither.File()

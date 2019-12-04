@@ -28,7 +28,6 @@ export default class Recording extends Component {
     componentDidMount() {
         this.pythonInterface = new PythonInterface(this, config);
         this.pythonInterface.start();
-        if ((this.props.recording) && (!this.props.recording.path)) this.props.recording.path = this.props.recording.directory;
         this.pythonInterface.setState({
             recording: this.props.recording
         });

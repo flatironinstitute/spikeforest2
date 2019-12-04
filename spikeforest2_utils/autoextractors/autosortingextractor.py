@@ -103,7 +103,6 @@ class AutoSortingExtractor(se.SortingExtractor):
         if save_path is not None:
             with open(save_path, 'w') as f:
                 json.dump(sorting_obj, f, indent=4)
-        print('-----------------', sorting_obj)
         return sorting_obj
 
 class NwbSortingExtractor(se.SortingExtractor):

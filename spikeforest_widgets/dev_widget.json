@@ -1,5 +1,5 @@
 {
-    "widget_a2": {
+    "widget": {
         "type": "Analysis",
         "props": {
             "studySetsPath": "sha1://d52cfae9e066334be3f21ffb0347a7b882d45818/studysets.json"
@@ -21,7 +21,7 @@
             }
         }
     },
-    "widget": {
+    "widget_a": {
         "type": "Analysis",
         "title": "Analysis",
         "key": "Analysis",

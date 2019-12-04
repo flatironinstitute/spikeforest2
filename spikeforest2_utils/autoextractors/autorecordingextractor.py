@@ -26,6 +26,8 @@ class AutoRecordingExtractor(se.RecordingExtractor):
             if 'kachery_config' in arg:
                 ka.set_config(**arg['kachery_config'])
             path = arg.get('path', '')
+            if not path:
+                path = arg.get('directory', '')
             if path.endswith('.mda'):
                 if 'samplerate' not in arg:
                     raise Exception('Missing argument: samplerate')

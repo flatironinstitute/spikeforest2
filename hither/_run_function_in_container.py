@@ -188,9 +188,9 @@ def run_function_in_container(*,
                 container=_docker_form_of_container_string(container),
                 temp_path=temp_path
             )
-        print('-------------------------------------------------------------')
+        print('#############################################################')
         print(run_outside_script)
-        print('-------------------------------------------------------------')
+        print('#############################################################')
 
         ss = ShellScript(run_outside_script, keep_temp_files=False)
         ss.start()

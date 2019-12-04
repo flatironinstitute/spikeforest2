@@ -14,7 +14,7 @@ export default class Study extends Component {
     render() {
         const object = this.props.object || [];
         let columns = [
-            {key: 'name', label: 'Recording', onClick: (rec) => {console.log('---', rec); this.props.onOpenRecording && this.props.onOpenRecording(rec)}},
+            {key: 'name', label: 'Recording', onClick: (rec) => {this.props.onOpenRecording && this.props.onOpenRecording(rec)}},
             {key: 'directory', label: 'Directory', sha1Link: true},
             {key: 'firingsTrue', label: 'True firings', sha1Link: true},
             {key: 'sampleRateHz', label: 'Sample rate (Hz)'},

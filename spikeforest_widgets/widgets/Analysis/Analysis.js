@@ -88,14 +88,11 @@ class AnalysisWidget extends Component {
         });
     }
     _openStudySet = (studySet) => {
-        console.log('---', studySet.name);
     }
     _openStudy = (study) => {
-        console.log('--- study', study.name);
         this._openPage('study', {study: study});
     }
     _openRecording = (recording) => {
-        console.log('--- openrecording', recording);
         this._openPage('recording', {recording: recording});
     }
     _renderTopLevelWidget(key, object) {

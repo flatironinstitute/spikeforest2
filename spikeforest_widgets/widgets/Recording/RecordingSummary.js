@@ -17,7 +17,7 @@ export default class RecordingSummary extends Component {
         } = this.props;
         recording = recording || {};
         let rows = [
-            {value: recording.path || '', label: 'Recording'},
+            {value: recording.path || recording.directory || '', label: 'Recording'},
             {value: num_channels || '', label: 'Num. channels'},
             {value: num_timepoints ? Math.floor(num_timepoints / samplerate) : '', label: 'Duration (sec)'},
             {value: samplerate || '', label: 'Sampling freq. (Hz)'}

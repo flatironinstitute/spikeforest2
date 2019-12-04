@@ -25,6 +25,7 @@ export default class StudySets extends Component {
     }
     render() {
         const object = this.props.object || [];
+        console.log(object);
         return (
             <Table>
                 <TableHead>

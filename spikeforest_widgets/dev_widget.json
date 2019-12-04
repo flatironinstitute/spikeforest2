@@ -1,5 +1,11 @@
 {
-    "widget": {
+    "widget_a2": {
+        "type": "Analysis",
+        "props": {
+            "studySetsPath": "sha1://d52cfae9e066334be3f21ffb0347a7b882d45818/studysets.json"
+        }
+    },
+    "widget_r": {
         "type": "Recording",
         "props": {
             "recording": {
@@ -15,7 +21,7 @@
             }
         }
     },
-    "widget_a": {
+    "widget": {
         "type": "Analysis",
         "title": "Analysis",
         "key": "Analysis",

@@ -1,3 +1,4 @@
+import traceback
 from spikeforest2_utils import AutoRecordingExtractor
 
 class Recording:

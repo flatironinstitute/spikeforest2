@@ -18,6 +18,8 @@ class MdaRecordingExtractor(RecordingExtractor):
         self._timeseries_path = timeseries_path
         if params_path:
             self._dataset_params = ka.load_object(params_path)
+            if not self._dataset_params:
+                raise Exception('Unable to load recording params: {}'.format(params_path))
             self._samplerate = self._dataset_params['samplerate']
         else:
             self._dataset_params = dict(

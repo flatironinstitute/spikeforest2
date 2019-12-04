@@ -18,6 +18,7 @@ export default class Analysis extends Component {
         this.state = {
             // javascript state
             path: null,
+            studySetsPath: null,
             
             // python state
             object: null, // output from python or passed directly
@@ -31,7 +32,7 @@ export default class Analysis extends Component {
                 status: 'finished'
             });
         }
-        else if (this.props.path) {
+        else if ((this.props.path) || (this.props.studySetsPath)) {
             this.pythonInterface = new PythonInterface(this, config);
             this.pythonInterface.start();
             this.setState({
@@ -39,13 +40,14 @@ export default class Analysis extends Component {
                 status_message: 'Starting python backend'
             });
             this.pythonInterface.setState({
-                path: this.props.path
+                path: this.props.path,
+                studySetsPath: this.props.studySetsPath
             });
         }
         else {
             this.setState({
                 status: 'error',
-                status_message: 'Missing object or props'
+                status_message: 'Missing object or path or studySetsPath'
             });
         }
     }
@@ -179,7 +181,7 @@ class AnalysisWidget extends Component {
     _renderRecording(data) {
         return (
             <Recording
-                object={data.recording}
+                recording={data.recording}
                 reactopyaParent={this.props.reactopyaParent}
                 reactopyaChildId={'recording'}
                 {...this.handlerProps}

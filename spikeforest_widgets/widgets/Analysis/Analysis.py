@@ -8,17 +8,26 @@ class Analysis:
         self._set_status('running', 'Running Analysis')
 
         path = state.get('path', None)
-        if not path:
-            self._set_error('Missing path')
+        studySetsPath = state.get('studySetsPath', None)
+        if path is not None:
+            self._set_status('running', 'Loading object: {}'.format(path))
+            obj = ka.load_object(path=path, fr='default_readonly')
+            if not obj:
+                self._set_error('Unable to load object: {}'.format(path))
+        elif studySetsPath is not None:
+            self._set_status('running', 'Loading object: {}'.format(studySetsPath))
+            obj = ka.load_object(path=studySetsPath, fr='default_readonly')
+            if not obj:
+                self._set_error('Unable to load object: {}'.format(path))
+        else:
+            self._set_error('Missing required prop: path or studySetsPath')
             return
         
-        self._set_status('running', 'Loading object: {}'.format(path))
-        obj = ka.load_object(path=path, fr='default_readonly')
-        if not obj:
-            self._set_error('Unable to load object: {}'.format(path))
+        
         
         # delete this because it takes a long time to transfer
-        del obj['StudyAnalysisResults']
+        if 'StudyAnalysisResults' in obj:
+            del obj['StudyAnalysisResults']
         
         self._set_state(
             object=obj

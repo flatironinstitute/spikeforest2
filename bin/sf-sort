@@ -18,7 +18,7 @@ def main():
 
     algorithm = args.algorithm
     recording_path = args.recording
-    sorting_out_path = args.sorting_out
+    sorting_out_path = args.output
     cache = args.cache
 
     with ka.config(fr='default_readonly'):
@@ -33,7 +33,12 @@ def sort(algorithm: str, recording_path: str):
     if not hasattr(sorters, algorithm):
         raise Exception('Sorter not found: {}'.format(algorithm))
     sorter = getattr(sorters, algorithm)
-    result = sorter.run(recording=recording_path, sorting_out=hither.File())
+    if algorithm in ['kilosort2', 'ironclust']:
+        gpu = True
+    else:
+        gpu = False
+    with hither.config(gpu=gpu):
+        result = sorter.run(recording=recording_path, sorting_out=hither.File())
     print('SORTING')
     print('-------')
     print(ka.load_object(result.outputs.sorting_out._path))

@@ -19,7 +19,8 @@ def run_function_in_container(*,
         output_file_keys: list,
         output_file_extensions: dict,
         additional_files: list=[],
-        local_modules: list=[]
+        local_modules: list=[],
+        gpu: bool=False
     ) -> Any:
     # generate source code
     with TemporaryDirectory(remove=True, prefix='tmp_hither_run_in_container_' + name) as temp_path:
@@ -145,27 +146,34 @@ def run_function_in_container(*,
             raise Exception('You must set the environment variable: KACHERY_STORAGE_DIR')
 
         if os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
+            if gpu:
+                gpu_opt = '--nv'
+            else:
+                gpu_opt = ''
             run_outside_script = """
                 #!/bin/bash
 
-                singularity exec -e \\
+                singularity exec -e {gpu_opt} \\
                     -B $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -B {temp_path}:/run_in_container \\
-                    --nv \\
                     {binds_str} \\
                     {container} \\
                     bash /run_in_container/run.sh
             """.format(
+                gpu_opt=gpu_opt,
                 binds_str=' '.join(['-B {}:{}'.format(a, b) for a, b in binds.items()]),
                 container=container,
                 temp_path=temp_path
             )
         else:
+            if gpu:
+                gpu_opt = '--gpus all'
+            else:
+                gpu_opt = ''
             run_outside_script = """
                 #!/bin/bash
 
-                docker run -it \\
-                    --gpus all \\
+                docker run -it {gpu_opt} \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -v {temp_path}:/run_in_container \\
@@ -175,10 +183,14 @@ def run_function_in_container(*,
                     {container} \\
                     bash /run_in_container/run.sh
             """.format(
+                gpu_opt=gpu_opt,
                 binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
                 container=_docker_form_of_container_string(container),
                 temp_path=temp_path
             )
+        print('-------------------------------------------------------------')
+        print(run_outside_script)
+        print('-------------------------------------------------------------')
 
         ss = ShellScript(run_outside_script, keep_temp_files=False)
         ss.start()

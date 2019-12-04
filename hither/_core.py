@@ -15,18 +15,21 @@ from ._run_function_in_container import run_function_in_container
 _global_config = ETConf(
     defaults=dict(
         container=None,
-        cache=None
+        cache=None,
+        gpu=None
     )
 )
 
 class config:
     def __init__(self,
         container: Union[str, None]=None,
-        cache: Union[str, dict, None]=None
+        cache: Union[str, dict, None]=None,
+        gpu: Union[bool, None]=None
     ):
         self._config = dict(
             container=container,
-            cache=cache
+            cache=cache,
+            gpu=gpu
         )
         self._old_config = None
     def __enter__(self):
@@ -37,9 +40,10 @@ class config:
 
 def set_config(
         container: Union[str, None]=None,
-        cache: Union[str, dict, None]=None
+        cache: Union[str, dict, None]=None,
+        gpu: Union[bool, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache)
+    _global_config.set_config(container=container, cache=cache, gpu=gpu)
 
 def get_config() -> dict:
     return _global_config.get_config()
@@ -51,6 +55,7 @@ def function(name, version):
             config = _global_config.get_config()
             _container = config['container']
             _cache = config['cache']
+            _gpu = config['gpu']
             hash_object = dict(
                 api_version='0.1.0',
                 name=name,
@@ -177,7 +182,8 @@ def function(name, version):
                         output_file_extensions=output_file_extensions,
                         container=_container,
                         keyword_args=resolved_kwargs,
-                        local_modules=local_modules
+                        local_modules=local_modules,
+                        gpu=_gpu
                     )
 
             result = Result()

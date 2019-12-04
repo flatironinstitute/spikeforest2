@@ -10,7 +10,7 @@ from spikeforest2 import sorters
 def main():
     parser = argparse.ArgumentParser(description='Run spike sorting')
     parser.add_argument('recording', help='Path to the recording to sort')
-    parser.add_argument('--algorithm', '-a', help='Name of the algorithm to use: mountainsort4, ironclust, kilosort2, spykingcircus')
+    parser.add_argument('--algorithm', '-a', help='Name of the algorithm to use: mountainsort4, ironclust, kilosort2, spykingcircus', required=True)
     parser.add_argument('--output', '-o', help='Optional path to the output sorting file', required=False, default=None)
     parser.add_argument('--cache', help='Optional cache to use: e.g., "local" if mongodb is installed.', required=False, default=None)
 

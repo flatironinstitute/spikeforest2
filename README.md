@@ -60,6 +60,8 @@ sf-view-recording sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_T
 sf-view-analysis sha1://3f0bdafedb3757dc3eddb9d3aeccd890830ac181/analysis.json
 ```
 
+In addition to the desktop, it is also possible to view these widgets in Jupyter notebooks, colab notebooks, or on a website.
+
 ## Installing spikeforest_widgets
 
 Prerequisites: Python >=3.6, NodeJS >=8

@@ -9,13 +9,14 @@ import time
 from copy import deepcopy
 from ._etconf import ETConf
 
-from ._consolecapture import ConsoleCapture
+from spikeforest2_utils import ConsoleCapture
 from ._run_function_in_container import run_function_in_container
 
 _global_config = ETConf(
     defaults=dict(
         container=None,
         cache=None,
+        force_run=None,
         gpu=None
     )
 )
@@ -24,11 +25,13 @@ class config:
     def __init__(self,
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
+        force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None
     ):
         self._config = dict(
             container=container,
             cache=cache,
+            force_run=force_run,
             gpu=gpu
         )
         self._old_config = None
@@ -41,20 +44,22 @@ class config:
 def set_config(
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
+        force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, gpu=gpu)
+    _global_config.set_config(container=container, cache=cache, force_run=force_run, gpu=gpu)
 
 def get_config() -> dict:
     return _global_config.get_config()
 
 def function(name, version):
     def wrap(f):
-        def run(_force_run=False, **kwargs):
+        def run(**kwargs):
             import kachery as ka
             config = _global_config.get_config()
             _container = config['container']
             _cache = config['cache']
+            _force_run = config['force_run']
             _gpu = config['gpu']
             hash_object = dict(
                 api_version='0.1.0',
@@ -157,23 +162,26 @@ def function(name, version):
                             if oname in resolved_kwargs:
                                 shutil.copyfile(getattr(result0.outputs, oname)._path, resolved_kwargs[oname])
                         _handle_temporary_outputs([getattr(result0.outputs, oname) for oname in output_file_keys])
-                        if result0.runtime_info['stdout']:
-                            sys.stdout.write(result0.runtime_info['stdout'])
-                        if result0.runtime_info['stderr']:
-                            sys.stderr.write(result0.runtime_info['stderr'])
+                        
                         print('===== Hither: using cached result for {}'.format(name))
+                        if result0.runtime_info['console_out']:
+                            sys.stdout.write(result0.runtime_info['console_out'])
+                        print('=================================================================================')
+                        print('')
                         return result0
 
-            with ConsoleCapture() as cc:
-                if _container is None:
+            if _container is None:
+                with ConsoleCapture() as cc:
                     returnval = f(**resolved_kwargs)
-                else:
+                runtime_info = cc.runtime_info()
+            else:
+                with ConsoleCapture() as cc:
                     if hasattr(f, '_hither_containers'):
                         if _container in getattr(f, '_hither_containers'):
                             _container = getattr(f, '_hither_containers')[_container]
                     local_modules = getattr(f, '_hither_local_modules', [])
                     print('===== Hither: running {} in container: {}'.format(name, _container))
-                    returnval = run_function_in_container(
+                    returnval, runtime_info = run_function_in_container(
                         name=name,
                         function=f,
                         input_file_keys=input_file_keys,
@@ -185,15 +193,18 @@ def function(name, version):
                         local_modules=local_modules,
                         gpu=_gpu
                     )
+                runtime_info['container_runtime_info'] = cc.runtime_info()
+                
 
             result = Result()
             result.outputs = Outputs()
             for oname in hash_object['output_files'].keys():
                 setattr(result.outputs, oname, kwargs[k])
                 result._output_names.append(oname)
-            result.runtime_info = cc.runtime_info()
+            result.runtime_info = runtime_info
             result.hash_object = hash_object
             result.retval = returnval
+            result.version = version
             _handle_temporary_outputs([getattr(result.outputs, oname) for oname in output_file_keys])
             if _cache is not None:
                 _store_result(serialized_result=_serialize_result(result), cache=_cache)
@@ -287,6 +298,7 @@ def _store_result(*, serialized_result, cache):
 
 class Result():
     def __init__(self):
+        self.version = None
         self.hash_object = None
         self.runtime_info = None
         self.retval = None
@@ -303,12 +315,14 @@ def _serialize_result(result):
     ret['runtime_info'] = result.runtime_info
     ret['runtime_info']['stdout'] = ka.store_text(ret['runtime_info']['stdout'])
     ret['runtime_info']['stderr'] = ka.store_text(ret['runtime_info']['stderr'])
+    ret['runtime_info']['console_out'] = ka.store_text(ret['runtime_info'].get('console_out', ''))
 
     for oname in result._output_names:
         path = getattr(result.outputs, oname)._path
         ret['output_files'][oname] = ka.store_file(path)
 
     ret['retval'] = result.retval
+    ret['version'] = result.version
     ret['hash_object'] = result.hash_object
     ret['hash'] = ka.get_object_hash(result.hash_object)
     return ret
@@ -320,9 +334,12 @@ def _deserialize_result(obj):
     result.runtime_info = obj['runtime_info']
     result.runtime_info['stdout'] = ka.load_text(result.runtime_info['stdout'])
     result.runtime_info['stderr'] = ka.load_text(result.runtime_info['stderr'])
+    result.runtime_info['console_out'] = ka.load_text(result.runtime_info.get('console_out', ''))
     if result.runtime_info['stdout'] is None:
         return None
     if result.runtime_info['stderr'] is None:
+        return None
+    if result.runtime_info['console_out'] is None:
         return None
     
     output_files = obj['output_files']
@@ -334,6 +351,7 @@ def _deserialize_result(obj):
         result._output_names.append(oname)
     
     result.retval = obj['retval']
+    result.version = obj.get('version', None)
     result.hash_object = obj['hash_object']
     return result
 

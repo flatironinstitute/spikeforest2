@@ -2,26 +2,32 @@ from typing import Any
 import sys
 import time
 import io
-import os
 
-class Logger2():
-    def __init__(self, file1: Any, file2: Any):
+class Logger3():
+    def __init__(self, file1: Any, file2: Any, file3: Any):
         self.file1 = file1
         self.file2 = file2
+        self.file3 = file3
 
     def write(self, data: str) -> None:
         self.file1.write(data)
         self.file2.write(data)
+        self.file3.write(data)
 
     def flush(self) -> None:
         self.file1.flush()
         self.file2.flush()
+        self.file3.flush()
+    
+    def fileno(self) -> int:
+        return -1
 
 
 class ConsoleCapture():
     def __init__(self):
         self._stdout = None
         self._stderr = None
+        self._console_out = None
         self._time_start = None
         self._time_stop = None
         self._original_stdout = sys.stdout
@@ -38,11 +44,14 @@ class ConsoleCapture():
         self._time_start = time.time()
         self._stdout = io.StringIO()
         self._stderr = io.StringIO()
-        sys.stdout = Logger2(self._stdout, self._original_stdout)
-        sys.stderr = Logger2(self._stderr, self._original_stderr)
+        self._console_out = io.StringIO()
+        sys.stdout = Logger3(self._stdout, self._console_out, self._original_stdout)
+        sys.stderr = Logger3(self._stderr, self._console_out, self._original_stderr)
 
     def _stop_capturing(self) -> None:
         self._time_stop = time.time()
+        sys.stdout.flush()
+        sys.stderr.flush()
         sys.stdout = self._original_stdout
         sys.stderr = self._original_stderr
 
@@ -52,5 +61,6 @@ class ConsoleCapture():
             start_time=self._time_start - 0,
             end_time=self._time_stop - 0,
             stdout=self._stdout.getvalue(),
-            stderr=self._stderr.getvalue()
+            stderr=self._stderr.getvalue(),
+            console_out=self._console_out.getvalue()
         )

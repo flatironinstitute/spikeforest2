@@ -6,7 +6,6 @@ import os
 import time
 from typing import Optional, List, Any
 
-
 class ShellScript():
     def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False):
         lines = script.splitlines()
@@ -48,7 +47,7 @@ class ShellScript():
         if self._script_path is not None:
             script_path = self._script_path
         else:
-            tempdir = tempfile.mkdtemp(prefix='tmp_shellscript')
+            tempdir = tempfile.mkdtemp(prefix='tmp_shellscript_')
             script_path = os.path.join(tempdir, 'script.sh')
             self._dirs_to_remove.append(tempdir)
         self.write(script_path)
@@ -59,6 +58,7 @@ class ShellScript():
         self._process = subprocess.Popen(cmd)
 
     def wait(self, timeout=None) -> Optional[int]:
+        timer = time.time()
         if not self.isRunning():
             return self.returnCode()
         assert self._process is not None, "Unexpected self._process is None even though it is running."

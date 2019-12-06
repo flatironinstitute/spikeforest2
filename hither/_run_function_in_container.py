@@ -1,5 +1,6 @@
 import os
-from typing import Any
+from sys import stdout
+from typing import Any, List, Tuple, Union
 import json
 import fnmatch
 import inspect
@@ -14,20 +15,20 @@ def run_function_in_container(*,
         name: str, function,
         container: str,
         keyword_args: dict,
-        input_file_keys: list,
+        input_file_keys: List[str],
         input_file_extensions: dict,
-        output_file_keys: list,
+        output_file_keys: List[str],
         output_file_extensions: dict,
-        additional_files: list=[],
-        local_modules: list=[],
+        additional_files: List[str]=[],
+        local_modules: List[str]=[],
         gpu: bool=False
-    ) -> Any:
+    ) -> Tuple[Union[Any, None], dict]:
     # generate source code
-    with TemporaryDirectory(remove=True, prefix='tmp_hither_run_in_container_' + name) as temp_path:
+    with TemporaryDirectory(remove=True, prefix='tmp_hither_run_in_container_' + name + '_') as temp_path:
         try:
             function_source_fname = os.path.abspath(inspect.getsourcefile(function))
         except:
-            raise('Unable to get source file for function {}. Cannot run in a container.'.format(name))
+            raise Exception('Unable to get source file for function {}. Cannot run in a container.'.format(name))
 
         function_source_dirname = os.path.dirname(function_source_fname)
         function_source_basename = os.path.basename(function_source_fname)
@@ -43,8 +44,8 @@ def run_function_in_container(*,
                 function_source_basename_noext, name)
         ))
         hither_dir = os.path.dirname(os.path.realpath(__file__))
-        kachery_dir = os.path.dirname(os.path.realpath(__file__))
-        local_module_paths = []
+        # kachery_dir = os.path.dirname(os.path.realpath(__file__))
+        local_module_paths: List[str] = []
         for lm in local_modules:
             if os.path.isabs(lm):
                 local_module_paths.append(lm)
@@ -93,13 +94,15 @@ def run_function_in_container(*,
             from function_src import {function_name}
             import sys
             import json
+            from spikeforest2_utils import ConsoleCapture
 
             def main():
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
-                retval = {function_name}(**kwargs)
-                with open('/run_in_container/retval.json', 'w') as f:
-                    json.dump(dict(retval=retval), f)
+                with ConsoleCapture() as cc:
+                    retval = {function_name}(**kwargs)
+                with open('/run_in_container/result.json', 'w') as f:
+                    json.dump(dict(retval=retval, runtime_info=cc.runtime_info()), f)
             
             def _configure_kachery():
                 try:
@@ -145,6 +148,7 @@ def run_function_in_container(*,
         if not os.getenv('KACHERY_STORAGE_DIR'):
             raise Exception('You must set the environment variable: KACHERY_STORAGE_DIR')
 
+        # fancy_command = 'bash -c "((bash /run_in_container/run.sh | tee /run_in_container/stdout.txt) 3>&1 1>&2 2>&3 | tee /run_in_container/stderr.txt) 3>&1 1>&2 1>&3 | tee /run_in_container/console_out.txt"'
         if os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
             if gpu:
                 gpu_opt = '--nv'
@@ -170,6 +174,7 @@ def run_function_in_container(*,
                 gpu_opt = '--gpus all'
             else:
                 gpu_opt = ''
+            # May not want to use -t below as it has the potential to mess up line feeds in the parent process!
             run_outside_script = """
                 #!/bin/bash
 
@@ -196,17 +201,33 @@ def run_function_in_container(*,
         ss.start()
         retcode = ss.wait()
 
+
+
         if retcode != 0:
             raise Exception('Non-zero exit code ({}) running {} in container {}'.format(retcode, name, container))
 
-        with open(os.path.join(temp_path, 'retval.json')) as f:
+        with open(os.path.join(temp_path, 'result.json')) as f:
             obj = json.load(f)
         retval = obj['retval']
+        runtime_info = obj['runtime_info']
+
+        # with open(temp_path + '/stdout.txt', 'r') as f:
+        #     stdout = f.read()
+        # with open(temp_path + '/stderr.txt', 'r') as f:
+        #     stderr = f.read()
+        # with open(temp_path + '/console_out.txt', 'r') as f:
+        #     console_out = f.read()
+        # print('======================================== stdout')
+        # print(stdout)
+        # print('======================================== stderr')
+        # print(stderr)
+        # print('======================================== console_out')
+        # print(console_out)
 
         for a, b in outputs_to_copy.items():
             shutil.copyfile(a, b)
 
-        return retval
+        return retval, runtime_info
 
 def _docker_form_of_container_string(container):
     if container.startswith('docker://'):

@@ -23,26 +23,11 @@ def main():
 
     with ka.config(fr='default_readonly'):
         with hither.config(container='default', cache=cache):
-            sorting_path = sort(algorithm=algorithm, recording_path=recording_path)
+            sorting_path = sorters.sort(algorithm=algorithm, recording_path=recording_path)
             print('SORTING: {}'.format(sorting_path))
             if sorting_out_path is not None:
                 with open(sorting_out_path, 'w') as f:
                     json.dump(ka.load_object(sorting_path), f, indent=4)
-
-def sort(algorithm: str, recording_path: str):
-    if not hasattr(sorters, algorithm):
-        raise Exception('Sorter not found: {}'.format(algorithm))
-    sorter = getattr(sorters, algorithm)
-    if algorithm in ['kilosort2', 'ironclust']:
-        gpu = True
-    else:
-        gpu = False
-    with hither.config(gpu=gpu):
-        result = sorter.run(recording=recording_path, sorting_out=hither.File())
-    print('SORTING')
-    print('==============================================')
-    print(ka.load_object(result.outputs.sorting_out._path))
-    return ka.store_file(result.outputs.sorting_out._path, basename='sorting_out.json')
             
 
 if __name__ == "__main__":

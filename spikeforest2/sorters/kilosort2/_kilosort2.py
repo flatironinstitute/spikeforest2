@@ -2,11 +2,10 @@ import random
 import hither
 
 @hither.function('kilosort2', '0.1.0-w1')
-@hither.input_file('recording', kachery_resolve=False)
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-kilosort2:0.1.0')
 @hither.local_module('../../../spikeforest2_utils')
-def kilosort2(recording, sorting_out):
+def kilosort2(recording_path, sorting_out):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._kilosort2sorter import Kilosort2Sorter
     import kachery as ka
@@ -14,7 +13,7 @@ def kilosort2(recording, sorting_out):
     # TODO: need to think about how to deal with this
     ka.set_config(fr='default_readonly')
 
-    recording = AutoRecordingExtractor(dict(path=recording), download=True)
+    recording = AutoRecordingExtractor(dict(path=recording_path), download=True)
 
     # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 10)
     

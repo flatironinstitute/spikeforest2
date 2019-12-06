@@ -5,7 +5,7 @@ import numpy as np
 from .mdaextractors import MdaSortingExtractor
 
 class AutoSortingExtractor(se.SortingExtractor):
-    def __init__(self, arg):
+    def __init__(self, arg, samplerate=None):
         super().__init__()
         self._hash = None
         if isinstance(arg, se.SortingExtractor):
@@ -13,19 +13,24 @@ class AutoSortingExtractor(se.SortingExtractor):
             self.copy_unit_properties(sorting=self._sorting)
         else:
             self._sorting = None
-            if 'kachery_config' in arg:
-                ka.set_config(**arg['kachery_config'])
-            if 'path' in arg:
-                path = arg['path']
-                if ka.get_file_info(path):
-                    file_path = ka.load_file(path)
-                    if not file_path:
-                        raise Exception('Unable to realize file: {}'.format(path))
-                    self._init_from_file(file_path, original_path=path, kwargs=arg)
+            if type(arg) == str:
+                arg = dict(path=arg, samplerate=samplerate)
+            if type(arg) == dict:
+                if 'kachery_config' in arg:
+                    ka.set_config(**arg['kachery_config'])
+                if 'path' in arg:
+                    path = arg['path']
+                    if ka.get_file_info(path):
+                        file_path = ka.load_file(path)
+                        if not file_path:
+                            raise Exception('Unable to realize file: {}'.format(path))
+                        self._init_from_file(file_path, original_path=path, kwargs=arg)
+                    else:
+                        raise Exception('Not a file: {}'.format(path))
                 else:
-                    raise Exception('Not a file: {}'.format(path))
+                    raise Exception('Unable to initialize sorting extractor')
             else:
-                raise Exception('Unable to initialize sorting extractor')
+                raise Exception('Unable to initialize sorting extractor (unexpected type)')
     def _init_from_file(self, path: str, *, original_path: str, kwargs: dict):
         if original_path.endswith('.mda'):
             if 'paramsPath' in kwargs:

@@ -10,7 +10,7 @@ with ka.config(fr='default_readonly'):
     #with hither.config(cache='default_readwrite'):
         with hither.config(container='default', gpu=True):
             result = sorters.ironclust.run(
-                recording=recording_path,
+                recording_path=recording_path,
                 sorting_out=hither.File()
             )
 

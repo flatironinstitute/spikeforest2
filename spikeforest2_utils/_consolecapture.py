@@ -1,33 +1,39 @@
-from typing import Any
+from typing import Any, Dict, Union
 import sys
 import time
 import io
 
-class Logger3():
-    def __init__(self, file1: Any, file2: Any, file3: Any):
-        self.file1 = file1
-        self.file2 = file2
-        self.file3 = file3
+class CustomStdout():
+    def __init__(self, label, console_out, original_stdout, stderr=False):
+        self._label = label
+        self._console_out = console_out
+        self._original_stdout = original_stdout
+        self._stderr = False
 
     def write(self, data: str) -> None:
-        self.file1.write(data)
-        self.file2.write(data)
-        self.file3.write(data)
-
+        lines = data.splitlines(keepends=False)
+        for line in lines:
+            if line:
+                a: Dict[Union[float, str, bool]] = dict(
+                    timestamp=time.time() - 0,
+                    text=line
+                )
+                if self._stderr:
+                    a['stderr'] = True
+                self._console_out['lines'].append(a)
+                print('{} {}: {}'.format(self._label, _fmt_time(a['timestamp']), a['text']), file=self._original_stdout)
+        
     def flush(self) -> None:
-        self.file1.flush()
-        self.file2.flush()
-        self.file3.flush()
-    
-    def fileno(self) -> int:
-        return -1
+        pass
 
+def _fmt_time(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(time.time()).isoformat()
 
 class ConsoleCapture():
-    def __init__(self):
-        self._stdout = None
-        self._stderr = None
-        self._console_out = None
+    def __init__(self, label=''):
+        self._label = label
+        self._console_out = dict(label=label, lines=[])
         self._time_start = None
         self._time_stop = None
         self._original_stdout = sys.stdout
@@ -42,11 +48,8 @@ class ConsoleCapture():
 
     def _start_capturing(self) -> None:
         self._time_start = time.time()
-        self._stdout = io.StringIO()
-        self._stderr = io.StringIO()
-        self._console_out = io.StringIO()
-        sys.stdout = Logger3(self._stdout, self._console_out, self._original_stdout)
-        sys.stderr = Logger3(self._stderr, self._console_out, self._original_stderr)
+        sys.stdout = CustomStdout(self._label, self._console_out, self._original_stdout)
+        sys.stderr = CustomStdout(self._label, self._console_out, self._original_stderr, stderr=True)
 
     def _stop_capturing(self) -> None:
         self._time_stop = time.time()
@@ -60,7 +63,5 @@ class ConsoleCapture():
         return dict(
             start_time=self._time_start - 0,
             end_time=self._time_stop - 0,
-            stdout=self._stdout.getvalue(),
-            stderr=self._stderr.getvalue(),
-            console_out=self._console_out.getvalue()
+            console_out=self._console_out
         )

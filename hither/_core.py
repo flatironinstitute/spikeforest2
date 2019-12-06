@@ -92,7 +92,7 @@ def function(name, version):
                 iname = input_file['name']
                 if iname not in kwargs or kwargs[iname] is None:
                     if input_file['required']:
-                        raise Exception('Missing required input file: {}'.format(iname))
+                        raise Exception('Missing required input file: "{}"'.format(iname))
                 else:
                     x = kwargs[iname]
                     # a hither File object
@@ -164,18 +164,20 @@ def function(name, version):
                         _handle_temporary_outputs([getattr(result0.outputs, oname) for oname in output_file_keys])
                         
                         print('===== Hither: using cached result for {}'.format(name))
-                        if result0.runtime_info['console_out']:
-                            sys.stdout.write(result0.runtime_info['console_out'])
+                        console_out = result0.runtime_info.get('console_out', None)
+                        if console_out:
+                            for console_line in result0.runtime_info['console_out']['lines']:
+                                print('{} {}: {}'.format(console_out.get('label', ''), _fmt_time(console_line['timestamp']), console_line['text']))
                         print('=================================================================================')
                         print('')
                         return result0
 
             if _container is None:
-                with ConsoleCapture() as cc:
+                with ConsoleCapture(name) as cc:
                     returnval = f(**resolved_kwargs)
                 runtime_info = cc.runtime_info()
             else:
-                with ConsoleCapture() as cc:
+                with ConsoleCapture(name) as cc:
                     if hasattr(f, '_hither_containers'):
                         if _container in getattr(f, '_hither_containers'):
                             _container = getattr(f, '_hither_containers')[_container]
@@ -205,6 +207,7 @@ def function(name, version):
             result.hash_object = hash_object
             result.retval = returnval
             result.version = version
+            result.container = _container
             _handle_temporary_outputs([getattr(result.outputs, oname) for oname in output_file_keys])
             if _cache is not None:
                 _store_result(serialized_result=_serialize_result(result), cache=_cache)
@@ -212,6 +215,10 @@ def function(name, version):
         setattr(f, 'run', run)
         return f
     return wrap
+
+def _fmt_time(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(t).isoformat()
 
 def _handle_temporary_outputs(outputs):
     import kachery as ka
@@ -299,6 +306,7 @@ def _store_result(*, serialized_result, cache):
 class Result():
     def __init__(self):
         self.version = None
+        self.container = None
         self.hash_object = None
         self.runtime_info = None
         self.retval = None
@@ -313,9 +321,7 @@ def _serialize_result(result):
     ret['name'] = 'hither_result'
 
     ret['runtime_info'] = result.runtime_info
-    ret['runtime_info']['stdout'] = ka.store_text(ret['runtime_info']['stdout'])
-    ret['runtime_info']['stderr'] = ka.store_text(ret['runtime_info']['stderr'])
-    ret['runtime_info']['console_out'] = ka.store_text(ret['runtime_info'].get('console_out', ''))
+    ret['runtime_info']['console_out'] = ka.store_object(ret['runtime_info'].get('console_out', ''))
 
     for oname in result._output_names:
         path = getattr(result.outputs, oname)._path
@@ -323,6 +329,7 @@ def _serialize_result(result):
 
     ret['retval'] = result.retval
     ret['version'] = result.version
+    ret['container'] = result.container
     ret['hash_object'] = result.hash_object
     ret['hash'] = ka.get_object_hash(result.hash_object)
     return ret
@@ -332,13 +339,7 @@ def _deserialize_result(obj):
     result = Result()
     
     result.runtime_info = obj['runtime_info']
-    result.runtime_info['stdout'] = ka.load_text(result.runtime_info['stdout'])
-    result.runtime_info['stderr'] = ka.load_text(result.runtime_info['stderr'])
-    result.runtime_info['console_out'] = ka.load_text(result.runtime_info.get('console_out', ''))
-    if result.runtime_info['stdout'] is None:
-        return None
-    if result.runtime_info['stderr'] is None:
-        return None
+    result.runtime_info['console_out'] = ka.load_object(result.runtime_info.get('console_out', ''))
     if result.runtime_info['console_out'] is None:
         return None
     
@@ -352,6 +353,7 @@ def _deserialize_result(obj):
     
     result.retval = obj['retval']
     result.version = obj.get('version', None)
+    result.container = obj.get('container', None)
     result.hash_object = obj['hash_object']
     return result
 

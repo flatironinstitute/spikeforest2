@@ -149,7 +149,7 @@ def is_url(path):
     return path.startswith('http://') or path.startswith('https://') or path.startswith(
         'kbucket://') or path.startswith('sha1://') or path.startswith('sha1dir://')
 
-def _read_header(path):
+def _read_header(path, verbose=True):
     bytes0 = ka.load_bytes(path, start=0, end=200)
     if bytes0 is None:
         ka.set_config(fr='default_readonly')
@@ -165,7 +165,8 @@ def _read_header(path):
             uses64bitdims = True
             num_dims = -num_dims
         if (num_dims < 1) or (num_dims > 6):  # allow single dimension as of 12/6/17
-            print("Invalid number of dimensions: {}".format(num_dims))
+            if verbose:
+                print("Invalid number of dimensions: {}".format(num_dims))
             f.close()
             return None
         dims = []
@@ -182,7 +183,8 @@ def _read_header(path):
                 dims.append(tmp0)
         dt = _dt_from_dt_code(dt_code)
         if dt is None:
-            print("Invalid data type code: {}".format(dt_code))
+            if verbose:
+                print("Invalid data type code: {}".format(dt_code))
             f.close()
             return None
         H = MdaHeader(dt, dims)
@@ -192,7 +194,8 @@ def _read_header(path):
         f.close()
         return H
     except Exception as e:  # catch *all* exceptions
-        print(e)
+        if verbose:
+            print(e)
         f.close()
         return None
 
@@ -253,10 +256,10 @@ def get_num_bytes_per_entry_from_dt(dt):
     return None
 
 
-def readmda_header(path):
+def readmda_header(path, *, verbose=True):
     if (file_extension(path) == '.npy'):
         raise Exception('Cannot read mda header for .npy file.')
-    return _read_header(path)
+    return _read_header(path, verbose=verbose)
 
 
 def _write_header(path, H, rewrite=False):

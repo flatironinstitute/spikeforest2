@@ -4,7 +4,7 @@ from spikeextractors import SortingExtractor
 import kachery as ka
 import json
 import numpy as np
-from .mdaio import DiskReadMda, readmda, writemda32, writemda64, writemda, appendmda
+from .mdaio import DiskReadMda, readmda, readmda_header, writemda32, writemda64, writemda, appendmda
 import os
 
 
@@ -146,6 +146,16 @@ class MdaSortingExtractor(SortingExtractor):
             firings=ka.get_file_hash(self._firings_path),
             samplerate=self._sampling_frequency
         ))
+    
+    @staticmethod
+    def can_read(firings_file: str) -> bool:
+        try:
+            header = readmda_header(firings_file, verbose=False)
+        except:
+            return False
+        if header is not None and header.num_dims == 2:
+            return True
+        return False
 
     @staticmethod
     def write_sorting(sorting, save_path):

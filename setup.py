@@ -13,7 +13,8 @@ setuptools.setup(
         'bin/sf-sort'
     ],
     install_requires=[
-        'kachery'
+        'kachery',
+        'python-frontmatter'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",

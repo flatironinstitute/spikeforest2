@@ -99,7 +99,7 @@ def run_function_in_container(*,
             def main():
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
-                with ConsoleCapture() as cc:
+                with ConsoleCapture('{function_name}') as cc:
                     retval = {function_name}(**kwargs)
                 with open('/run_in_container/result.json', 'w') as f:
                     json.dump(dict(retval=retval, runtime_info=cc.runtime_info()), f)
@@ -179,6 +179,7 @@ def run_function_in_container(*,
                 #!/bin/bash
 
                 docker run -it {gpu_opt} \\
+                    -v /etc/localtime:/etc/localtime:ro \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -v {temp_path}:/run_in_container \\

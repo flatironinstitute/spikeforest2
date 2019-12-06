@@ -32,7 +32,7 @@ class AutoSortingExtractor(se.SortingExtractor):
             else:
                 raise Exception('Unable to initialize sorting extractor (unexpected type)')
     def _init_from_file(self, path: str, *, original_path: str, kwargs: dict):
-        if original_path.endswith('.mda'):
+        if MdaSortingExtractor.can_read(firings_file=path):
             if 'paramsPath' in kwargs:
                 params = ka.load_object(kwargs['paramsPath'])
                 samplerate = params['samplerate']
@@ -67,48 +67,49 @@ class AutoSortingExtractor(se.SortingExtractor):
         return self._sorting.get_sampling_frequency()
     
     @staticmethod
-    def write_sorting(sorting, save_path, write_primary_channels=False):
-        print('write sorting')
-        unit_ids = sorting.get_unit_ids()
-        times_list = []
-        labels_list = []
-        primary_channels_list = []
-        for unit_id in unit_ids:
-            times = sorting.get_unit_spike_train(unit_id=unit_id)
-            times_list.append(times)
-            labels_list.append(np.ones(times.shape) * unit_id)
-            if write_primary_channels:
-                if 'max_channel' in sorting.get_unit_property_names(unit_id):
-                    primary_channels_list.append([sorting.get_unit_property(unit_id, 'max_channel')]*times.shape[0])
-                else:
-                    raise ValueError(
-                        "Unable to write primary channels because 'max_channel' spike feature not set in unit " + str(
-                            unit_id))
-            else:
-                primary_channels_list.append(np.zeros(times.shape))
-        all_times = _concatenate(times_list)
-        all_labels = _concatenate(labels_list)
-        all_primary_channels = _concatenate(primary_channels_list)
-        sort_inds = np.argsort(all_times)
-        all_times = all_times[sort_inds]
-        all_labels = all_labels[sort_inds]
-        all_primary_channels = all_primary_channels[sort_inds]
-        L = len(all_times)
-        firings = np.zeros((3, L))
-        firings[0, :] = all_primary_channels
-        firings[1, :] = all_times
-        firings[2, :] = all_labels
+    def write_sorting(sorting, save_path):
+        MdaSortingExtractor.write_sorting(sorting=sorting, save_path=save_path)
 
-        firings_path = ka.store_npy(array=firings, basename='firings.npy')
-        sorting_obj = _json_serialize(dict(
-            firings=firings_path,
-            samplerate=sorting.get_sampling_frequency(),
-            unit_ids=unit_ids,
-        ))
-        if save_path is not None:
-            with open(save_path, 'w') as f:
-                json.dump(sorting_obj, f, indent=4)
-        return sorting_obj
+        # unit_ids = sorting.get_unit_ids()
+        # times_list = []
+        # labels_list = []
+        # primary_channels_list = []
+        # for unit_id in unit_ids:
+        #     times = sorting.get_unit_spike_train(unit_id=unit_id)
+        #     times_list.append(times)
+        #     labels_list.append(np.ones(times.shape) * unit_id)
+        #     if write_primary_channels:
+        #         if 'max_channel' in sorting.get_unit_property_names(unit_id):
+        #             primary_channels_list.append([sorting.get_unit_property(unit_id, 'max_channel')]*times.shape[0])
+        #         else:
+        #             raise ValueError(
+        #                 "Unable to write primary channels because 'max_channel' spike feature not set in unit " + str(
+        #                     unit_id))
+        #     else:
+        #         primary_channels_list.append(np.zeros(times.shape))
+        # all_times = _concatenate(times_list)
+        # all_labels = _concatenate(labels_list)
+        # all_primary_channels = _concatenate(primary_channels_list)
+        # sort_inds = np.argsort(all_times)
+        # all_times = all_times[sort_inds]
+        # all_labels = all_labels[sort_inds]
+        # all_primary_channels = all_primary_channels[sort_inds]
+        # L = len(all_times)
+        # firings = np.zeros((3, L))
+        # firings[0, :] = all_primary_channels
+        # firings[1, :] = all_times
+        # firings[2, :] = all_labels
+        #
+        # firings_path = ka.store_npy(array=firings, basename='firings.npy')
+        # sorting_obj = _json_serialize(dict(
+        #     firings=firings_path,
+        #     samplerate=sorting.get_sampling_frequency(),
+        #     unit_ids=unit_ids,
+        # ))
+        # if save_path is not None:
+        #     with open(save_path, 'w') as f:
+        #         json.dump(sorting_obj, f, indent=4)
+        # return sorting_obj
 
 class NwbSortingExtractor(se.SortingExtractor):
     def __init__(self, *, path, nwb_path):

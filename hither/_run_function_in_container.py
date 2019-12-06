@@ -178,7 +178,7 @@ def run_function_in_container(*,
             run_outside_script = """
                 #!/bin/bash
 
-                docker run -it {gpu_opt} \\
+                docker run -i {gpu_opt} \\
                     -v /etc/localtime:/etc/localtime:ro \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\

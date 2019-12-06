@@ -27,7 +27,6 @@ def main():
     parser.add_argument('--test', help='Only run a few.', action='store_true')
 
     args = parser.parse_args()
-    print(args)
     force_run = args.force_run or args.force_run_all
     force_run_all = args.force_run_all
 
@@ -54,7 +53,15 @@ def main():
         if studyset['name'] in studyset_names:
             study_sets.append(studyset)
     
-    with hither.config(container='default', cache='local', force_run=force_run_all):
+    job_handler = hither.ParallelJobHandler(1)
+    # job_handler = None
+
+    with hither.config(
+        container='default',
+        cache='local',
+        force_run=force_run_all,
+        job_handler=job_handler
+    ):
         studies = []
         recordings = []
         for studyset in study_sets:
@@ -70,7 +77,7 @@ def main():
                 print(f'======== STUDY: {study_name}')
                 recordings0 = study['recordings']
                 if args.test:
-                    recordings0 = recordings0[:2]
+                    recordings0 = recordings0[:1]
                     study['recordings'] = recordings0
                 for recording in recordings0:
                     recording['study'] = study_name
@@ -150,7 +157,13 @@ def main():
                 firings_true=recording['directory'] + '/firings_true.mda',
                 processor_name=sorter['processor_name'],
                 processor_version=sorting_result.version,
-                execution_stats=sorting_result.runtime_info,
+                execution_stats=dict(
+                    start_time=sorting_result.runtime_info['start_time'],
+                    end_time=sorting_result.runtime_info['end_time'],
+                    elapsed_sec=sorting_result.runtime_info['end_time'] - sorting_result.runtime_info['start_time'],
+                    retcode=0,
+                    timed_out=False
+                ),
                 container=sorting_result.container,
                 console_out=ka.store_text(_console_out_to_str(sorting_result.runtime_info['console_out']))
             )
@@ -199,7 +212,7 @@ def main():
 def _console_out_to_str(console_out):
     txt = ''
     for console_line in console_out['lines']:
-        txt = txt + '{} {}: {}'.format(console_out.get('label', ''), _fmt_time(console_line['timestamp']), console_line['text'])
+        txt = txt + '{} {}: {}\n'.format(console_out.get('label', ''), _fmt_time(console_line['timestamp']), console_line['text'])
     return txt
 
 def _fmt_time(t):

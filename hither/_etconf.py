@@ -19,10 +19,16 @@ class ETConf:
             self._load_preset_config_if_needed()
             x = self._preset_config['configurations'][preset]
             for k, v in x.items():
-                self._config[k] = deepcopy(v)
+                if isinstance(v, dict):
+                    self._config[k] = deepcopy(v)
+                else:
+                    self._config[k] = v
         for k, v in kwargs.items():
             if v is not None:
-                self._config[k] = deepcopy(v)
+                if isinstance(v, dict):
+                    self._config[k] = deepcopy(v)
+                else:
+                    self._config[k] = v
     def get_config(self):
         ret = dict()
         for k, v in self._config.items():
@@ -32,7 +38,10 @@ class ETConf:
                     v = os.environ[env0]
                 else:
                     raise Exception('You need to set the {} environment variable'.format(env0))
-            ret[k] = deepcopy(v)
+            if isinstance(v, dict):
+                ret[k] = deepcopy(v)
+            else:
+                ret[k] = v
         return ret
     def _load_preset_config_if_needed(self):
         if self._preset_config is not None:

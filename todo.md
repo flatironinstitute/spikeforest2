@@ -7,13 +7,14 @@
 ## Analysis
 
 * Reproduce main analysis [IN PROGRESS]
-    - Write main_analysis.py [IN PROGRESS]
+    - [PARTIAL-DONE] Write main_analysis.py
     - Wrap remaining sorters
     - Expose parameters of sorters
-    - Implement non-sorter processing
-        - Summarize recording
-        - Summarize sorting
-        - Compare with ground truth
+    - [DONE] Implement non-sorter processing
+        - [DONE] Summarize recording
+        - [DONE] Summarize sorting
+        - [DONE] Compare with ground truth
+    - Parallelize (hither)
     - Interface with slurm (hither)
 * Improved timing reporting
 

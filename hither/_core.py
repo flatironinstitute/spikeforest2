@@ -74,7 +74,6 @@ def get_config() -> dict:
 def function(name, version):
     def wrap(f):
         def run(**kwargs):
-            print(f'-------------------------- run {name}')
             import kachery as ka
 
             config = _global_config.get_config()
@@ -186,7 +185,6 @@ def function(name, version):
                         raise Exception(f'Job {name} is not ready and you are not inside a job queue.')
                     else:
                         raise Exception(f'Job {name} is not ready and you are not using a job handler.')
-                print(f'--------------------------- preparing job {name}')
                 _prepare_job_to_run(job)
                 if not _check_cache_for_job_result(job):
                     _run_job(job)

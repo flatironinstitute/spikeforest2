@@ -33,7 +33,10 @@ def run_function_in_container(*,
     
     code = function_serialized['code']
 
-    with TemporaryDirectory(remove=True, prefix='tmp_hither_run_in_container_' + name + '_') as temp_path:
+    remove = True
+    if os.getenv('HITHER_DEBUG', None) == 'TRUE':
+        remove = False
+    with TemporaryDirectory(prefix='tmp_hither_run_in_container_' + name + '_', remove=remove) as temp_path:
         _write_python_code_to_directory(os.path.join(temp_path, 'function_src'), code)
 
         keyword_args_adjusted = deepcopy(keyword_args)

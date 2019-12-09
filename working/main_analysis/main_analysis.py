@@ -58,14 +58,14 @@ def main():
     if int(args.parallel) > 0:
         job_handler = hither.ParallelJobHandler(int(args.parallel))
     elif args.slurm:
-        job_handler = hither.SlurmJobHandler(working_dir='tmp_slurm', use_slurm=True)
+        job_handler = hither.SlurmJobHandler(working_dir='tmp_slurm', use_slurm=False)
     else:
         job_handler = None
 
     try:
         with hither.job_queue(), hither.config(
             container='default',
-            cache='local',
+            cache=None,
             force_run=force_run_all,
             job_handler=job_handler
         ):

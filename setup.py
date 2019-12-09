@@ -14,7 +14,9 @@ setuptools.setup(
     ],
     install_requires=[
         'kachery',
-        'python-frontmatter'
+        'python-frontmatter',
+        'spikeextractors',
+        'scipy', 'pandas', 'pymongo'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",

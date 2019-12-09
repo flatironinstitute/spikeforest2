@@ -8,6 +8,14 @@ from typing import Optional, List, Any
 
 class ShellScript():
     def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False):
+        self._script_path = script_path
+        self._keep_temp_files = keep_temp_files
+        self._process: Optional[subprocess.Popen] = None
+        self._files_to_remove: List[str] = []
+        self._dirs_to_remove: List[str] = []
+        self._start_time: Optional[float] = None
+        self._verbose = verbose
+
         lines = script.splitlines()
         lines = self._remove_initial_blank_lines(lines)
         if len(lines) > 0:
@@ -20,13 +28,6 @@ class ShellScript():
                         raise Exception('Problem in script. First line must not be indented relative to others')
                     lines[ii] = lines[ii][num_initial_spaces:]
         self._script = '\n'.join(lines)
-        self._script_path = script_path
-        self._keep_temp_files = keep_temp_files
-        self._process: Optional[subprocess.Popen] = None
-        self._files_to_remove: List[str] = []
-        self._dirs_to_remove: List[str] = []
-        self._start_time: Optional[float] = None
-        self._verbose = verbose
 
     def __del__(self):
         self.cleanup()
@@ -69,6 +70,8 @@ class ShellScript():
             return None
 
     def cleanup(self) -> None:
+        if not hasattr(self, '_dirs_to_remove'):
+            return
         if self._keep_temp_files:
             return
         for dirpath in self._dirs_to_remove:

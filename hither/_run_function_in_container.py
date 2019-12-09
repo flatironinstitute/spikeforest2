@@ -1,6 +1,6 @@
 import os
 from sys import stdout
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple, Union, Dict
 import json
 import fnmatch
 import inspect
@@ -12,7 +12,9 @@ from ._temporarydirectory import TemporaryDirectory
 from ._shellscript import ShellScript
 
 def run_function_in_container(*,
-        name: str, function,
+        name: str,
+        function,
+        function_serialized: Union[Dict[str, Any], None],
         container: str,
         keyword_args: dict,
         input_file_keys: List[str],
@@ -24,47 +26,14 @@ def run_function_in_container(*,
         gpu: bool=False
     ) -> Tuple[Union[Any, None], dict]:
     # generate source code
+    if function_serialized is None:
+        if function is None:
+            raise Exception('Unexpected function and function_serialized are both None')
+        function_serialized = _serialize_runnable_function(function, name=name, additional_files=additional_files, local_modules=local_modules, container=container)
+    
+    code = function_serialized['code']
+
     with TemporaryDirectory(remove=True, prefix='tmp_hither_run_in_container_' + name + '_') as temp_path:
-        try:
-            function_source_fname = os.path.abspath(inspect.getsourcefile(function))
-        except:
-            raise Exception('Unable to get source file for function {}. Cannot run in a container.'.format(name))
-
-        function_source_dirname = os.path.dirname(function_source_fname)
-        function_source_basename = os.path.basename(function_source_fname)
-        function_source_basename_noext = os.path.splitext(function_source_basename)[0]
-        code = _read_python_code_of_directory(
-            function_source_dirname,
-            additional_files=additional_files,
-            exclude_init=True
-        )
-        code['files'].append(dict(
-            name='__init__.py',
-            content='from .{} import {}'.format(
-                function_source_basename_noext, name)
-        ))
-        hither_dir = os.path.dirname(os.path.realpath(__file__))
-        # kachery_dir = os.path.dirname(os.path.realpath(__file__))
-        local_module_paths: List[str] = []
-        for lm in local_modules:
-            if os.path.isabs(lm):
-                local_module_paths.append(lm)
-            else:
-                local_module_paths.append(os.path.join(function_source_dirname, lm))
-        code['dirs'].append(dict(
-            name='_local_modules',
-            content=dict(
-                files=[],
-                dirs=[
-                    dict(
-                        name=os.path.basename(local_module_path),
-                        content=_read_python_code_of_directory(os.path.join(function_source_dirname, local_module_path), exclude_init=False)
-                    )
-                    for local_module_path in local_module_paths + [hither_dir]
-                ]
-            )
-        ))
-
         _write_python_code_to_directory(os.path.join(temp_path, 'function_src'), code)
 
         keyword_args_adjusted = deepcopy(keyword_args)
@@ -166,7 +135,7 @@ def run_function_in_container(*,
             """.format(
                 gpu_opt=gpu_opt,
                 binds_str=' '.join(['-B {}:{}'.format(a, b) for a, b in binds.items()]),
-                container=container,
+                container=function_serialized['container'],
                 temp_path=temp_path
             )
         else:
@@ -191,7 +160,7 @@ def run_function_in_container(*,
             """.format(
                 gpu_opt=gpu_opt,
                 binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
-                container=_docker_form_of_container_string(container),
+                container=_docker_form_of_container_string(function_serialized['container']),
                 temp_path=temp_path
             )
         print('#############################################################')
@@ -229,6 +198,54 @@ def run_function_in_container(*,
             shutil.copyfile(a, b)
 
         return retval, runtime_info
+
+def _serialize_runnable_function(function, *, name: str, additional_files: list, local_modules: list, container: str) -> dict:
+    try:
+        function_source_fname = os.path.abspath(inspect.getsourcefile(function))
+    except:
+        raise Exception('Unable to get source file for function {}. Cannot run in a container.'.format(name))
+    function_source_dirname = os.path.dirname(function_source_fname)
+    function_source_basename = os.path.basename(function_source_fname)
+    function_source_basename_noext = os.path.splitext(function_source_basename)[0]
+    assert isinstance(function_source_dirname, str)
+    code = _read_python_code_of_directory(
+        function_source_dirname,
+        additional_files=additional_files,
+        exclude_init=True
+    )
+    code['files'].append(dict(
+        name='__init__.py',
+        content='from .{} import {}'.format(
+            function_source_basename_noext, name)
+    ))
+    hither_dir = os.path.dirname(os.path.realpath(__file__))
+    # kachery_dir = os.path.dirname(os.path.realpath(__file__))
+    local_module_paths: List[str] = []
+    for lm in local_modules:
+        if os.path.isabs(lm):
+            local_module_paths.append(lm)
+        else:
+            local_module_paths.append(os.path.join(function_source_dirname, lm))
+    code['dirs'].append(dict(
+        name='_local_modules',
+        content=dict(
+            files=[],
+            dirs=[
+                dict(
+                    name=os.path.basename(local_module_path),
+                    content=_read_python_code_of_directory(os.path.join(function_source_dirname, local_module_path), exclude_init=False)
+                )
+                for local_module_path in local_module_paths + [hither_dir]
+            ]
+        )
+    ))
+    if hasattr(function, '_hither_containers'):
+        if container in getattr(function, '_hither_containers'):
+            container = getattr(function, '_hither_containers')[container]
+    return dict(
+        code=code,
+        container=container
+    )
 
 def _docker_form_of_container_string(container):
     if container.startswith('docker://'):

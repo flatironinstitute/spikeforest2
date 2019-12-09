@@ -1,4 +1,5 @@
 import shutil
+import json
 import os
 import tempfile
 import time
@@ -7,7 +8,7 @@ from copy import deepcopy
 from ._etconf import ETConf
 
 from spikeforest2_utils import ConsoleCapture
-from ._run_function_in_container import run_function_in_container
+from ._run_function_in_container import run_function_in_container, _serialize_runnable_function
 
 _global_config = ETConf(
     defaults=dict(
@@ -19,9 +20,10 @@ _global_config = ETConf(
     )
 )
 
-_global = dict(
-    pending_jobs = [], # waiting for inputs to be ready - not yet sent to job handler
-    queued_jobs = [] # inputs are ready, sent to job handler
+_global: Dict[str, Union[list, bool]] = dict(
+    pending_jobs=[], # waiting for inputs to be ready - not yet sent to job handler
+    queued_jobs=[], # inputs are ready, sent to job handler
+    inside_job_queue=False
 )
 
 class config:
@@ -44,9 +46,18 @@ class config:
         self._old_config = get_config()
         set_config(**self._config)
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._config['job_handler'] is not None:
-            wait()
         set_config(**self._old_config)
+
+class job_queue:
+    def __init__(self):
+        pass
+    def __enter__(self):
+        if _global['inside_job_queue']:
+            raise Exception('Cannot be in more than one hither job queue')
+        _global['inside_job_queue'] = True
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        wait()
+        _global['inside_job_queue'] = False
 
 def set_config(
         container: Union[str, None]=None,
@@ -165,19 +176,25 @@ def function(name, version):
                 job_handler = _job_handler,
                 status='pending'
             )
-            if _job_handler is None:
+            if _global['inside_job_queue'] and job['job_handler'] is not None:
+                _global['pending_jobs'].append(job)
+            else:
+                if job['job_handler'] is not None:
+                    raise Exception('Cannot use job handler without a job queue')
                 if not _job_is_ready(job):
-                    raise Exception(f'Job {name} is not ready and you are not using a job handler.')
+                    if not _global['inside_job_queue']:
+                        raise Exception(f'Job {name} is not ready and you are not inside a job queue.')
+                    else:
+                        raise Exception(f'Job {name} is not ready and you are not using a job handler.')
                 print(f'--------------------------- preparing job {name}')
                 _prepare_job_to_run(job)
                 if not _check_cache_for_job_result(job):
                     _run_job(job)
+                    job['status'] = 'finished'
                     result = job['result']
                     _handle_temporary_outputs([getattr(result.outputs, oname) for oname in result._output_names])
                     if job['cache'] is not None:
-                        _store_result(serialized_result=_serialize_result(job['result']), cache=job['cache'])
-            else:
-                _global['pending_jobs'].append(job)
+                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
             return job['result']
         setattr(f, 'run', run)
         return f
@@ -277,7 +294,8 @@ def _prepare_job_to_run(job):
 def _run_job(job):
     resolved_kwargs = job['resolved_kwargs']
     name = job['name']
-    f = job['f']
+    f = job.get('f', None)
+    f_serialized = job.get('f_serialized', None)
     _container = job['container']
     _gpu = job['gpu']
     _cache = job['cache']
@@ -287,20 +305,21 @@ def _run_job(job):
     output_file_extensions = job['output_file_extensions']
     result = job['result']
 
-    if _container is None:
+    if _container is None and f is not None:
         with ConsoleCapture(name) as cc:
             returnval = f(**resolved_kwargs)
         runtime_info = cc.runtime_info()
     else:
         with ConsoleCapture(name) as cc:
-            if hasattr(f, '_hither_containers'):
-                if _container in getattr(f, '_hither_containers'):
-                    _container = getattr(f, '_hither_containers')[_container]
-            local_modules = getattr(f, '_hither_local_modules', [])
+            if f is not None:
+                local_modules = getattr(f, '_hither_local_modules', [])
+            else:
+                local_modules = []
             print('===== Hither: running {} in container: {}'.format(name, _container))
             returnval, runtime_info = run_function_in_container(
                 name=name,
                 function=f,
+                function_serialized = f_serialized,
                 input_file_keys=input_file_keys,
                 input_file_extensions=input_file_extensions,
                 output_file_keys=output_file_keys,
@@ -319,18 +338,15 @@ def _run_job(job):
 
 def wait(timeout: Union[float, None]=None):
     timer = time.time()
-    job_handler = _global_config.get_config()['job_handler']
-    if job_handler is None:
-        return
     while True:
         pending_jobs = _global['pending_jobs']
         queued_jobs = _global['queued_jobs']
         if len(pending_jobs) == 0 and len(queued_jobs) == 0:
             break
-        print('----- yo bo', len(pending_jobs), len(queued_jobs))
-
         new_pending_jobs = []
+        active_job_handlers = []
         for job in pending_jobs:
+            active_job_handlers.append(job['job_handler'])
             if job['status'] == 'pending':
                 if _job_is_ready(job):
                     _prepare_job_to_run(job)
@@ -344,26 +360,37 @@ def wait(timeout: Union[float, None]=None):
                         else:
                             _run_job(job)
                             if job['cache'] is not None:
-                                _store_result(serialized_result=_serialize_result(job['result']), cache=job['cache'])
+                                _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                 else:
                     new_pending_jobs.append(job)
         _global['pending_jobs'] = new_pending_jobs
 
         new_queued_jobs = []
         for job in queued_jobs:
+            active_job_handlers.append(job['job_handler'])
             if job['status'] == 'queued':
                 new_queued_jobs.append(job)
             elif job['status'] == 'finished':
                 if job['cache'] is not None:
-                    _store_result(serialized_result=_serialize_result(job['result']), cache=job['cache'])
+                    _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
         _global['queued_jobs'] = new_queued_jobs
 
         elapsed = time.time() - timer
         if timeout is not None:
             if elapsed > timeout:
-                break
+                return
         
-        job_handler.iterate()
+        # iterate the job handlers
+        unique_active_job_handlers = []
+        for h in active_job_handlers:
+            found = False
+            for h2 in unique_active_job_handlers:
+                if h is h2:
+                    found = True
+            if not found:
+                unique_active_job_handlers.append(h)
+        for h in unique_active_job_handlers:
+            h.iterate()
 
         time.sleep(0.5)
 
@@ -442,7 +469,6 @@ def parameter(name: str, required=True, default=None):
     return wrap
 
 def _check_cache_for_job_result(job):
-    print('------------------------ checking cache for job result', job['name'])
     _cache = job['cache']
     _force_run = job['force_run']
     if _cache is None or _force_run:
@@ -451,7 +477,7 @@ def _check_cache_for_job_result(job):
     if result0 is None:
         return False
     print('===== Hither: found result of {} in cache'.format(job['name']))
-    result0 = _deserialize_result(result0)
+    result0 = _internal_deserialize_result(result0)
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])
@@ -459,7 +485,6 @@ def _check_cache_for_job_result(job):
     return True
 
 def _set_result(job, result):
-    print('-------------- set_result')
     result1 = job['result']
     result2 = result
     result1.runtime_info = result2.runtime_info
@@ -470,7 +495,6 @@ def _set_result(job, result):
     for oname in result2._output_names:
         output1 = getattr(result1.outputs, oname)
         output2 = getattr(result2.outputs, oname)
-        print('---- setting output', oname, output2._path, output2._exists)
         output1._path = output2._path
         output1._exists = output2._exists
         output1._is_temporary = output2._is_temporary
@@ -492,7 +516,6 @@ def _load_result(*, hash_object, cache):
         return doc['message']
 
 def _store_result(*, serialized_result, cache):
-    print('---- storing result in cache', serialized_result['hash_object']['name'])
     import loggery
     if type(cache) == str:
         cache = dict(preset=cache)
@@ -516,23 +539,25 @@ class Result():
             ret[k] = getattr(self, k)
         ret['outputs'] = dict()
         for oname in self._output_names:
-            ret['outputs'][oname] = getattr(self.outputs, oname)
+            ret['outputs'][oname] = getattr(self.outputs, oname).serialize()
         return ret
     def deserialize(self, obj):
         for k in self._keys:
             setattr(self, k, obj[k])
         for oname in self._output_names:
-            setattr(self.outputs, oname, obj['outputs'][oname])
+            ff = File()
+            ff.deserialize(obj['outputs'][oname])
+            setattr(self.outputs, oname, ff)
 
 # This is confusing -- it is a different type of serialization than result.serialize()!
-def _serialize_result(result):
+def _internal_serialize_result(result):
     import kachery as ka
     ret: Dict[Any] = dict(
         output_files=dict()
     )
     ret['name'] = 'hither_result'
 
-    ret['runtime_info'] = result.runtime_info
+    ret['runtime_info'] = deepcopy(result.runtime_info)
     ret['runtime_info']['console_out'] = ka.store_object(ret['runtime_info'].get('console_out', ''))
 
     for oname in result._output_names:
@@ -548,7 +573,7 @@ def _serialize_result(result):
     return ret
 
 # This is confusing -- it is a different type of deserialization than result.deserialize()!
-def _deserialize_result(obj):
+def _internal_deserialize_result(obj):
     import kachery as ka
     result = Result()
     
@@ -572,6 +597,60 @@ def _deserialize_result(obj):
     result.status = obj['status']
     return result
 
+def _serialize_runnable_job(job):
+    job_serialized = dict()
+    for k,v in job.items():
+        if k not in ['result', 'job_handler', 'f']:
+            job_serialized[k] = _smartcopy(v)
+    if 'f' in job:
+        local_modules = getattr(job['f'], '_hither_local_modules', [])
+        job_serialized['f_serialized'] = _serialize_runnable_function(
+            job['f'],
+            name=job['name'],
+            additional_files=[], # fix this in the future
+            local_modules=local_modules,
+            container=job['container']
+        )
+    job_serialized['result'] = job['result'].serialize()
+    return job_serialized
+
+def _deserialize_runnable_job(job_serialized):
+    job = dict()
+    for k,v in job_serialized.items():
+        if k not in ['result']:
+            job[k] = _smartcopy(v)
+    job['result'] = Result()
+    job['result'].deserialize(job_serialized['result'])
+    return job
+
+def _smartcopy(v):
+    if isinstance(v, dict):
+        if '_hither_type' in v:
+            if v['_hither_type'] == 'File':
+                f = File()
+                f.deserialize(v)
+                return f
+            else:
+                raise Exception('Unexpected hither type: {}'.format(v['_hither_type']))
+        ret = dict()        
+        for k1, v1 in v.items():
+            ret[k1] = _smartcopy(v1)
+        return ret
+    elif isinstance(v, list):
+        ret = []
+        for v1 in v:
+            ret.append(_smartcopy(v1))
+        return ret
+    elif isinstance(v, File):
+        ret = v.serialize()
+        print(ret)
+        return ret
+    else:
+        try:
+            json.dumps(v)
+        except:
+            raise Exception('Value is not json serializable')
+        return deepcopy(v)   
 
 class Outputs():
     def __init__(self):
@@ -593,6 +672,17 @@ class File():
             return 'hither.File({})'.format(self._path)
         else:
             return 'hither.File()'
+    def serialize(self):
+        return dict(
+            _hither_type='File',
+            _exists=self._exists,
+            _is_temporary=self._is_temporary,
+            _path=self._path
+        )
+    def deserialize(self, obj):
+        self._path = obj['_path']
+        self._exists = obj['_exists']
+        self._is_temporary = obj['_is_temporary']
 
 def _is_hash_url(path):
     algs = ['sha1', 'md5']

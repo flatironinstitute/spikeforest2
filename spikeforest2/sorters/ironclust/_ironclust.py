@@ -8,10 +8,6 @@ import hither
 def ironclust(recording_path, sorting_out):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._ironclustsorter import IronClustSorter
-    import kachery as ka
-
-    # TODO: need to think about how to deal with this
-    ka.set_config(fr='default_readonly')
 
     recording = AutoRecordingExtractor(dict(path=recording_path), download=True)
     

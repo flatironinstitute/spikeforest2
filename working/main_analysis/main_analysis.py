@@ -24,6 +24,8 @@ def main():
     parser.add_argument('--output', '-o', help='The output .json file', required=True)
     parser.add_argument('--force-run', help='Force rerunning of all spike sorting', action='store_true')
     parser.add_argument('--force-run-all', help='Force rerunning of all spike sorting and other processing', action='store_true')
+    parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')
+    parser.add_argument('--slurm', help='Use SLURM (WIP).', action='store_true')
     parser.add_argument('--test', help='Only run a few.', action='store_true')
 
     args = parser.parse_args()
@@ -53,87 +55,95 @@ def main():
         if studyset['name'] in studyset_names:
             study_sets.append(studyset)
     
-    job_handler = hither.ParallelJobHandler(1)
-    # job_handler = None
+    if int(args.parallel) > 0:
+        job_handler = hither.ParallelJobHandler(int(args.parallel))
+    elif args.slurm:
+        job_handler = hither.SlurmJobHandler(working_dir='tmp_slurm', use_slurm=True)
+    else:
+        job_handler = None
 
-    with hither.config(
-        container='default',
-        cache='local',
-        force_run=force_run_all,
-        job_handler=job_handler
-    ):
-        studies = []
-        recordings = []
-        for studyset in study_sets:
-            studyset_name = studyset['name']
-            print(f'================ STUDY SET: {studyset_name}')
-            studies0 = studyset['studies']
-            if args.test:
-                studies0 = studies0[:1]
-                studyset['studies'] = studies0
-            for study in studies0:
-                study['study_set'] = studyset_name
-                study_name = study['name']
-                print(f'======== STUDY: {study_name}')
-                recordings0 = study['recordings']
+    try:
+        with hither.job_queue(), hither.config(
+            container='default',
+            cache='local',
+            force_run=force_run_all,
+            job_handler=job_handler
+        ):
+            studies = []
+            recordings = []
+            for studyset in study_sets:
+                studyset_name = studyset['name']
+                print(f'================ STUDY SET: {studyset_name}')
+                studies0 = studyset['studies']
                 if args.test:
-                    recordings0 = recordings0[:1]
-                    study['recordings'] = recordings0
-                for recording in recordings0:
-                    recording['study'] = study_name
-                    recording['study_set'] = studyset_name
-                    recording['firings_true'] = recording['firingsTrue']
-                    recordings.append(recording)
-                studies.append(study)
+                    studies0 = studies0[:1]
+                    studyset['studies'] = studies0
+                for study in studies0:
+                    study['study_set'] = studyset_name
+                    study_name = study['name']
+                    print(f'======== STUDY: {study_name}')
+                    recordings0 = study['recordings']
+                    if args.test:
+                        recordings0 = recordings0[:2]
+                        study['recordings'] = recordings0
+                    for recording in recordings0:
+                        recording['study'] = study_name
+                        recording['study_set'] = studyset_name
+                        recording['firings_true'] = recording['firingsTrue']
+                        recordings.append(recording)
+                    studies.append(study)
 
-        # Download recordings
-        for recording in recordings:
-            ka.load_file(recording['directory'] + '/raw.mda')
-            ka.load_file(recording['directory'] + '/firings_true.mda')
-        
-        # Attach results objects
-        for recording in recordings:
-            recording['results'] = dict()
-        
-        # Summarize recordings
-        for recording in recordings:
-            recording_path = recording['directory']
-            sorting_true_path = recording['firingsTrue']
-            recording['results']['computed-info'] = processing.compute_recording_info.run(
-                recording_path=recording_path,
-                json_out=hither.File()
-            )
-            recording['results']['true-units-info'] = processing.compute_units_info.run(
-                recording_path=recording_path,
-                sorting_path=sorting_true_path,
-                json_out=hither.File()
-            )
-        
-        # Spike sorting
-        for sorter in spike_sorters:
+            # Download recordings
+            for recording in recordings:
+                ka.load_file(recording['directory'] + '/raw.mda')
+                ka.load_file(recording['directory'] + '/firings_true.mda')
+            
+            # Attach results objects
+            for recording in recordings:
+                recording['results'] = dict()
+            
+            # Summarize recordings
             for recording in recordings:
                 recording_path = recording['directory']
                 sorting_true_path = recording['firingsTrue']
-
-                algorithm = sorter['processor_name']
-                if not hasattr(sorters, algorithm):
-                    raise Exception(f'No such sorting algorithm: {algorithm}')
-                Sorter = getattr(sorters, algorithm)
-
-                gpu = (algorithm in ['kilosort2', 'ironclust'])
-                with hither.config(gpu=gpu, force_run=force_run):
-                    sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
-                    recording['results']['sorting-' + sorter['name']] = sorting_result
-                recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
-                    sorting_path=sorting_result.outputs.sorting_out,
-                    sorting_true_path=sorting_true_path,
-                    json_out=hither.File()
-                )
-                recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
+                recording['results']['computed-info'] = processing.compute_recording_info.run(
                     recording_path=recording_path,
-                    sorting_path=sorting_result.outputs.sorting_out,
                     json_out=hither.File()
                 )
+                recording['results']['true-units-info'] = processing.compute_units_info.run(
+                    recording_path=recording_path,
+                    sorting_path=sorting_true_path,
+                    json_out=hither.File()
+                )
+            
+            # Spike sorting
+            for sorter in spike_sorters:
+                for recording in recordings:
+                    recording_path = recording['directory']
+                    sorting_true_path = recording['firingsTrue']
+
+                    algorithm = sorter['processor_name']
+                    if not hasattr(sorters, algorithm):
+                        raise Exception(f'No such sorting algorithm: {algorithm}')
+                    Sorter = getattr(sorters, algorithm)
+
+                    gpu = (algorithm in ['kilosort2', 'ironclust'])
+                    with hither.config(gpu=gpu, force_run=force_run):
+                        sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
+                        recording['results']['sorting-' + sorter['name']] = sorting_result
+                    recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
+                        sorting_path=sorting_result.outputs.sorting_out,
+                        sorting_true_path=sorting_true_path,
+                        json_out=hither.File()
+                    )
+                    recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
+                        recording_path=recording_path,
+                        sorting_path=sorting_result.outputs.sorting_out,
+                        json_out=hither.File()
+                    )
+    finally:
+        if job_handler is not None:
+            job_handler.cleanup()
 
     # Assemble all of the results
     print('')

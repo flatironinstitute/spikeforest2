@@ -28,7 +28,6 @@ class ParallelJobHandler:
         for p in self._processes:
             if p['pjh_status'] == 'running':
                 if p['pipe_to_child'].poll():
-                    print('receiving message')
                     result_obj = p['pipe_to_child'].recv()
                     p['pipe_to_child'].send('okay!')
                     result0 = hither.Result()
@@ -47,6 +46,8 @@ class ParallelJobHandler:
                     p['pjh_status'] = 'running'
                     p['process'].start()
                     num_running = num_running + 1
+    def cleanup(self):
+        pass
 
 def _pjh_run_job(pipe_to_parent: Connection, job: Dict[str, Any], kachery_config: dict) -> None:
     ka.set_config(**kachery_config)

@@ -2,22 +2,20 @@ import json
 import random
 import hither
 
-@hither.function('mountainsort4', '0.3.2-w3')
+@hither.function('mountainsort4', '0.3.2-w4')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-mountainsort4:0.3.2')
 @hither.local_module('../../../spikeforest2_utils')
-def mountainsort4(recording_path: str, sorting_out: str) -> str:
+def mountainsort4(recording_path: str, sorting_out: str):
     import spiketoolkit as st
     import spikesorters as ss
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
-    import kachery as ka
-
-    # TODO: need to think about how to deal with this
-    ka.set_config(fr='default_readonly')
 
     recording = AutoRecordingExtractor(dict(path=recording_path), download=True)
 
-    # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 10)
+    # for quick testing
+    # import spikeextractors as se
+    # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 1)
     
     # Preprocessing
     print('Preprocessing...')

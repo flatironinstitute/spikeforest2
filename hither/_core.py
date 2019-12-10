@@ -477,6 +477,8 @@ def _check_cache_for_job_result(job):
         return False
     print('===== Hither: found result of {} in cache'.format(job['name']))
     result0 = _internal_deserialize_result(result0)
+    if result0 is None:
+        return False
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])
@@ -585,6 +587,7 @@ def _internal_deserialize_result(obj):
     for oname, path in output_files.items():
         path2 = ka.load_file(path)
         if path2 is None:
+            print('Unable to find file when deserializing result.')
             return None
         setattr(result.outputs, oname, File(path2))
         result._output_names.append(oname)

@@ -1,7 +1,8 @@
 import shutil
 import json
 import os
-import tempfile
+import random
+# import tempfile
 import time
 from typing import Union, Any, Dict
 from copy import deepcopy
@@ -410,6 +411,7 @@ def _handle_temporary_outputs(outputs):
         if not output._exists:
             old_path = output._path
             new_path = ka.load_file(ka.store_file(old_path))
+            print('------------------------------------- handle temporary output {} {}'.format(old_path, new_path))
             output._path = new_path
             output._is_temporary = False
             output._exists = True
@@ -485,6 +487,7 @@ def _check_cache_for_job_result(job):
     return True
 
 def _set_result(job, result):
+    print('------------------------------------------------- SET_RESULT for {}'.format(job['name']))
     result1 = job['result']
     result2 = result
     result1.runtime_info = result2.runtime_info
@@ -496,6 +499,7 @@ def _set_result(job, result):
         output1 = getattr(result1.outputs, oname)
         output2 = getattr(result2.outputs, oname)
         output1._path = output2._path
+        print('----------------------------------- set result output: {} {}'.format(oname, output1._path))
         output1._exists = output2._exists
         output1._is_temporary = output2._is_temporary
         
@@ -692,10 +696,20 @@ def _is_hash_url(path):
     return False
 
 def _make_temporary_file(prefix):
-    with tempfile.NamedTemporaryFile(prefix=prefix, delete=False) as tmpfile:
-        temp_file_name = tmpfile.name
-    return temp_file_name
+    storage_dir = os.environ.get('KACHERY_STORAGE_DIR', None)
+    if storage_dir is None:
+        storage_dir = '/tmp'
+    else:
+        storage_dir = os.path.join(storage_dir, 'tmp')
+        if not os.path.exists(storage_dir):
+            os.mkdir(storage_dir)
+    return os.path.join(storage_dir, 'hither_tmp_{}_{}'.format(prefix, _random_string(8))
 
 def _file_extension(x):
     _, ext = os.path.splitext(x)
     return ext
+
+def _random_string(num: int):
+    """Generate random string of a given length.
+    """
+    return ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=num))

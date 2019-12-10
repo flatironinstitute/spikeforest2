@@ -42,7 +42,7 @@ class AutoSortingExtractor(se.SortingExtractor):
                 raise Exception('Missing argument: samplerate or paramsPath')
             self._sorting = MdaSortingExtractor(firings_file=path, samplerate=samplerate)
         else:
-            raise Exception('Unsupported format for {}'.format(original_path))
+            raise Exception('Unsupported format for {} of size {}'.format(path, os.path.getsize(path)))
         
     
     def hash(self):

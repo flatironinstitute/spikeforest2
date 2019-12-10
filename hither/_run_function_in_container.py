@@ -49,7 +49,6 @@ def run_function_in_container(*,
                     fname_inside = '/inputs/{}{}'.format(iname, input_file_extensions[iname])
                     keyword_args_adjusted[iname] = fname_inside
                     binds[fname_outside] = fname_inside
-                    print('----------------------------------------------------------------- BIND {} {}'.format(fname_outside, fname_inside))
         outputs_tmp = os.path.join(temp_path, 'outputs')
         os.mkdir(outputs_tmp)
         binds[outputs_tmp] = '/outputs'

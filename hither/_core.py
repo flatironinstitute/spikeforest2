@@ -239,14 +239,12 @@ def _prepare_job_to_run(job):
                 raise Exception('Unexpected: input file has no path: {}'.format(iname))
             # we really want the path
             x2 = x._path
-            print('----------------------------- RESOLVE INPUT (1) {} {}'.format(iname, x2))
             if _is_hash_url(x2) and input_file['kachery_resolve']:
                 # a hash url
                 y = ka.load_file(x2)
                 if y is None:
                     raise Exception('Unable to load input file {}: {}'.format(iname, x))
                 x2 = y
-            print('----------------------------- RESOLVE INPUT (2) {} {}'.format(iname, x2))
             info0 = ka.get_file_info(x2)
             if info0 is None:
                 raise Exception('Unable to get info for input file {}: {}'.format(iname, x2))
@@ -411,7 +409,6 @@ def _handle_temporary_outputs(outputs):
         if not output._exists:
             old_path = output._path
             new_path = ka.load_file(ka.store_file(old_path))
-            print('------------------------------------- handle temporary output {} {}'.format(old_path, new_path))
             output._path = new_path
             output._is_temporary = False
             output._exists = True
@@ -487,7 +484,6 @@ def _check_cache_for_job_result(job):
     return True
 
 def _set_result(job, result):
-    print('------------------------------------------------- SET_RESULT for {}'.format(job['name']))
     result1 = job['result']
     result2 = result
     result1.runtime_info = result2.runtime_info
@@ -499,7 +495,6 @@ def _set_result(job, result):
         output1 = getattr(result1.outputs, oname)
         output2 = getattr(result2.outputs, oname)
         output1._path = output2._path
-        print('----------------------------------- set result output: {} {}'.format(oname, output1._path))
         output1._exists = output2._exists
         output1._is_temporary = output2._is_temporary
         

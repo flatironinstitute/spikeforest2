@@ -703,7 +703,7 @@ def _make_temporary_file(prefix):
         storage_dir = os.path.join(storage_dir, 'tmp')
         if not os.path.exists(storage_dir):
             os.mkdir(storage_dir)
-    return os.path.join(storage_dir, 'hither_tmp_{}_{}'.format(prefix, _random_string(8))
+    return os.path.join(storage_dir, 'hither_tmp_{}_{}'.format(prefix, _random_string(8)))
 
 def _file_extension(x):
     _, ext = os.path.splitext(x)

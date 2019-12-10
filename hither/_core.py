@@ -238,12 +238,14 @@ def _prepare_job_to_run(job):
                 raise Exception('Unexpected: input file has no path: {}'.format(iname))
             # we really want the path
             x2 = x._path
+            print('----------------------------- RESOLVE INPUT (1) {} {}'.format(iname, x2))
             if _is_hash_url(x2) and input_file['kachery_resolve']:
                 # a hash url
                 y = ka.load_file(x2)
                 if y is None:
                     raise Exception('Unable to load input file {}: {}'.format(iname, x))
                 x2 = y
+            print('----------------------------- RESOLVE INPUT (2) {} {}'.format(iname, x2))
             info0 = ka.get_file_info(x2)
             if info0 is None:
                 raise Exception('Unable to get info for input file {}: {}'.format(iname, x2))

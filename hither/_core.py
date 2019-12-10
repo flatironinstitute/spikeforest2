@@ -642,7 +642,6 @@ def _smartcopy(v):
         return ret
     elif isinstance(v, File):
         ret = v.serialize()
-        print(ret)
         return ret
     else:
         try:

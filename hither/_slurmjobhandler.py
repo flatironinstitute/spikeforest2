@@ -168,7 +168,6 @@ class SlurmJobHandler:
         batch_id = self._last_batch_id + 1
         self._last_batch_id = batch_id
         # we put a random string in the working directory so we don't have a chance of interference from previous runs (although this should not logically happen)
-        print('Creating new batch', batch_id)
         new_batch = _Batch(
             working_dir=self._handler_dir + '/batch_{}_{}'.format(batch_id, _random_string(8)),
             batch_label='batch {}'.format(batch_id),

@@ -1,7 +1,8 @@
 import shutil
 import json
 import os
-import tempfile
+import random
+# import tempfile
 import time
 from typing import Union, Any, Dict
 from copy import deepcopy
@@ -690,10 +691,20 @@ def _is_hash_url(path):
     return False
 
 def _make_temporary_file(prefix):
-    with tempfile.NamedTemporaryFile(prefix=prefix, delete=False) as tmpfile:
-        temp_file_name = tmpfile.name
-    return temp_file_name
+    storage_dir = os.environ.get('KACHERY_STORAGE_DIR', None)
+    if storage_dir is None:
+        storage_dir = '/tmp'
+    else:
+        storage_dir = os.path.join(storage_dir, 'tmp')
+        if not os.path.exists(storage_dir):
+            os.mkdir(storage_dir)
+    return os.path.join(storage_dir, 'hither_tmp_{}_{}'.format(prefix, _random_string(8)))
 
 def _file_extension(x):
     _, ext = os.path.splitext(x)
     return ext
+
+def _random_string(num: int):
+    """Generate random string of a given length.
+    """
+    return ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=num))

@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--force-run-all', help='Force rerunning of all spike sorting and other processing', action='store_true')
     parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')
     parser.add_argument('--slurm', help='Use SLURM (WIP).', action='store_true')
+    parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--test', help='Only run a few.', action='store_true')
 
     args = parser.parse_args()
@@ -65,7 +66,7 @@ def main():
     try:
         with hither.job_queue(), hither.config(
             container='default',
-            cache=None,
+            cache=args.cache,
             force_run=force_run_all,
             job_handler=job_handler
         ):

@@ -475,10 +475,10 @@ def _check_cache_for_job_result(job):
     result0 = _load_result(hash_object=job['hash_object'], cache=job['cache'])
     if result0 is None:
         return False
-    print('===== Hither: found result of {} in cache'.format(job['name']))
     result0 = _internal_deserialize_result(result0)
     if result0 is None:
         return False
+    print('===== Hither: found result of {} in cache'.format(job['name']))
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])

@@ -6,7 +6,7 @@ import sys
 
 import spikeextractors as se
 from spikesorters import BaseSorter
-from ._shellscript import ShellScript
+from hither import ShellScript
 
 
 class Kilosort2Sorter(BaseSorter):

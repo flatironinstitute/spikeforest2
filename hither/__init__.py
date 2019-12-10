@@ -5,3 +5,4 @@ from ._core import _run_job, Result, _set_result, _serialize_runnable_job, _dese
 from ._paralleljobhandler import ParallelJobHandler
 from ._slurmjobhandler import SlurmJobHandler
 from ._filelock import FileLock
+from ._shellscript import ShellScript

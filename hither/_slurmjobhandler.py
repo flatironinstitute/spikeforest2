@@ -139,7 +139,6 @@ class SlurmJobHandler:
         None
         """
         self.halt()
-        print('_rmdir_with_retries')
         _rmdir_with_retries(self._handler_dir, num_retries=10)
 
     def _handle_unassigned_job(self, job: Dict[str, Any]):

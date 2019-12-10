@@ -1,4 +1,5 @@
 import os
+import random
 from sys import stdout
 from typing import Any, List, Tuple, Union, Dict
 import json
@@ -106,19 +107,23 @@ def run_function_in_container(*,
             HOME='$HOME'
         )
 
-        run_inside_script = """
+        # See: https://wiki.bash-hackers.org/commands/builtin/exec
+        run_inside_container_script = """
             #!/bin/bash
             set -e
 
-            {env_vars_inside_container} python3 /run_in_container/run.py
+            export {env_vars_inside_container}
+            exec python3 /run_in_container/run.py
         """.format(
             env_vars_inside_container=' '.join(['{}={}'.format(k, v) for k, v in env_vars_inside_container.items()])
         )
 
-        ShellScript(run_inside_script).write(os.path.join(temp_path, 'run.sh'))
+        ShellScript(run_inside_container_script).write(os.path.join(temp_path, 'run.sh'))
 
         if not os.getenv('KACHERY_STORAGE_DIR'):
             raise Exception('You must set the environment variable: KACHERY_STORAGE_DIR')
+
+        docker_container_name = None
 
         # fancy_command = 'bash -c "((bash /run_in_container/run.sh | tee /run_in_container/stdout.txt) 3>&1 1>&2 2>&3 | tee /run_in_container/stderr.txt) 3>&1 1>&2 1>&3 | tee /run_in_container/console_out.txt"'
         if os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
@@ -126,7 +131,7 @@ def run_function_in_container(*,
                 gpu_opt = '--nv'
             else:
                 gpu_opt = ''
-            run_outside_script = """
+            run_outside_container_script = """
                 #!/bin/bash
 
                 singularity exec -e {gpu_opt} \\
@@ -146,11 +151,12 @@ def run_function_in_container(*,
                 gpu_opt = '--gpus all'
             else:
                 gpu_opt = ''
+            docker_container_name = _random_string(10)
             # May not want to use -t below as it has the potential to mess up line feeds in the parent process!
-            run_outside_script = """
+            run_outside_container_script = """
                 #!/bin/bash
 
-                docker run -i {gpu_opt} \\
+                docker run --name {docker_container_name} -i {gpu_opt} \\
                     -v /etc/localtime:/etc/localtime:ro \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\
@@ -161,20 +167,19 @@ def run_function_in_container(*,
                     {container} \\
                     bash /run_in_container/run.sh
             """.format(
+                docker_container_name=docker_container_name,
                 gpu_opt=gpu_opt,
                 binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
                 container=_docker_form_of_container_string(function_serialized['container']),
                 temp_path=temp_path
             )
         print('#############################################################')
-        print(run_outside_script)
+        print(run_outside_container_script)
         print('#############################################################')
 
-        ss = ShellScript(run_outside_script, keep_temp_files=False)
+        ss = ShellScript(run_outside_container_script, keep_temp_files=False, label='run_outside_container', docker_container_name=docker_container_name)
         ss.start()
         retcode = ss.wait()
-
-
 
         if retcode != 0:
             raise Exception('Non-zero exit code ({}) running {} in container {}'.format(retcode, name, container))
@@ -308,3 +313,8 @@ def _is_hash_url(path):
         if path.startswith(alg + '://') or path.startswith(alg + 'dir://'):
             return True
     return False
+
+def _random_string(num: int):
+    """Generate random string of a given length.
+    """
+    return ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=num))

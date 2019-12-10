@@ -7,7 +7,7 @@ import time
 from typing import Optional, List, Any
 
 class ShellScript():
-    def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False):
+    def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False, label='', docker_container_name=None):
         self._script_path = script_path
         self._keep_temp_files = keep_temp_files
         self._process: Optional[subprocess.Popen] = None
@@ -15,6 +15,8 @@ class ShellScript():
         self._dirs_to_remove: List[str] = []
         self._start_time: Optional[float] = None
         self._verbose = verbose
+        self._label = label
+        self._docker_container_name = docker_container_name
 
         lines = script.splitlines()
         lines = self._remove_initial_blank_lines(lines)
@@ -59,23 +61,28 @@ class ShellScript():
         self._process = subprocess.Popen(cmd)
 
     def wait(self, timeout=None) -> Optional[int]:
-        timer = time.time()
         if not self.isRunning():
             return self.returnCode()
         assert self._process is not None, "Unexpected self._process is None even though it is running."
         try:
             retcode = self._process.wait(timeout=timeout)
+            self.cleanup()
             return retcode
         except:
+            self.cleanup()
+            self.stop()
             return None
 
     def cleanup(self) -> None:
-        if not hasattr(self, '_dirs_to_remove'):
-            return
-        if self._keep_temp_files:
-            return
-        for dirpath in self._dirs_to_remove:
-            _rmdir_with_retries(dirpath, num_retries=5)
+        try:
+            if not hasattr(self, '_dirs_to_remove'):
+                return
+            if self._keep_temp_files:
+                return
+            for dirpath in self._dirs_to_remove:
+                _rmdir_with_retries(dirpath, num_retries=5)
+        except:
+            print('WARNING: Problem in cleanup() of ShellScript')
 
     def stop(self) -> None:
         if not self.isRunning():
@@ -83,21 +90,33 @@ class ShellScript():
         assert self._process is not None, "Unexpected self._process is None even though it is running."
 
         signals = [signal.SIGINT] * 10 + [signal.SIGTERM] * 10 + [signal.SIGKILL] * 10
+        signal_strings = ['SIGINT'] * 10 + ['SIGTERM'] * 10 + ['SIGKILL'] * 10
 
-        for signal0 in signals:
-            self._process.send_signal(signal0)
+        for iis in range(len(signals)):
+            if self._docker_container_name is None:
+                self._process.send_signal(signals[iis])
+            else:
+                self._send_docker_signal(signal_strings[iis])
             try:
                 self._process.wait(timeout=0.02)
                 return
             except:
                 pass
+    
+    def _send_docker_signal(self, sig_str):
+        cmd = f'docker kill {self._docker_container_name} -s {sig_str}'
+        print(cmd)
+        os.system(cmd)
 
     def kill(self) -> None:
         if not self.isRunning():
             return
         
         assert self._process is not None, "Unexpected self._process is None even though it is running."
-        self._process.send_signal(signal.SIGKILL)
+        if self._docker_container_name is None:
+            self._process.send_signal(signal.SIGKILL)
+        else:
+            self._send_docker_signal('SIGKILL')
         try:
             self._process.wait(timeout=1)
         except:
@@ -109,7 +128,18 @@ class ShellScript():
             return True
         
         assert self._process is not None, "Unexpected self._process is None even though it is running."
-        self._process.send_signal(sig)
+        if self._docker_container_name is None:
+            self._process.send_signal(sig)
+        else:
+            if sig == signal.SIGINT:
+                sig_str = 'SIGINT'
+            elif sig == signal.SIGTERM:
+                sig_str = 'SIGTERM'
+            elif sig == signal.SIGKILL:
+                sig_str = 'SIGKILL'
+            else:
+                raise Exception(f'Unable to determine signal string for signal {sig}')
+            self._send_docker_signal(sig_str)
         try:
             self._process.wait(timeout=timeout)
             return True

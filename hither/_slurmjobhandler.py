@@ -586,12 +586,16 @@ class _SlurmProcess():
                 import json
                 import random
                 import traceback
+                import kachery as ka
                 from hither import FileLock
                 from hither import _run_job, _deserialize_runnable_job
 
                 working_dir = '{working_dir}'
                 num_workers = {num_workers}
                 running_fname = '{running_fname}'
+
+                kachery_config = json.loads('{kachery_config_json}')
+                ka.set_config(**kachery_config)
 
                 # Let's claim a place and determine which worker number we are
                 worker_num = None
@@ -670,6 +674,7 @@ class _SlurmProcess():
         srun_py_script.substitute('{working_dir}', self._working_dir)
         srun_py_script.substitute('{num_workers}', self._num_workers)
         srun_py_script.substitute('{running_fname}', self._working_dir + '/running.txt')
+        srun_py_script.substitute('{kachery_config_json}', json.dumps(ka.get_config()))
         srun_py_script.write()
 
         srun_opts = []

@@ -80,14 +80,14 @@ class SlurmJobHandler:
         -------
         None
         """
+        # Return if we have been halted
+        if self._halted:
+            return
+            
         # Iterate the batches that are not finished
         for _, b in self._batches.items():
             if not b.isFinished():
                 b.iterate()
-
-        # Return if we have been halted
-        if self._halted:
-            return
 
         # Handle the unassigned jobs
         unassigned_jobs_after = []

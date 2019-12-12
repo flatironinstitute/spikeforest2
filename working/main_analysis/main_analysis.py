@@ -73,20 +73,31 @@ def main():
     
     if int(args.parallel) > 0:
         job_handler = hither.ParallelJobHandler(int(args.parallel))
+        job_handler_gpu = job_handler
     elif args.slurm:
         with open(args.slurm, 'r') as f:
             slurm_config = json.load(f)
         job_handler = hither.SlurmJobHandler(
             working_dir='tmp_slurm',
-            use_slurm=slurm_config.get('use_slurm', True),
-            num_workers_per_batch=slurm_config.get('num_workers_per_batch', 14),
-            num_cores_per_job=slurm_config.get('num_cores_per_job', 2),
-            time_limit_per_batch=slurm_config.get('time_limit_per_batch', 3600),
-            max_simultaneous_batches=slurm_config.get('max_simultaneous_batches', 10),
-            additional_srun_opts=slurm_config.get('additional_srun_opts', [])
+            use_slurm=slurm_config['cpu'].get('use_slurm', True),
+            num_workers_per_batch=slurm_config['cpu'].get('num_workers_per_batch', 14),
+            num_cores_per_job=slurm_config['cpu'].get('num_cores_per_job', 2),
+            time_limit_per_batch=slurm_config['cpu'].get('time_limit_per_batch', 3600),
+            max_simultaneous_batches=slurm_config['cpu'].get('max_simultaneous_batches', 10),
+            additional_srun_opts=slurm_config['cpu'].get('additional_srun_opts', [])
+        )
+        job_handler_gpu = hither.SlurmJobHandler(
+            working_dir='tmp_slurm',
+            use_slurm=slurm_config['gpu'].get('use_slurm', True),
+            num_workers_per_batch=slurm_config['gpu'].get('num_workers_per_batch', 14),
+            num_cores_per_job=slurm_config['gpu'].get('num_cores_per_job', 2),
+            time_limit_per_batch=slurm_config['gpu'].get('time_limit_per_batch', 3600),
+            max_simultaneous_batches=slurm_config['gpu'].get('max_simultaneous_batches', 10),
+            additional_srun_opts=slurm_config['gpu'].get('additional_srun_opts', [])
         )
     else:
         job_handler = None
+        job_handler_gpu = None
 
     with hither.job_queue(), hither.config(
         container='default',
@@ -153,7 +164,10 @@ def main():
                 Sorter = getattr(sorters, algorithm)
 
                 gpu = (algorithm in ['kilosort2', 'ironclust'])
-                with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False):
+                jh = job_handler
+                if gpu:
+                    job_handler = job_handler_gpu
+                with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, job_handler=jh):
                     sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
                     recording['results']['sorting-' + sorter['name']] = sorting_result
                 recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(

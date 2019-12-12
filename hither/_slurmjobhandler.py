@@ -439,6 +439,7 @@ class _Worker():
         self._job: Optional[Dict[str, Any]] = None
         self._job_finish_timestamp: Optional[float] = None
         self._base_path: str = base_path
+        self._has_started: bool = False
 
     def hasJob(self) -> bool:
         """Whether this worker has a job
@@ -499,7 +500,12 @@ class _Worker():
     def hasStarted(self) -> bool:
         """Returns whether the worker (not the job) has started
         """
-        return os.path.exists(self._base_path + '_claimed.txt')
+        if self._has_started:
+            return True
+        if os.path.exists(self._base_path + '_claimed.txt'):
+            self._has_started = True
+            return True
+        return False
 
     def iterate(self) -> None:
         """Take care of business of the worker

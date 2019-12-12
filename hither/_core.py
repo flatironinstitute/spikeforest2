@@ -9,7 +9,7 @@ from typing import Union, Any, Dict, List
 from copy import deepcopy
 from ._etconf import ETConf
 from ._preventkeyboardinterrupt import PreventKeyboardInterrupt
-
+from ._shellscript import ShellScript
 from ._consolecapture import ConsoleCapture
 from ._run_function_in_container import run_function_in_container, _serialize_runnable_function
 
@@ -29,7 +29,9 @@ _global: Dict[str, Union[list, bool]] = dict(
     pending_jobs=[], # waiting for inputs to be ready - not yet sent to job handler
     queued_jobs=[], # inputs are ready, sent to job handler
     finished_jobs=[], # finished jobs
-    inside_job_queue=False
+    inside_job_queue=False,
+    prepared_singularity_containers = [],
+    pulled_docker_images = []
 )
 
 class config:
@@ -97,6 +99,11 @@ def function(name, version):
             _exception_on_fail = config['exception_on_fail']
             if _exception_on_fail is None: _exception_on_fail = True
             _job_handler = config['job_handler']
+
+            if hasattr(f, '_hither_containers'):
+                if _container in getattr(f, '_hither_containers'):
+                    _container = getattr(f, '_hither_containers')[_container]
+
             hash_object: Dict[Union[str, Dict[Any]]] = dict(
                 api_version='0.1.0',
                 name=name,
@@ -208,6 +215,8 @@ def function(name, version):
                             raise Exception(f'Job {name} is not ready and you are not using a job handler.')
                     _prepare_job_to_run(job)
                     if not _check_cache_for_job_result(job):
+                        if job['container'] is not None:
+                            _prepare_container(job['container'])
                         _run_job(job)
                         result = job['result']
                         outputs0 = [getattr(result.outputs, oname) for oname in result._output_names]
@@ -222,7 +231,6 @@ def function(name, version):
                         if job['cache'] is not None:
                             if job['result'].success or job['cache_failing']:
                                 _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
-                    
             return job['result']
         setattr(f, 'run', run)
         return f
@@ -410,6 +418,8 @@ def wait(timeout: Union[float, None]=None):
                     elif _job_is_ready(job):
                         _prepare_job_to_run(job)
                         if not _check_cache_for_job_result(job):
+                            if job['container'] is not None:
+                                _prepare_container(job['container'])
                             job['status'] = 'queued'
                             queued_jobs.append(job)
                             job_handler = job['job_handler']
@@ -812,6 +822,47 @@ def _handle_temporary_outputs(outputs: List[File]):
             output._is_temporary = False
             output._exists = True
             os.unlink(old_path)
+
+def _prepare_container(container):
+    if os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
+        if container not in _global['prepared_singularity_containers']:
+            _do_prepare_singularity_container(container)
+            _global['prepared_singularity_containers'].append(container)
+    else:
+        if os.getenv('HITHER_PULL_DOCKER_IMAGES', None) == 'TRUE':
+            if container not in _global['pulled_docker_images']:
+                _do_pull_docker_image(container)
+                _global['pulled_docker_images'].append(container)
+
+
+def _do_prepare_singularity_container(container):
+    ss = ShellScript(f'''
+        #!/bin/bash
+
+        exec singularity run {container} echo "built {container}"
+    ''')
+    ss.start()
+    retcode = ss.wait()
+    if retcode != 0:
+        raise Exception(f'Problem building container {container}')
+
+def _do_pull_docker_image(container):
+    container = _docker_form_of_container_string(container)
+    ss = ShellScript(f'''
+        #!/bin/bash
+
+        exec docker pull {container}
+    ''')
+    ss.start()
+    retcode = ss.wait()
+    if retcode != 0:
+        raise Exception(f'Problem pulling container {container}')
+
+def _docker_form_of_container_string(container):
+    if container.startswith('docker://'):
+        return container[len('docker://'):]
+    else:
+        return container
 
 def _is_hash_url(path):
     algs = ['sha1', 'md5']

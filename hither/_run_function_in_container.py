@@ -257,9 +257,6 @@ def _serialize_runnable_function(function, *, name: str, additional_files: list,
             ]
         )
     ))
-    if hasattr(function, '_hither_containers'):
-        if container in getattr(function, '_hither_containers'):
-            container = getattr(function, '_hither_containers')[container]
     return dict(
         code=code,
         container=container

@@ -276,7 +276,7 @@ class _Batch():
                     if len(x) == 0:
                         assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
                     elapsed = time.time() - self._timestamp_slurm_process_started
-                    if elapsed > 4:
+                    if elapsed > 60:
                         raise Exception(f'Unable to start batch after {elapsed} sec.')
         elif self.isRunning():
             # first iterate all the workers so they can do what they need to do

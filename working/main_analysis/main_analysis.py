@@ -166,7 +166,7 @@ def main():
                 gpu = (algorithm in ['kilosort2', 'ironclust'])
                 jh = job_handler
                 if gpu:
-                    job_handler = job_handler_gpu
+                    jh = job_handler_gpu
                 with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, job_handler=jh):
                     sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
                     recording['results']['sorting-' + sorter['name']] = sorting_result

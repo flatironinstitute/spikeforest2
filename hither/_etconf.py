@@ -29,6 +29,12 @@ class ETConf:
                     self._config[k] = deepcopy(v)
                 else:
                     self._config[k] = v
+    def set_full_config(self, config):
+        for k, v in config.items():
+            if isinstance(v, dict):
+                self._config[k] = deepcopy(v)
+            else:
+                self._config[k] = v
     def get_config(self):
         ret = dict()
         for k, v in self._config.items():

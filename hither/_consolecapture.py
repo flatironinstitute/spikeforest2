@@ -63,5 +63,6 @@ class ConsoleCapture():
         return dict(
             start_time=self._time_start - 0,
             end_time=self._time_stop - 0,
+            elapsed_sec = self._time_stop - self._time_start,
             console_out=self._console_out
         )

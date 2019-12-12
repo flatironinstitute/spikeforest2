@@ -3,7 +3,6 @@ import multiprocessing
 from multiprocessing.connection import Connection
 import time
 import hither
-import kachery as ka
 
 class ParallelJobHandler:
     def __init__(self, num_workers):
@@ -12,6 +11,7 @@ class ParallelJobHandler:
         self._halted = False
 
     def handle_job(self, job):
+        import kachery as ka
         pipe_to_parent, pipe_to_child = multiprocessing.Pipe()
         process = multiprocessing.Process(target=_pjh_run_job, args=(pipe_to_parent, job, ka.get_config()))
         self._processes.append(dict(
@@ -50,6 +50,7 @@ class ParallelJobHandler:
         pass
 
 def _pjh_run_job(pipe_to_parent: Connection, job: Dict[str, Any], kachery_config: dict) -> None:
+    import kachery as ka
     ka.set_config(**kachery_config)
     hither._run_job(job)
     pipe_to_parent.send(job['result'].serialize())

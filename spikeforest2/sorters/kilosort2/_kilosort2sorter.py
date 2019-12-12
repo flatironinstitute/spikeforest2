@@ -77,10 +77,10 @@ class Kilosort2Sorter(BaseSorter):
         shell_cmd = '''
             #!/bin/bash
             cd {tmpdir}
-            /run_ksort2 {dataset_dir} {tmpdir} {dataset_dir}/argfile.txt
+            exec /run_ksort2 {dataset_dir} {tmpdir} {dataset_dir}/argfile.txt
         '''.format(tmpdir=str(tmpdir), dataset_dir=str(dataset_dir))
 
-        shell_script = ShellScript(shell_cmd)
+        shell_script = ShellScript(shell_cmd, redirect_output_to_stdout=True)
         shell_script.start()
 
         retcode = shell_script.wait()

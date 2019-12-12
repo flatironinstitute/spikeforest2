@@ -1,13 +1,15 @@
 import subprocess
+import sys
 import tempfile
 import shutil
 import signal
 import os
 import time
+import io
 from typing import Optional, List, Any
 
 class ShellScript():
-    def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False, label='', docker_container_name=None):
+    def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False, label='', docker_container_name=None, redirect_output_to_stdout=False):
         self._script_path = script_path
         self._keep_temp_files = keep_temp_files
         self._process: Optional[subprocess.Popen] = None
@@ -17,6 +19,7 @@ class ShellScript():
         self._verbose = verbose
         self._label = label
         self._docker_container_name = docker_container_name
+        self._redirect_output_to_stdout = redirect_output_to_stdout
 
         lines = script.splitlines()
         lines = self._remove_initial_blank_lines(lines)
@@ -30,9 +33,6 @@ class ShellScript():
                         raise Exception('Problem in script. First line must not be indented relative to others')
                     lines[ii] = lines[ii][num_initial_spaces:]
         self._script = '\n'.join(lines)
-
-    def __del__(self):
-        self.cleanup()
 
     def substitute(self, old: str, new: Any) -> None:
         self._script = self._script.replace(old, '{}'.format(new))
@@ -58,22 +58,49 @@ class ShellScript():
         if self._verbose:
             print('RUNNING SHELL SCRIPT: ' + cmd)
         self._start_time = time.time()
-        self._process = subprocess.Popen(cmd)
+        if self._redirect_output_to_stdout:
+            self._process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        else:
+            self._process = subprocess.Popen(cmd)
 
     def wait(self, timeout=None) -> Optional[int]:
+        timeout_increment = 0.01
+        if timeout is None or (timeout > timeout_increment):
+            timer = time.time()
+            while True:
+                retcode = self.wait(timeout=timeout_increment)
+                if retcode is not None:
+                    return retcode
+                if timeout is not None:
+                    elapsed = time.time() - timer
+                    if elapsed > timeout:
+                        return None
+
         if not self.isRunning():
+            self._print_stdout()
             return self.returnCode()
         assert self._process is not None, "Unexpected self._process is None even though it is running."
         try:
             retcode = self._process.wait(timeout=timeout)
-            self.cleanup()
+            self._cleanup()
+            self._print_stdout()
             return retcode
         except:
-            self.cleanup()
-            self.stop()
+            self._print_stdout()
             return None
+    
+    def _print_stdout(self):
+        if not self._redirect_output_to_stdout:
+            return
+        if self._process is None:
+            return
+        for line in self._process.stdout:
+            if isinstance(line, bytes):
+                line = line.decode('utf-8')
+            print(line)
 
-    def cleanup(self) -> None:
+    def _cleanup(self) -> None:
+        print(self._stdout_buffer.getvalue())
         try:
             if not hasattr(self, '_dirs_to_remove'):
                 return
@@ -88,6 +115,8 @@ class ShellScript():
         if not self.isRunning():
             return
         assert self._process is not None, "Unexpected self._process is None even though it is running."
+
+        self._cleanup()
 
         signals = [signal.SIGINT] * 10 + [signal.SIGTERM] * 10 + [signal.SIGKILL] * 10
         signal_strings = ['SIGINT'] * 10 + ['SIGTERM'] * 10 + ['SIGKILL'] * 10

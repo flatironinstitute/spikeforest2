@@ -9,7 +9,6 @@ from ._shellscript import ShellScript
 from ._filelock import FileLock
 from typing import Optional, List, Dict, Any, Union
 import json
-import kachery as ka
 from ._core import _set_result
 from ._core import Result, _serialize_runnable_job
 
@@ -214,6 +213,7 @@ class _Batch():
         self._additional_srun_opts = additional_srun_opts
         self._workers: List[_Worker] = []
         self._had_a_job = False
+        self._timestamp_slurm_process_started = None
 
         # Create the workers
         for i in range(self._num_workers):
@@ -279,6 +279,9 @@ class _Batch():
                 x = os.listdir(self._working_dir)
                 if len(x) == 0:
                     assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
+                elapsed = time.time() - self._timestamp_slurm_process_started
+                if elapsed > 4:
+                    raise Exception(f'Unable to start batch after {elapsed} sec.')
         elif self.isRunning():
             # first iterate all the workers so they can do what they need to do
             for w in self._workers:
@@ -398,6 +401,7 @@ class _Batch():
 
         # Start the slurm process
         self._slurm_process.start()
+        self._timestamp_slurm_process_started = time.time()
 
         self._status = 'waiting'
         # self._time_started = time.time()  # instead of doing it here, let's wait until a worker has actually started.
@@ -575,7 +579,7 @@ class _SlurmProcess():
     def start(self) -> None:
         """Start the slurm process
         """
-
+        import kachery as ka
         # This script is run by each worker (slurm task) in the batch
         srun_py_script = ShellScript("""
                 #!/usr/bin/env python
@@ -594,7 +598,11 @@ class _SlurmProcess():
                 running_fname = '{running_fname}'
 
                 kachery_config = json.loads('{kachery_config_json}')
-                ka.set_config(**kachery_config)
+                try:
+                    import kachery as ka
+                    ka.set_config(**kachery_config)
+                except:
+                    pass
 
                 # Let's claim a place and determine which worker number we are
                 worker_num = None
@@ -683,6 +691,7 @@ class _SlurmProcess():
         if self._time_limit is not None:
             srun_opts.append('--time {}'.format(round(self._time_limit / 60) + 1))
         if self._use_slurm:
+            # TODO: is this the right way to do it? Or should I use "exec srun..."
             srun_sh_script = ShellScript("""
                #!/bin/bash
                set -e
@@ -728,7 +737,7 @@ class _SlurmProcess():
 
                     export DISPLAY=""
 
-                    {srun_py_script}
+                    exec {srun_py_script}
                 """, keep_temp_files=False)
                 srun_sh_script.substitute('{srun_py_script}', srun_py_script.scriptPath())
                 srun_sh_script.substitute('{num_cores_per_job}', self._num_cores_per_job)

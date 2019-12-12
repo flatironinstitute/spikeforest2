@@ -8,7 +8,6 @@ import inspect
 import shutil
 from pathlib import Path
 from copy import deepcopy
-import kachery as ka
 from ._temporarydirectory import TemporaryDirectory
 from ._shellscript import ShellScript
 
@@ -24,8 +23,11 @@ def run_function_in_container(*,
         output_file_extensions: dict,
         additional_files: List[str]=[],
         local_modules: List[str]=[],
-        gpu: bool=False
+        gpu: bool=False,
+        exception_on_fail: bool=True
     ) -> Tuple[Union[Any, None], dict]:
+    import kachery as ka
+
     # generate source code
     if function_serialized is None:
         if function is None:
@@ -67,15 +69,24 @@ def run_function_in_container(*,
             from function_src import {function_name}
             import sys
             import json
-            from spikeforest2_utils import ConsoleCapture
+            import traceback
+            from hither import ConsoleCapture
 
             def main():
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
                 with ConsoleCapture('{function_name}') as cc:
-                    retval = {function_name}(**kwargs)
+                    try:
+                        retval = {function_name}(**kwargs)
+                        status = 'finished'
+                    except:
+                        traceback.print_exc()
+                        retval = None
+                        status = 'error'
+                
+                runtime_info = cc.runtime_info()
                 with open('/run_in_container/result.json', 'w') as f:
-                    json.dump(dict(retval=retval, runtime_info=cc.runtime_info()), f)
+                    json.dump(dict(retval=retval, status=status, runtime_info=runtime_info), f)
             
             def _configure_kachery():
                 try:
@@ -112,10 +123,16 @@ def run_function_in_container(*,
             #!/bin/bash
             set -e
 
+            export NUM_WORKERS={num_workers_env}
+            export MKL_NUM_THREADS=$NUM_WORKERS
+            export NUMEXPR_NUM_THREADS=$NUM_WORKERS
+            export OMP_NUM_THREADS=$NUM_WORKERS
+
             export {env_vars_inside_container}
             exec python3 /run_in_container/run.py
         """.format(
-            env_vars_inside_container=' '.join(['{}={}'.format(k, v) for k, v in env_vars_inside_container.items()])
+            env_vars_inside_container=' '.join(['{}={}'.format(k, v) for k, v in env_vars_inside_container.items()]),
+            num_workers_env=os.getenv('NUM_WORKERS', '')
         )
 
         ShellScript(run_inside_container_script).write(os.path.join(temp_path, 'run.sh'))
@@ -134,7 +151,7 @@ def run_function_in_container(*,
             run_outside_container_script = """
                 #!/bin/bash
 
-                singularity exec -e {gpu_opt} \\
+                exec singularity exec -e {gpu_opt} \\
                     -B $KACHERY_STORAGE_DIR:/kachery-storage \\
                     -B {temp_path}:/run_in_container \\
                     {binds_str} \\
@@ -151,12 +168,12 @@ def run_function_in_container(*,
                 gpu_opt = '--gpus all'
             else:
                 gpu_opt = ''
-            docker_container_name = _random_string(10)
+            docker_container_name = _random_string(8) + '_' + name
             # May not want to use -t below as it has the potential to mess up line feeds in the parent process!
             run_outside_container_script = """
                 #!/bin/bash
 
-                docker run --name {docker_container_name} -i {gpu_opt} \\
+                exec docker run --name {docker_container_name} -i {gpu_opt} \\
                     -v /etc/localtime:/etc/localtime:ro \\
                     -v /etc/passwd:/etc/passwd -u `id -u`:`id -g` \\
                     -v $KACHERY_STORAGE_DIR:/kachery-storage \\
@@ -188,22 +205,15 @@ def run_function_in_container(*,
             obj = json.load(f)
         retval = obj['retval']
         runtime_info = obj['runtime_info']
+        status = obj['status']
+        runtime_info['status'] = status
 
-        # with open(temp_path + '/stdout.txt', 'r') as f:
-        #     stdout = f.read()
-        # with open(temp_path + '/stderr.txt', 'r') as f:
-        #     stderr = f.read()
-        # with open(temp_path + '/console_out.txt', 'r') as f:
-        #     console_out = f.read()
-        # print('======================================== stdout')
-        # print(stdout)
-        # print('======================================== stderr')
-        # print(stderr)
-        # print('======================================== console_out')
-        # print(console_out)
-
-        for a, b in outputs_to_copy.items():
-            shutil.copyfile(a, b)
+        if obj['status'] == 'error':
+            if exception_on_fail:
+                raise Exception('Error running function in container.')
+        else:
+            for a, b in outputs_to_copy.items():
+                shutil.copyfile(a, b)
 
         return retval, runtime_info
 

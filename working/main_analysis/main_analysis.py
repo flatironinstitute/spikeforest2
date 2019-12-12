@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--force-run', help='Force rerunning of all spike sorting', action='store_true')
     parser.add_argument('--force-run-all', help='Force rerunning of all spike sorting and other processing', action='store_true')
     parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')
-    parser.add_argument('--slurm', help='Use SLURM (WIP).', action='store_true')
+    parser.add_argument('--slurm', help='Path to slurm config file', required=False, default=None)
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--test', help='Only run a few.', action='store_true')
 
@@ -38,6 +38,21 @@ def main():
         dict(
             name='MountainSort4',
             processor_name='mountainsort4',
+            params = dict()
+        ),
+        dict(
+            name='SpykingCircus',
+            processor_name='spykingcircus',
+            params = dict()
+        ),
+        dict(
+            name='KiloSort2',
+            processor_name='kilosort2',
+            params = dict()
+        ),
+        dict(
+            name='IronClust',
+            processor_name='ironclust',
             params = dict()
         )
     ]
@@ -59,92 +74,98 @@ def main():
     if int(args.parallel) > 0:
         job_handler = hither.ParallelJobHandler(int(args.parallel))
     elif args.slurm:
-        job_handler = hither.SlurmJobHandler(working_dir='tmp_slurm', use_slurm=True)
+        with open(args.slurm, 'r') as f:
+            slurm_config = json.load(f)
+        job_handler = hither.SlurmJobHandler(
+            working_dir='tmp_slurm',
+            use_slurm=slurm_config.get('use_slurm', True),
+            num_workers_per_batch=slurm_config.get('num_workers_per_batch', 14),
+            num_cores_per_job=slurm_config.get('num_cores_per_job', 2),
+            time_limit_per_batch=slurm_config.get('time_limit_per_batch', 3600),
+            max_simultaneous_batches=slurm_config.get('max_simultaneous_batches', 10),
+            additional_srun_opts=slurm_config.get('additional_srun_opts', [])
+        )
     else:
         job_handler = None
 
-    try:
-        with hither.job_queue(), hither.config(
-            container='default',
-            cache=args.cache,
-            force_run=force_run_all,
-            job_handler=job_handler
-        ):
-            studies = []
-            recordings = []
-            for studyset in study_sets:
-                studyset_name = studyset['name']
-                print(f'================ STUDY SET: {studyset_name}')
-                studies0 = studyset['studies']
+    with hither.job_queue(), hither.config(
+        container='default',
+        cache=args.cache,
+        force_run=force_run_all,
+        job_handler=job_handler
+    ):
+        studies = []
+        recordings = []
+        for studyset in study_sets:
+            studyset_name = studyset['name']
+            print(f'================ STUDY SET: {studyset_name}')
+            studies0 = studyset['studies']
+            if args.test:
+                studies0 = studies0[:1]
+                studyset['studies'] = studies0
+            for study in studies0:
+                study['study_set'] = studyset_name
+                study_name = study['name']
+                print(f'======== STUDY: {study_name}')
+                recordings0 = study['recordings']
                 if args.test:
-                    studies0 = studies0[:1]
-                    studyset['studies'] = studies0
-                for study in studies0:
-                    study['study_set'] = studyset_name
-                    study_name = study['name']
-                    print(f'======== STUDY: {study_name}')
-                    recordings0 = study['recordings']
-                    if args.test:
-                        recordings0 = recordings0[:2]
-                        study['recordings'] = recordings0
-                    for recording in recordings0:
-                        recording['study'] = study_name
-                        recording['study_set'] = studyset_name
-                        recording['firings_true'] = recording['firingsTrue']
-                        recordings.append(recording)
-                    studies.append(study)
+                    recordings0 = recordings0[:2]
+                    study['recordings'] = recordings0
+                for recording in recordings0:
+                    recording['study'] = study_name
+                    recording['study_set'] = studyset_name
+                    recording['firings_true'] = recording['firingsTrue']
+                    recordings.append(recording)
+                studies.append(study)
 
-            # Download recordings
-            for recording in recordings:
-                ka.load_file(recording['directory'] + '/raw.mda')
-                ka.load_file(recording['directory'] + '/firings_true.mda')
-            
-            # Attach results objects
-            for recording in recordings:
-                recording['results'] = dict()
-            
-            # Summarize recordings
+        # Download recordings
+        for recording in recordings:
+            ka.load_file(recording['directory'] + '/raw.mda')
+            ka.load_file(recording['directory'] + '/firings_true.mda')
+        
+        # Attach results objects
+        for recording in recordings:
+            recording['results'] = dict()
+        
+        # Summarize recordings
+        for recording in recordings:
+            recording_path = recording['directory']
+            sorting_true_path = recording['firingsTrue']
+            recording['results']['computed-info'] = processing.compute_recording_info.run(
+                recording_path=recording_path,
+                json_out=hither.File()
+            )
+            recording['results']['true-units-info'] = processing.compute_units_info.run(
+                recording_path=recording_path,
+                sorting_path=sorting_true_path,
+                json_out=hither.File()
+            )
+        
+        # Spike sorting
+        for sorter in spike_sorters:
             for recording in recordings:
                 recording_path = recording['directory']
                 sorting_true_path = recording['firingsTrue']
-                recording['results']['computed-info'] = processing.compute_recording_info.run(
-                    recording_path=recording_path,
+
+                algorithm = sorter['processor_name']
+                if not hasattr(sorters, algorithm):
+                    raise Exception(f'No such sorting algorithm: {algorithm}')
+                Sorter = getattr(sorters, algorithm)
+
+                gpu = (algorithm in ['kilosort2', 'ironclust'])
+                with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False):
+                    sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
+                    recording['results']['sorting-' + sorter['name']] = sorting_result
+                recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
+                    sorting_path=sorting_result.outputs.sorting_out,
+                    sorting_true_path=sorting_true_path,
                     json_out=hither.File()
                 )
-                recording['results']['true-units-info'] = processing.compute_units_info.run(
+                recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
                     recording_path=recording_path,
-                    sorting_path=sorting_true_path,
+                    sorting_path=sorting_result.outputs.sorting_out,
                     json_out=hither.File()
                 )
-            
-            # Spike sorting
-            for sorter in spike_sorters:
-                for recording in recordings:
-                    recording_path = recording['directory']
-                    sorting_true_path = recording['firingsTrue']
-
-                    algorithm = sorter['processor_name']
-                    if not hasattr(sorters, algorithm):
-                        raise Exception(f'No such sorting algorithm: {algorithm}')
-                    Sorter = getattr(sorters, algorithm)
-
-                    gpu = (algorithm in ['kilosort2', 'ironclust'])
-                    with hither.config(gpu=gpu, force_run=force_run):
-                        sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
-                        recording['results']['sorting-' + sorter['name']] = sorting_result
-                    recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
-                        sorting_path=sorting_result.outputs.sorting_out,
-                        sorting_true_path=sorting_true_path,
-                        json_out=hither.File()
-                    )
-                    recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
-                        recording_path=recording_path,
-                        sorting_path=sorting_result.outputs.sorting_out,
-                        json_out=hither.File()
-                    )
-    finally:
-        if job_handler is not None:
-            job_handler.cleanup()
 
     # Assemble all of the results
     print('')
@@ -172,17 +193,22 @@ def main():
                     start_time=sorting_result.runtime_info['start_time'],
                     end_time=sorting_result.runtime_info['end_time'],
                     elapsed_sec=sorting_result.runtime_info['end_time'] - sorting_result.runtime_info['start_time'],
-                    retcode=0,
+                    retcode=0 if sorting_result.success else -1,
                     timed_out=False
                 ),
                 container=sorting_result.container,
                 console_out=ka.store_text(_console_out_to_str(sorting_result.runtime_info['console_out']))
             )
-            sr['firings'] = ka.store_file(sorting_result.outputs.sorting_out._path)
-            sr['comparison_with_truth'] = dict(
-                json=ka.store_file(comparison_result.outputs.json_out._path)
-            )
-            sr['sorted_units_info'] = ka.store_file(units_info_result.outputs.json_out._path)
+            if sorting_result.success:
+                sr['firings'] = ka.store_file(sorting_result.outputs.sorting_out._path)
+                sr['comparison_with_truth'] = dict(
+                    json=ka.store_file(comparison_result.outputs.json_out._path)
+                )
+                sr['sorted_units_info'] = ka.store_file(units_info_result.outputs.json_out._path)
+            else:
+                sr['firings'] = None
+                sr['comparison_with_truth'] = None
+                sr['sorted_units_info'] = None
             sorting_results.append(sr)
     
     # Delete results from recordings

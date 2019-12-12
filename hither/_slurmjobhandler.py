@@ -83,7 +83,7 @@ class SlurmJobHandler:
         # Return if we have been halted
         if self._halted:
             return
-            
+
         # Iterate the batches that are not finished
         for _, b in self._batches.items():
             if not b.isFinished():
@@ -262,26 +262,22 @@ class _Batch():
             # first iterate all the workers so they can do what they need to do
             for w in self._workers:
                 w.iterate()
-            for w in self._workers:
-                if w.hasStarted():
-                    # Some worker has started, so I guess this batch has started.
+            if os.path.exists(self._working_dir):
+                if os.path.exists(os.path.join(self._working_dir, 'slurm_started.txt')):
                     self._status = 'running'
                     self._time_started = time.time()
-                    break
-            if self._status != 'running':
-                # We are still not running. Hmmmm. Let's check something...
-
-                # the following is probably not needed
-                # but I suspected some trouble with our ceph
-                # file system where the expected file
-                # was not being detected until I added this
-                # line. hmmmmm.
-                x = os.listdir(self._working_dir)
-                if len(x) == 0:
-                    assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
-                elapsed = time.time() - self._timestamp_slurm_process_started
-                if elapsed > 4:
-                    raise Exception(f'Unable to start batch after {elapsed} sec.')
+                else:
+                    # the following is probably not needed
+                    # but I suspected some trouble with our ceph
+                    # file system where the expected file
+                    # was not being detected until I added this
+                    # line. hmmmmm.
+                    x = os.listdir(self._working_dir)
+                    if len(x) == 0:
+                        assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
+                    elapsed = time.time() - self._timestamp_slurm_process_started
+                    if elapsed > 4:
+                        raise Exception(f'Unable to start batch after {elapsed} sec.')
         elif self.isRunning():
             # first iterate all the workers so they can do what they need to do
             for w in self._workers:
@@ -609,6 +605,11 @@ class _SlurmProcess():
                     ka.set_config(**kachery_config)
                 except:
                     pass
+
+                slurm_started_fname = working_dir + '/slurm_started.txt'
+                with FileLock(slurm_started_fname + '.lock', exclusive=True):
+                    with open(slurm_started_fname, 'w') as f:
+                        f.write('slurm is running.')
 
                 # Let's claim a place and determine which worker number we are
                 worker_num = None

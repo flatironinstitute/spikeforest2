@@ -95,7 +95,7 @@ def get_config() -> dict:
 
 def function(name, version):
     def wrap(f):
-        def run(**kwargs):
+        def run(*, _label=name, **kwargs):
             import kachery as ka
 
             config = _global_config.get_config()
@@ -198,6 +198,7 @@ def function(name, version):
 
             job = dict(
                 name=name,
+                label=_label,
                 version=version,
                 f=f,
                 kwargs=kwargs,
@@ -224,9 +225,9 @@ def function(name, version):
                 else:
                     if not _job_is_ready(job):
                         if not _global['inside_job_queue']:
-                            raise Exception(f'Job {name} is not ready and you are not inside a job queue.')
+                            raise Exception(f'Job [{_label}] is not ready and you are not inside a job queue.')
                         else:
-                            raise Exception(f'Job {name} is not ready and you are not using a job handler.')
+                            raise Exception(f'Job [{_label}] is not ready and you are not using a job handler.')
                     _prepare_job_to_run(job)
                     if not _check_cache_for_job_result(job):
                         if job['container'] is not None:
@@ -355,6 +356,7 @@ def _prepare_job_to_run(job):
 def _run_job(job):
     resolved_kwargs = job['resolved_kwargs']
     name = job['name']
+    label = job.get('label', name)
     f = job.get('f', None)
     f_serialized = job.get('f_serialized', None)
     _container = job['container']
@@ -391,11 +393,12 @@ def _run_job(job):
             local_modules = getattr(f, '_hither_local_modules', [])
         else:
             local_modules = []
-        print('===== Hither: running {} in container: {}'.format(name, _container))
+        print('===== Hither: running [{}] in container: {}'.format(label, _container))
         returnval, runtime_info = run_function_in_container(
             name=name,
             function=f,
             function_serialized = f_serialized,
+            label=label,
             input_file_keys=input_file_keys,
             input_file_extensions=input_file_extensions,
             output_file_keys=output_file_keys,
@@ -585,9 +588,9 @@ def _check_cache_for_job_result(job):
         return False
     if not result0.success:
         if (not _cache_failing) or _exception_on_fail:
-            print('===== Hither: not using failing cached result for {}'.format(job['name']))
+            print('===== Hither: not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
-    print('===== Hither: found result of {} in cache'.format(job['name']))
+    print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name']))
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])

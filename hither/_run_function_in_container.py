@@ -15,6 +15,7 @@ def run_function_in_container(*,
         name: str,
         function,
         function_serialized: Union[Dict[str, Any], None],
+        label: Union[str, None]=None,
         container: str,
         keyword_args: dict,
         input_file_keys: List[str],
@@ -29,10 +30,13 @@ def run_function_in_container(*,
     ) -> Tuple[Union[Any, None], dict]:
     import kachery as ka
 
+    if label is None:
+        label = name
+
     # generate source code
     if function_serialized is None:
         if function is None:
-            raise Exception('Unexpected function and function_serialized are both None')
+            raise Exception('Unexpected: function and function_serialized are both None for [{}]'.format(label))
         function_serialized = _serialize_runnable_function(function, name=name, additional_files=additional_files, local_modules=local_modules, container=container)
     
     code = function_serialized['code']
@@ -201,7 +205,7 @@ def run_function_in_container(*,
         retcode = ss.wait()
 
         if retcode != 0:
-            raise Exception('Non-zero exit code ({}) running {} in container {}'.format(retcode, name, container))
+            raise Exception('Non-zero exit code ({}) running [{}] in container {}'.format(retcode, label, container))
 
         with open(os.path.join(temp_path, 'result.json')) as f:
             obj = json.load(f)
@@ -212,7 +216,7 @@ def run_function_in_container(*,
 
         if obj['status'] == 'error':
             if exception_on_fail:
-                raise Exception('Error running function in container.')
+                raise Exception('Error running function [{}] in container.'.format(label))
         else:
             for a, b in outputs_to_copy.items():
                 shutil.copyfile(a, b)

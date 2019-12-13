@@ -3,7 +3,8 @@ import hither
 
 @hither.function('kilosort2', '0.1.0-w2')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-kilosort2:0.1.0')
+#@hither.container(default='docker://magland/sf-kilosort2:0.1.0')
+@hither.container(default=None)
 @hither.local_module('../../../spikeforest2_utils')
 def kilosort2(
     recording_path,
@@ -11,7 +12,6 @@ def kilosort2(
     detect_threshold=6,
     car=True, # whether to do common average referencing
     minFR=1/50, # minimum spike rate (Hz), if a cluster falls below this for too long it gets removed
-    electrode_dimensions=None,
     freq_min=150, # min. bp filter freq (Hz), use 0 for no filter
     sigmaMask=30, # sigmaMask
     nPCs=3, # PCs per channel?
@@ -35,7 +35,6 @@ def kilosort2(
         detect_threshold=detect_threshold,
         car=car,
         minFR=minFR,
-        electrode_dimensions=electrode_dimensions,
         freq_min=freq_min,
         sigmaMask=sigmaMask,
         nPCs=nPCs

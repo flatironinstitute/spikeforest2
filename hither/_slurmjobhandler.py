@@ -366,7 +366,7 @@ class _Batch():
                 num_running = num_running + 1
 
         # The job object
-        print('Adding job to batch {} ({}/{}): {}'.format(self._batch_label, num_running + 1, self._num_workers, job.get('name', '<>')))
+        print('Adding job to batch {} ({}/{}): [{}]'.format(self._batch_label, num_running + 1, self._num_workers, job.get('label', job.get('name', '<>'))))
 
         # Since we are adding a job, we declare that we have had a job
         self._had_a_job = True
@@ -540,7 +540,11 @@ class _Worker():
                 with open(result_fname + '.error', 'r') as f:
                     print(f.read())
                 print('#####################################################################################################################################')
-                raise Exception('Unexpected error processing job in batch.')
+                try:
+                    label = self._job.get('label', self._job.get('name', '<>'))
+                except:
+                    label = 'unknown'
+                raise Exception(f'Unexpected error processing job {label} in batch.')
 
         if result_serialized:
             # Here's the result that we read above

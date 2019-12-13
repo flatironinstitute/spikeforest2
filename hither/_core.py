@@ -238,6 +238,8 @@ def function(name, version):
                         if result.success:
                             _handle_temporary_outputs(outputs0)
                         else:
+                            if _exception_on_fail:
+                                raise Exception(f'Error running job: {_label}')
                             for output in outputs0:
                                 output._failed = True
                                 output._exists = False
@@ -361,8 +363,6 @@ def _run_job(job):
     f_serialized = job.get('f_serialized', None)
     _container = job['container']
     _gpu = job['gpu']
-    _exception_on_fail = job['exception_on_fail']
-    if _exception_on_fail is None: _exception_on_fail = True
     _cache = job['cache']
     _show_console = job['show_console']
     _show_cached_console = job['show_cached_console']
@@ -374,18 +374,16 @@ def _run_job(job):
 
     if _container is None and f is not None:
         with ConsoleCapture(name, show_console=_show_console) as cc:
+            print(f'###### RUNNING: {label}')
             try:
                 returnval = f(**resolved_kwargs)
                 success = True
                 status = 'finished'
             except:
-                if _exception_on_fail:
-                    raise
-                else:
-                    traceback.print_exc()
-                    returnval = None
-                    success = False
-                    status = 'error'
+                traceback.print_exc()
+                returnval = None
+                success = False
+                status = 'error'
         runtime_info = cc.runtime_info()
         runtime_info['status'] = status
     else:
@@ -407,7 +405,6 @@ def _run_job(job):
             keyword_args=resolved_kwargs,
             local_modules=local_modules,
             gpu=_gpu,
-            exception_on_fail=_exception_on_fail,
             show_console=_show_console
         )
         success = (runtime_info['status'] == 'finished')
@@ -443,13 +440,21 @@ def wait(timeout: Union[float, None]=None):
                             job['status'] = 'queued'
                             queued_jobs.append(job)
                             job_handler = job['job_handler']
+
+                            _exception_on_fail = job.get('exception_on_fail', None)
+                            if _exception_on_fail is None: _exception_on_fail = True
+                            _label = job.get('label', job.get('name'))
                             
                             if job_handler:
                                 job_handler.handle_job(job)
                             else:
                                 _run_job(job)
+                                result0 = job['result']
+                                if not result0.success:
+                                    if _exception_on_fail:
+                                        raise Exception(f'Error running job: {_label}')
                                 if job['cache'] is not None:
-                                    _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
+                                    _store_result(serialized_result=_internal_serialize_result(result0), cache=job['cache'])
                     else:
                         new_pending_jobs.append(job)
             _global['pending_jobs'] = new_pending_jobs
@@ -463,6 +468,12 @@ def wait(timeout: Union[float, None]=None):
                     if job['cache'] is not None:
                         _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                     finished_jobs.append(job)
+                elif job['status'] == 'error':
+                    _exception_on_fail = job.get('exception_on_fail', None)
+                    if _exception_on_fail is None: _exception_on_fail = True
+                    _label = job.get('label', job.get('name'))
+                    if _exception_on_fail:
+                        raise Exception(f'Error running job: {_label}')
             _global['queued_jobs'] = new_queued_jobs
 
             elapsed = time.time() - timer

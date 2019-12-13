@@ -81,6 +81,7 @@ def run_function_in_container(*,
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
                 with ConsoleCapture('{function_name}', show_console={show_console_str}) as cc:
+                    print('###### RUNNING: {label}')
                     try:
                         retval = {function_name}(**kwargs)
                         status = 'finished'
@@ -112,6 +113,7 @@ def run_function_in_container(*,
             keyword_args_json=json.dumps(keyword_args_adjusted),
             kachery_config_json=json.dumps(ka.get_config()),
             function_name=name,
+            label=label,
             show_console_str='True' if show_console else 'False'
         )
 

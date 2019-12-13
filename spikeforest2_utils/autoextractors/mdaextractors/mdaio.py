@@ -154,7 +154,7 @@ def is_url(path):
         'kbucket://') or path.startswith('sha1://') or path.startswith('sha1dir://')
 
 def _read_header(path, verbose=True):
-    bytes0 = ka.load_bytes(path, start=0, end=200)
+    bytes0 = ka.load_bytes(path, start=0, end=min(200, os.path.getsize(path)))
     if bytes0 is None:
         ka.set_config(fr='default_readonly')
         print(ka.get_file_info(path))

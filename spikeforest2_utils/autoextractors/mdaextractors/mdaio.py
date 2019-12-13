@@ -131,7 +131,11 @@ class DiskReadMda:
         try:
             bytes0 = ka.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
         except:
-            print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} of size {os.path.getsize(self._path)}')
+            info0 = ka.get_file_info(self._path)
+            if info0 is None:
+                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} (no info)')
+            else:
+                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} of size {info0['size']}')
             raise
         return np.frombuffer(bytes0, dtype=self._header.dt, count=N)
 

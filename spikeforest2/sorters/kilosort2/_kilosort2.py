@@ -6,6 +6,7 @@ import hither
 #@hither.container(default='docker://magland/sf-kilosort2:0.1.0')
 @hither.container(default=None)
 @hither.local_module('../../../spikeforest2_utils')
+@hither.additional_files(['*.m'])
 def kilosort2(
     recording_path,
     sorting_out,

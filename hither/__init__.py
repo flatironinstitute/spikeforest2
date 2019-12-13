@@ -1,4 +1,4 @@
-from ._core import function, input_file, output_file, container, local_module
+from ._core import function, input_file, output_file, container, local_module, additional_files
 from ._core import File
 from ._core import config, job_queue
 from ._core import _run_job, Result, _set_result, _serialize_runnable_job, _deserialize_runnable_job

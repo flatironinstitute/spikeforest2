@@ -389,8 +389,10 @@ def _run_job(job):
     else:
         if f is not None:
             local_modules = getattr(f, '_hither_local_modules', [])
+            additional_files = getattr(f, '_hither_additional_files', [])
         else:
             local_modules = []
+            additional_files = []
         print('===== Hither: running [{}] in container: {}'.format(label, _container))
         returnval, runtime_info = run_function_in_container(
             name=name,
@@ -404,6 +406,7 @@ def _run_job(job):
             container=_container,
             keyword_args=resolved_kwargs,
             local_modules=local_modules,
+            additional_files=additional_files,
             gpu=_gpu,
             show_console=_show_console
         )
@@ -567,6 +570,14 @@ def local_module(module_path):
         if not hasattr(f, '_hither_local_modules'):
             setattr(f, '_hither_local_modules', [])
         getattr(f, '_hither_local_modules').append(module_path)
+        return f
+    return wrap
+
+def additional_files(additional_files):
+    def wrap(f):
+        if not hasattr(f, '_hither_additional_files'):
+            setattr(f, '_hither_additional_files', [])
+        setattr(f, '_hither_additional_files', getattr(f, '_hither_additional_files') + additional_files)
         return f
     return wrap
 
@@ -763,11 +774,12 @@ def _serialize_runnable_job(job):
             job_serialized[k] = _smartcopy(v)
     if 'f' in job:
         local_modules = getattr(job['f'], '_hither_local_modules', [])
+        additional_files = getattr(job['f'], '_hither_additional_files', [])
         job_serialized['f_serialized'] = _serialize_runnable_function(
             job['f'],
             name=job['name'],
-            additional_files=[], # fix this in the future
             local_modules=local_modules,
+            additional_files=additional_files,
             container=job['container']
         )
     job_serialized['result'] = job['result'].serialize()

@@ -25,7 +25,6 @@ def run_function_in_container(*,
         additional_files: List[str]=[],
         local_modules: List[str]=[],
         gpu: bool=False,
-        exception_on_fail: bool=True,
         show_console: bool=True
     ) -> Tuple[Union[Any, None], dict]:
     import kachery as ka
@@ -217,8 +216,7 @@ def run_function_in_container(*,
         runtime_info['status'] = status
 
         if obj['status'] == 'error':
-            if exception_on_fail:
-                raise Exception('Error running function [{}] in container.'.format(label))
+            pass
         else:
             for a, b in outputs_to_copy.items():
                 shutil.copyfile(a, b)

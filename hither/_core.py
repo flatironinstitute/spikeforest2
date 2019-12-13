@@ -590,7 +590,7 @@ def _check_cache_for_job_result(job):
         if (not _cache_failing) or _exception_on_fail:
             print('===== Hither: not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
-    print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name']))
+    print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name'])))
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])

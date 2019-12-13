@@ -24,7 +24,8 @@ def run_function_in_container(*,
         additional_files: List[str]=[],
         local_modules: List[str]=[],
         gpu: bool=False,
-        exception_on_fail: bool=True
+        exception_on_fail: bool=True,
+        show_console: bool=True
     ) -> Tuple[Union[Any, None], dict]:
     import kachery as ka
 
@@ -75,7 +76,7 @@ def run_function_in_container(*,
             def main():
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
-                with ConsoleCapture('{function_name}') as cc:
+                with ConsoleCapture('{function_name}', show_console={show_console_str}) as cc:
                     try:
                         retval = {function_name}(**kwargs)
                         status = 'finished'
@@ -106,7 +107,8 @@ def run_function_in_container(*,
         """.format(
             keyword_args_json=json.dumps(keyword_args_adjusted),
             kachery_config_json=json.dumps(ka.get_config()),
-            function_name=name
+            function_name=name,
+            show_console_str='True' if show_console else 'False'
         )
 
         # For unindenting

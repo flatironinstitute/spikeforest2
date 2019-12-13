@@ -536,8 +536,10 @@ class _Worker():
                 # So we are going to read the exception information from the .error
                 # file, print it, and then raise an exception
                 # This is serious and should not happen.
+                print('#####################################################################################################################################')
                 with open(result_fname + '.error', 'r') as f:
                     print(f.read())
+                print('#####################################################################################################################################')
                 raise Exception('Unexpected error processing job in batch.')
 
         if result_serialized:

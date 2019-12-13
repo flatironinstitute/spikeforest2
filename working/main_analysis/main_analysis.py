@@ -143,10 +143,12 @@ def main():
             recording_path = recording['directory']
             sorting_true_path = recording['firingsTrue']
             recording['results']['computed-info'] = processing.compute_recording_info.run(
+                _label=f'compute-recording-info:{recording["study"]}/{recording["name"]}',
                 recording_path=recording_path,
                 json_out=hither.File()
             )
             recording['results']['true-units-info'] = processing.compute_units_info.run(
+                _label=f'compute-units-info:{recording["study"]}/{recording["name"]}',
                 recording_path=recording_path,
                 sorting_path=sorting_true_path,
                 json_out=hither.File()
@@ -168,14 +170,20 @@ def main():
                 if gpu:
                     jh = job_handler_gpu
                 with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, job_handler=jh):
-                    sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
+                    sorting_result = Sorter.run(
+                        _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
+                        recording_path=recording['directory'],
+                        sorting_out=hither.File()
+                    )
                     recording['results']['sorting-' + sorter['name']] = sorting_result
                 recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
+                    _label=f'comparison-with-truth:{algorithm}:{recording["study"]}/{recording["name"]}',
                     sorting_path=sorting_result.outputs.sorting_out,
                     sorting_true_path=sorting_true_path,
                     json_out=hither.File()
                 )
                 recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
+                    _label=f'units-info:{algorithm}:{recording["study"]}/{recording["name"]}',
                     recording_path=recording_path,
                     sorting_path=sorting_result.outputs.sorting_out,
                     json_out=hither.File()

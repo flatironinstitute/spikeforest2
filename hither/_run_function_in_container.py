@@ -73,6 +73,19 @@ def run_function_in_container(*,
                     outputs_to_copy[fname_temp] = fname_outside
                 else:
                     keyword_args_adjusted[oname] = fname_outside
+        
+        if container is not None:
+            run_in_container_path = '/run_in_container'
+            env_vars_inside_container = dict(
+                KACHERY_STORAGE_DIR='/kachery-storage',
+                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules',
+                HOME='$HOME'
+            )
+        else:
+            run_in_container_path = temp_path
+            env_vars_inside_container = dict(
+                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules'
+            )
 
         run_py_script = """
             #!/usr/bin/env python
@@ -97,7 +110,7 @@ def run_function_in_container(*,
                         status = 'error'
                 
                 runtime_info = cc.runtime_info()
-                with open('/run_in_container/result.json', 'w') as f:
+                with open('{run_in_container_path}/result.json', 'w') as f:
                     json.dump(dict(retval=retval, status=status, runtime_info=runtime_info), f)
             
             def _configure_kachery():
@@ -120,24 +133,12 @@ def run_function_in_container(*,
             kachery_config_json=json.dumps(ka.get_config()),
             function_name=name,
             label=label,
-            show_console_str='True' if show_console else 'False'
+            show_console_str='True' if show_console else 'False',
+            run_in_container_path=run_in_container_path
         )
 
         # For unindenting
         ShellScript(run_py_script).write(os.path.join(temp_path, 'run.py'))
-
-        if container is not None:
-            run_in_container_path = '/run_in_container'
-            env_vars_inside_container = dict(
-                KACHERY_STORAGE_DIR='/kachery-storage',
-                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules',
-                HOME='$HOME'
-            )
-        else:
-            run_in_container_path = temp_path
-            env_vars_inside_container = dict(
-                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules'
-            )
 
         # See: https://wiki.bash-hackers.org/commands/builtin/exec
         run_inside_container_script = """

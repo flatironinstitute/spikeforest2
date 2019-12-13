@@ -266,18 +266,18 @@ class _Batch():
                 if os.path.exists(os.path.join(self._working_dir, 'slurm_started.txt')):
                     self._status = 'running'
                     self._time_started = time.time()
-                else:
-                    # the following is probably not needed
-                    # but I suspected some trouble with our ceph
-                    # file system where the expected file
-                    # was not being detected until I added this
-                    # line. hmmmmm.
-                    x = os.listdir(self._working_dir)
-                    if len(x) == 0:
-                        assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
-                    elapsed = time.time() - self._timestamp_slurm_process_started
-                    if elapsed > 60:
-                        raise Exception(f'Unable to start batch after {elapsed} sec.')
+                # else:
+                #     # the following is probably not needed
+                #     # but I suspected some trouble with our ceph
+                #     # file system where the expected file
+                #     # was not being detected until I added this
+                #     # line. hmmmmm.
+                #     x = os.listdir(self._working_dir)
+                #     if len(x) == 0:
+                #         assert('Unexpected problem. We should at least have a running.txt and a *.py file here.')
+                #     elapsed = time.time() - self._timestamp_slurm_process_started
+                #     if elapsed > 60:
+                #         raise Exception(f'Unable to start batch after {elapsed} sec.')
         elif self.isRunning():
             # first iterate all the workers so they can do what they need to do
             for w in self._workers:

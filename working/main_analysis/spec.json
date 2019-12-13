@@ -1,0 +1,28 @@
+{
+    "studysets": "sha1://3dff25a16ea0797776a824446a446d7ccf427915/studysets.json",
+    "studyset_names": [
+        "SYNTH_MEAREC_TETRODE"
+    ],
+    "spike_sorters": [
+        {
+            "name": "MountainSort4",
+            "processor_name": "mountainsort4",
+            "params": {}
+        },
+        {
+            "name": "SpykingCircus",
+            "processor_name": "spykingcircus",
+            "params": {}
+        },
+        {
+            "name": "KiloSort2",
+            "processor_name": "kilosort2",
+            "params": {}
+        },
+        {
+            "name": "IronClust",
+            "processor_name": "ironclust",
+            "params": {}
+        }
+    ]
+}

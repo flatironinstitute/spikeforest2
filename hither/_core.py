@@ -620,12 +620,14 @@ def _set_result(job, result):
     outputs0 = [getattr(result2.outputs, oname) for oname in result2._output_names]
     if result.success:
         _handle_temporary_outputs(outputs0)
+        job['status'] = 'finished'
     else:
         for output in outputs0:
             output._failed = True
             output._exists = False
             output._is_temporary = False
             output._path = None
+        job['status'] = 'error'
     for oname in result2._output_names:
         output1 = getattr(result1.outputs, oname)
         output2 = getattr(result2.outputs, oname)
@@ -635,7 +637,6 @@ def _set_result(job, result):
         output1._is_temporary = output2._is_temporary
         
         setattr(result1.outputs, oname, getattr(result2.outputs, oname))
-    job['status'] = 'finished'
 
 def _set_job_as_failed_due_to_failing_inputs(job):
     result = job['result']

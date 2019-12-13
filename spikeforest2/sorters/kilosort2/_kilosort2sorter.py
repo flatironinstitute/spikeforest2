@@ -168,8 +168,8 @@ class Kilosort2Sorter(BaseSorter):
             with (output_folder / fname).open('w') as f:
                 f.write(txt)
 
-        shutil.copy(str(source_dir.parent / 'utils' / 'writeNPY.m'), str(output_folder))
-        shutil.copy(str(source_dir.parent / 'utils' / 'constructNPYheader.m'), str(output_folder))
+        shutil.copy(str(source_dir / 'writeNPY.m'), str(output_folder))
+        shutil.copy(str(source_dir / 'constructNPYheader.m'), str(output_folder))
 
     def _run(self, recording, output_folder):
         if "win" in sys.platform:

@@ -15,6 +15,7 @@ def run_function_in_container(*,
         name: str,
         function,
         function_serialized: Union[Dict[str, Any], None],
+        label: Union[str, None]=None,
         container: str,
         keyword_args: dict,
         input_file_keys: List[str],
@@ -24,17 +25,21 @@ def run_function_in_container(*,
         additional_files: List[str]=[],
         local_modules: List[str]=[],
         gpu: bool=False,
-        exception_on_fail: bool=True
+        show_console: bool=True
     ) -> Tuple[Union[Any, None], dict]:
     import kachery as ka
+
+    if label is None:
+        label = name
 
     # generate source code
     if function_serialized is None:
         if function is None:
-            raise Exception('Unexpected function and function_serialized are both None')
+            raise Exception('Unexpected: function and function_serialized are both None for [{}]'.format(label))
         function_serialized = _serialize_runnable_function(function, name=name, additional_files=additional_files, local_modules=local_modules, container=container)
     
     code = function_serialized['code']
+    container = function_serialized['container']
 
     remove = True
     if os.getenv('HITHER_DEBUG', None) == 'TRUE':
@@ -49,8 +54,11 @@ def run_function_in_container(*,
                 fname_outside = keyword_args[iname]
                 if not _is_hash_url(fname_outside):
                     fname_inside = '/inputs/{}{}'.format(iname, input_file_extensions[iname])
-                    keyword_args_adjusted[iname] = fname_inside
-                    binds[fname_outside] = fname_inside
+                    if container is not None:
+                        keyword_args_adjusted[iname] = fname_inside
+                        binds[fname_outside] = fname_inside
+                    else:
+                        keyword_args_adjusted[iname] = fname_outside
         outputs_tmp = os.path.join(temp_path, 'outputs')
         os.mkdir(outputs_tmp)
         binds[outputs_tmp] = '/outputs'
@@ -60,8 +68,24 @@ def run_function_in_container(*,
                 fname_outside = keyword_args[oname]
                 fname_inside = '/outputs/{}{}'.format(oname, output_file_extensions[oname])
                 fname_temp = '{}/{}{}'.format(outputs_tmp, oname, output_file_extensions[oname])
-                keyword_args_adjusted[oname] = fname_inside
-                outputs_to_copy[fname_temp] = fname_outside
+                if container is not None:
+                    keyword_args_adjusted[oname] = fname_inside
+                    outputs_to_copy[fname_temp] = fname_outside
+                else:
+                    keyword_args_adjusted[oname] = fname_outside
+        
+        if container is not None:
+            run_in_container_path = '/run_in_container'
+            env_vars_inside_container = dict(
+                KACHERY_STORAGE_DIR='/kachery-storage',
+                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules',
+                HOME='$HOME'
+            )
+        else:
+            run_in_container_path = temp_path
+            env_vars_inside_container = dict(
+                PYTHONPATH=f'{run_in_container_path}/function_src/_local_modules'
+            )
 
         run_py_script = """
             #!/usr/bin/env python
@@ -75,7 +99,8 @@ def run_function_in_container(*,
             def main():
                 _configure_kachery()
                 kwargs = json.loads('{keyword_args_json}')
-                with ConsoleCapture('{function_name}') as cc:
+                with ConsoleCapture('{function_name}', show_console={show_console_str}) as cc:
+                    print('###### RUNNING: {label}')
                     try:
                         retval = {function_name}(**kwargs)
                         status = 'finished'
@@ -85,7 +110,7 @@ def run_function_in_container(*,
                         status = 'error'
                 
                 runtime_info = cc.runtime_info()
-                with open('/run_in_container/result.json', 'w') as f:
+                with open('{run_in_container_path}/result.json', 'w') as f:
                     json.dump(dict(retval=retval, status=status, runtime_info=runtime_info), f)
             
             def _configure_kachery():
@@ -106,17 +131,14 @@ def run_function_in_container(*,
         """.format(
             keyword_args_json=json.dumps(keyword_args_adjusted),
             kachery_config_json=json.dumps(ka.get_config()),
-            function_name=name
+            function_name=name,
+            label=label,
+            show_console_str='True' if show_console else 'False',
+            run_in_container_path=run_in_container_path
         )
 
         # For unindenting
         ShellScript(run_py_script).write(os.path.join(temp_path, 'run.py'))
-
-        env_vars_inside_container = dict(
-            KACHERY_STORAGE_DIR='/kachery-storage',
-            PYTHONPATH='/run_in_container/function_src/_local_modules',
-            HOME='$HOME'
-        )
 
         # See: https://wiki.bash-hackers.org/commands/builtin/exec
         run_inside_container_script = """
@@ -129,11 +151,13 @@ def run_function_in_container(*,
             export OMP_NUM_THREADS=$NUM_WORKERS
 
             export {env_vars_inside_container}
-            exec python3 /run_in_container/run.py
+            exec python3 {run_in_container_path}/run.py
         """.format(
             env_vars_inside_container=' '.join(['{}={}'.format(k, v) for k, v in env_vars_inside_container.items()]),
-            num_workers_env=os.getenv('NUM_WORKERS', '')
+            num_workers_env=os.getenv('NUM_WORKERS', ''),
+            run_in_container_path=run_in_container_path
         )
+
 
         ShellScript(run_inside_container_script).write(os.path.join(temp_path, 'run.sh'))
 
@@ -143,7 +167,15 @@ def run_function_in_container(*,
         docker_container_name = None
 
         # fancy_command = 'bash -c "((bash /run_in_container/run.sh | tee /run_in_container/stdout.txt) 3>&1 1>&2 2>&3 | tee /run_in_container/stderr.txt) 3>&1 1>&2 1>&3 | tee /run_in_container/console_out.txt"'
-        if os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
+        if container is None:
+            run_outside_container_script = """
+                #!/bin/bash
+
+                exec {run_in_container_path}/run.sh
+            """.format(
+                run_in_container_path=run_in_container_path
+            )
+        elif os.getenv('HITHER_USE_SINGULARITY', None) == 'TRUE':
             if gpu:
                 gpu_opt = '--nv'
             else:
@@ -160,7 +192,7 @@ def run_function_in_container(*,
             """.format(
                 gpu_opt=gpu_opt,
                 binds_str=' '.join(['-B {}:{}'.format(a, b) for a, b in binds.items()]),
-                container=function_serialized['container'],
+                container=container,
                 temp_path=temp_path
             )
         else:
@@ -187,7 +219,7 @@ def run_function_in_container(*,
                 docker_container_name=docker_container_name,
                 gpu_opt=gpu_opt,
                 binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
-                container=_docker_form_of_container_string(function_serialized['container']),
+                container=_docker_form_of_container_string(container),
                 temp_path=temp_path
             )
         print('#############################################################')
@@ -199,7 +231,7 @@ def run_function_in_container(*,
         retcode = ss.wait()
 
         if retcode != 0:
-            raise Exception('Non-zero exit code ({}) running {} in container {}'.format(retcode, name, container))
+            raise Exception('Non-zero exit code ({}) running [{}] in container {}'.format(retcode, label, container))
 
         with open(os.path.join(temp_path, 'result.json')) as f:
             obj = json.load(f)
@@ -209,8 +241,7 @@ def run_function_in_container(*,
         runtime_info['status'] = status
 
         if obj['status'] == 'error':
-            if exception_on_fail:
-                raise Exception('Error running function in container.')
+            pass
         else:
             for a, b in outputs_to_copy.items():
                 shutil.copyfile(a, b)
@@ -257,9 +288,6 @@ def _serialize_runnable_function(function, *, name: str, additional_files: list,
             ]
         )
     ))
-    if hasattr(function, '_hither_containers'):
-        if container in getattr(function, '_hither_containers'):
-            container = getattr(function, '_hither_containers')[container]
     return dict(
         code=code,
         container=container

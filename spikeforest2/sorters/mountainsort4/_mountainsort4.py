@@ -2,11 +2,21 @@ import json
 import random
 import hither
 
-@hither.function('mountainsort4', '0.3.2-w4')
+@hither.function('mountainsort4', '0.3.2-w5')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-mountainsort4:0.3.2')
 @hither.local_module('../../../spikeforest2_utils')
-def mountainsort4(recording_path: str, sorting_out: str):
+def mountainsort4(
+    recording_path: str,
+    sorting_out: str,
+    detect_sign=-1,
+    adjacency_radius=50,
+    clip_size=50,
+    detect_threshold=3,
+    detect_interval=10,
+    freq_min=300,
+    freq_max=6000
+):
     import spiketoolkit as st
     import spikesorters as ss
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
@@ -18,9 +28,9 @@ def mountainsort4(recording_path: str, sorting_out: str):
     # recording = se.SubRecordingExtractor(parent_recording=recording, start_frame=0, end_frame=30000 * 1)
     
     # Preprocessing
-    print('Preprocessing...')
-    recording = st.preprocessing.bandpass_filter(recording, freq_min=300, freq_max=6000)
-    recording = st.preprocessing.whiten(recording)
+    # print('Preprocessing...')
+    # recording = st.preprocessing.bandpass_filter(recording, freq_min=300, freq_max=6000)
+    # recording = st.preprocessing.whiten(recording)
 
     # Sorting
     print('Sorting...')
@@ -30,10 +40,22 @@ def mountainsort4(recording_path: str, sorting_out: str):
         delete_output_folder=True
     )
 
+    num_workers = os.environ.get('NUM_WORKERS', None)
+    if num_workers:
+        num_workers = int(num_workers)
+
     sorter.set_params(
-        detect_sign=-1,
-        adjacency_radius=50,
-        detect_threshold=4
+        detect_sign=detect_sign,
+        adjacency_radius=adjacency_radius,
+        clip_size=clip_size,
+        detect_threshold=detect_threshold,
+        detect_interval=detect_interval,
+        num_workers=num_workers,
+        curation=False,
+        whiten=True,
+        filter=True,
+        freq_min=freq_min,
+        freq_max=freq_max
     )     
     timer = sorter.run()
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))

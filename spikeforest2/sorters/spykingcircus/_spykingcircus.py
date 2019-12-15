@@ -1,11 +1,24 @@
+import os
 import random
 import hither
 
-@hither.function('spykingcircus', '0.8.6-w1')
+@hither.function('spykingcircus', '0.8.6-w2')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-spykingcircus:0.8.6')
 @hither.local_module('../../../spikeforest2_utils')
-def spykingcircus(recording_path, sorting_out):
+def spykingcircus(
+    recording_path,
+    sorting_out,
+    detect_sign=-1,
+    adjacency_radius=200,
+    detect_threshold=6,
+    template_width_ms=3,
+    filter=True,
+    merge_spikes=True,
+    auto_merge=0.5,
+    whitening_max_elts=1000,
+    clustering_max_elts=10000
+):
     import spiketoolkit as st
     import spikesorters as ss
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
@@ -20,7 +33,21 @@ def spykingcircus(recording_path, sorting_out):
         delete_output_folder=True
     )
 
+    num_workers = os.environ.get('NUM_WORKERS', None)
+    if not num_workers: num_workers='1'
+    num_workers = int(num_workers)
+
     sorter.set_params(
+        detect_sign=detect_sign,
+        adjacency_radius=adjacency_radius,
+        detect_threshold=detect_threshold,
+        template_width_ms=template_width_ms,
+        filter=filter,
+        merge_spikes=merge_spikes,
+        auto_merge=auto_merge,
+        num_workers=num_workers,
+        whitening_max_elts=whitening_max_elts,
+        clustering_max_elts=clustering_max_elts
     )     
     timer = sorter.run()
     print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))

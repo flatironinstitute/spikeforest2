@@ -21,10 +21,11 @@ def main():
     # parser.add_argument('--job_timeout', help='Job timeout in seconds. Default is 20 minutes = 1200 seconds.', required=False, default=1200)
     # parser.add_argument('--slurm', help='Optional SLURM configuration file (.json format)', required=False, default=None)
     # parser.add_argument('--verbose', help='Provide some additional verbose output.', action='store_true')
+    parser.add_argument('spec', help='Path to the .json file containing the analysis specification')
     parser.add_argument('--output', '-o', help='The output .json file', required=True)
     parser.add_argument('--force-run', help='Force rerunning of all spike sorting', action='store_true')
     parser.add_argument('--force-run-all', help='Force rerunning of all spike sorting and other processing', action='store_true')
-    parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')
+    parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')    
     parser.add_argument('--slurm', help='Path to slurm config file', required=False, default=None)
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--test', help='Only run a few.', action='store_true')
@@ -33,33 +34,15 @@ def main():
     force_run = args.force_run or args.force_run_all
     force_run_all = args.force_run_all
 
-    studyset_names = ['SYNTH_MEAREC_TETRODE']
-    spike_sorters: List[Dict[Union[str, dict]]] = [
-        dict(
-            name='MountainSort4',
-            processor_name='mountainsort4',
-            params = dict()
-        ),
-        dict(
-            name='SpykingCircus',
-            processor_name='spykingcircus',
-            params = dict()
-        ),
-        dict(
-            name='KiloSort2',
-            processor_name='kilosort2',
-            params = dict()
-        ),
-        dict(
-            name='IronClust',
-            processor_name='ironclust',
-            params = dict()
-        )
-    ]
+    with open(args.spec, 'r') as f:
+        spec = json.load(f)
+
+    studysets_path = spec['studysets']
+    studyset_names = spec['studyset_names']
+    spike_sorters = spec['spike_sorters']
 
     ka.set_config(fr='default_readonly')
 
-    studysets_path = 'sha1://3dff25a16ea0797776a824446a446d7ccf427915/studysets.json'
     print(f'Loading study sets object from: {studysets_path}')
     studysets_obj = ka.load_object(studysets_path)
     if not studysets_obj:
@@ -143,10 +126,12 @@ def main():
             recording_path = recording['directory']
             sorting_true_path = recording['firingsTrue']
             recording['results']['computed-info'] = processing.compute_recording_info.run(
+                _label=f'compute-recording-info:{recording["study"]}/{recording["name"]}',
                 recording_path=recording_path,
                 json_out=hither.File()
             )
             recording['results']['true-units-info'] = processing.compute_units_info.run(
+                _label=f'compute-units-info:{recording["study"]}/{recording["name"]}',
                 recording_path=recording_path,
                 sorting_path=sorting_true_path,
                 json_out=hither.File()
@@ -168,14 +153,20 @@ def main():
                 if gpu:
                     jh = job_handler_gpu
                 with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, job_handler=jh):
-                    sorting_result = Sorter.run(recording_path=recording['directory'], sorting_out=hither.File())
+                    sorting_result = Sorter.run(
+                        _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
+                        recording_path=recording['directory'],
+                        sorting_out=hither.File()
+                    )
                     recording['results']['sorting-' + sorter['name']] = sorting_result
                 recording['results']['comparison-with-truth-' + sorter['name']] = compare_with_truth.run(
+                    _label=f'comparison-with-truth:{algorithm}:{recording["study"]}/{recording["name"]}',
                     sorting_path=sorting_result.outputs.sorting_out,
                     sorting_true_path=sorting_true_path,
                     json_out=hither.File()
                 )
                 recording['results']['units-info-' + sorter['name']] = processing.compute_units_info.run(
+                    _label=f'units-info:{algorithm}:{recording["study"]}/{recording["name"]}',
                     recording_path=recording_path,
                     sorting_path=sorting_result.outputs.sorting_out,
                     json_out=hither.File()

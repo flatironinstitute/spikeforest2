@@ -128,7 +128,15 @@ class DiskReadMda:
     def _read_chunk_1d(self, i, N):
         start_byte = self._header.header_size + self._header.num_bytes_per_entry * i
         end_byte = start_byte + self._header.num_bytes_per_entry * N
-        bytes0 = ka.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
+        try:
+            bytes0 = ka.load_bytes(self._path, start=int(start_byte), end=int(end_byte))
+        except:
+            info0 = ka.get_file_info(self._path)
+            if info0 is None:
+                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} (no info)')
+            else:
+                print(f'Problem reading bytes {start_byte}-{end_byte} from file {self._path} of size {info0["size"]}')
+            raise
         return np.frombuffer(bytes0, dtype=self._header.dt, count=N)
 
     # def _read_chunk_1d_helper(self, path0, N, *, offset):
@@ -150,7 +158,10 @@ def is_url(path):
         'kbucket://') or path.startswith('sha1://') or path.startswith('sha1dir://')
 
 def _read_header(path, verbose=True):
-    bytes0 = ka.load_bytes(path, start=0, end=200)
+    info0 = ka.get_file_info(path)
+    if info0 is None:
+        raise Exception(f'Unable to find file: {path}')
+    bytes0 = ka.load_bytes(path, start=0, end=min(200, info0['size']))
     if bytes0 is None:
         ka.set_config(fr='default_readonly')
         print(ka.get_file_info(path))

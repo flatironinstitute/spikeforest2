@@ -153,7 +153,7 @@ def main():
                     jh = job_handler
                     if gpu:
                         jh = job_handler_gpu
-                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, job_handler=jh):
+                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh):
                         sorting_result = Sorter.run(
                             _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
                             recording_path=recording['directory'],

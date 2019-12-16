@@ -32,9 +32,9 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 ### Compiled kilosort2
 ### To generate (matlab compiler required):
 ###    See matlab/ directory
-COPY kilosort2_master /kilosort2_master
-RUN chmod a+x /kilosort2_master
-ENV KILOSORT2_BINARY_PATH=/kilosort2_master
+COPY kilosort2_binary /kilosort2_binary
+RUN chmod a+x /kilosort2_binary
+ENV KILOSORT2_BINARY_PATH=/kilosort2_binary
 
 # python packages
 RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0

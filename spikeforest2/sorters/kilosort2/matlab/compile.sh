@@ -13,11 +13,12 @@ cd $KILOSORT2_PATH/CUDA
 cd "$thisdir"
 
 mcc -m -v -R '-nodesktop, -nosplash -nojvm' \
+  -a kilosort2_master.m \
   -a kilosort2_channelmap.m \
   -a kilosort2_config.m \
   -a constructNPYheader.m \
   -a writeNPY.m \
   -a $KILOSORT2_PATH \
-  kilosort2_master.m
+  kilosort2_binary.m
 
-cp kilosort2_master ../container/
+cp kilosort2_binary ../container/

@@ -1,9 +1,9 @@
 import random
 import hither
 
-@hither.function('kilosort2', '0.1.2-w1')
+@hither.function('kilosort2', '0.1.3-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-kilosort2:0.1.2')
+@hither.container(default='docker://magland/sf-kilosort2:0.1.3')
 @hither.container(default=None)
 @hither.local_module('../../../spikeforest2_utils')
 @hither.additional_files(['*.m'])

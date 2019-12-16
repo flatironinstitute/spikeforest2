@@ -37,6 +37,12 @@ RUN chmod a+x /kilosort2_binary
 ENV KILOSORT2_BINARY_PATH=/kilosort2_binary
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0
-RUN pip install spikesorters==0.2.2
+# RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0
+# RUN pip install spikesorters==0.2.2
+
+# old versions of spikeinterface
+RUN pip install spikeextractors==0.5.3
+RUN pip install spiketoolkit==0.3.5
+RUN pip install spikesorters==0.1.2
+
 RUN pip install kachery==0.4.6

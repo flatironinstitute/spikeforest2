@@ -4,3 +4,4 @@ from .ironclust import ironclust
 from .kilosort2 import kilosort2
 from .spykingcircus import spykingcircus
 from .herdingspikes2 import herdingspikes2
+from .tridesclous import tridesclous

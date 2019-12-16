@@ -186,36 +186,37 @@ def main():
     sorting_results = []
     for sorter in spike_sorters:
         for recording in recordings:
-            sorting_result = recording['results']['sorting-' + sorter['name']]
-            comparison_result = recording['results']['comparison-with-truth-' + sorter['name']]
-            units_info_result = recording['results']['units-info-' + sorter['name']]
-            sr = dict(
-                recording=recording,
-                sorter=sorter,
-                firings_true=recording['directory'] + '/firings_true.mda',
-                processor_name=sorter['processor_name'],
-                processor_version=sorting_result.version,
-                execution_stats=dict(
-                    start_time=sorting_result.runtime_info['start_time'],
-                    end_time=sorting_result.runtime_info['end_time'],
-                    elapsed_sec=sorting_result.runtime_info['end_time'] - sorting_result.runtime_info['start_time'],
-                    retcode=0 if sorting_result.success else -1,
-                    timed_out=False
-                ),
-                container=sorting_result.container,
-                console_out=ka.store_text(_console_out_to_str(sorting_result.runtime_info['console_out']))
-            )
-            if sorting_result.success:
-                sr['firings'] = ka.store_file(sorting_result.outputs.sorting_out._path)
-                sr['comparison_with_truth'] = dict(
-                    json=ka.store_file(comparison_result.outputs.json_out._path)
+            if recording['study_set'] in sorter['studysets']:
+                sorting_result = recording['results']['sorting-' + sorter['name']]
+                comparison_result = recording['results']['comparison-with-truth-' + sorter['name']]
+                units_info_result = recording['results']['units-info-' + sorter['name']]
+                sr = dict(
+                    recording=recording,
+                    sorter=sorter,
+                    firings_true=recording['directory'] + '/firings_true.mda',
+                    processor_name=sorter['processor_name'],
+                    processor_version=sorting_result.version,
+                    execution_stats=dict(
+                        start_time=sorting_result.runtime_info['start_time'],
+                        end_time=sorting_result.runtime_info['end_time'],
+                        elapsed_sec=sorting_result.runtime_info['end_time'] - sorting_result.runtime_info['start_time'],
+                        retcode=0 if sorting_result.success else -1,
+                        timed_out=False
+                    ),
+                    container=sorting_result.container,
+                    console_out=ka.store_text(_console_out_to_str(sorting_result.runtime_info['console_out']))
                 )
-                sr['sorted_units_info'] = ka.store_file(units_info_result.outputs.json_out._path)
-            else:
-                sr['firings'] = None
-                sr['comparison_with_truth'] = None
-                sr['sorted_units_info'] = None
-            sorting_results.append(sr)
+                if sorting_result.success:
+                    sr['firings'] = ka.store_file(sorting_result.outputs.sorting_out._path)
+                    sr['comparison_with_truth'] = dict(
+                        json=ka.store_file(comparison_result.outputs.json_out._path)
+                    )
+                    sr['sorted_units_info'] = ka.store_file(units_info_result.outputs.json_out._path)
+                else:
+                    sr['firings'] = None
+                    sr['comparison_with_truth'] = None
+                    sr['sorted_units_info'] = None
+                sorting_results.append(sr)
     
     # Delete results from recordings
     for recording in recordings:

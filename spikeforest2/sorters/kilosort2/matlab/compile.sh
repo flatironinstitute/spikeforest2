@@ -8,7 +8,7 @@ fi
 thisdir=$PWD
 
 cd $KILOSORT2_PATH/CUDA
-matlab -nodisplay -nosplash -r "mexGPUall; quit"
+# matlab -nodisplay -nosplash -r "mexGPUall; quit"
 
 cd "$thisdir"
 
@@ -17,6 +17,7 @@ mcc -m -v -R '-nodesktop, -nosplash -nojvm' \
   -a kilosort2_config.m \
   -a constructNPYheader.m \
   -a writeNPY.m \
+  -a $KILOSORT2_PATH \
   kilosort2_master.m
 
 cp kilosort2_master ../container/

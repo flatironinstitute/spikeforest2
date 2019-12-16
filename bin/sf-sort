@@ -25,9 +25,6 @@ def main():
         with hither.config(container='default', cache=cache):
             sorting_path = sorters.sort(algorithm=algorithm, recording_path=recording_path)
             print('SORTING: {}'.format(sorting_path))
-            if sorting_out_path is not None:
-                with open(sorting_out_path, 'w') as f:
-                    json.dump(ka.load_object(sorting_path), f, indent=4)
             
 
 if __name__ == "__main__":

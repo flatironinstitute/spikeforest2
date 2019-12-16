@@ -14,4 +14,4 @@ def sort(algorithm: str, recording_path: str):
         result = sorter.run(recording_path=recording_path, sorting_out=hither.File())
     print('SORTING')
     print('==============================================')
-    return ka.store_file(result.outputs.sorting_out._path, basename='sorting_out.json')
+    return ka.store_file(result.outputs.sorting_out._path, basename='firings.mda')

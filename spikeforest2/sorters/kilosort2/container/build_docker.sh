@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t magland/sf-kilosort2:0.1.0 .
+docker build -t magland/sf-kilosort2:0.1.1 .

@@ -30,15 +30,13 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 
 #########################################
 ### Compiled kilosort2
-### To generate:
-###    clone ironclust
-###    clone kilosort2
-###    cd ironclust/matlab
-###    run_ksort2 mcc [path-to-kilosort2]
-###    put the resulting file "run_ksort2" here
-COPY run_ksort2 /run_ksort2
-RUN chmod a+x /run_ksort2
+### To generate (matlab compiler required):
+###    See matlab/ directory
+COPY kilosort2_binary /kilosort2_binary
+RUN chmod a+x /kilosort2_binary
+ENV KILOSORT2_BINARY_PATH=/kilosort2_binary
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1
-RUN pip install kachery==0.4.4
+RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0
+RUN pip install spikesorters==0.2.2
+RUN pip install kachery==0.4.6

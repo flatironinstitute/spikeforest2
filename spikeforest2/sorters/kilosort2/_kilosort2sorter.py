@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import json
 import sys
 import numpy as np
 from typing import Union
@@ -12,6 +13,8 @@ from hither import ShellScript
 
 
 def check_if_installed(kilosort2_path: Union[str, None]):
+    if os.getenv('KILOSORT2_BINARY_PATH', None):
+        return True
     if kilosort2_path is None:
         return False
     assert isinstance(kilosort2_path, str)
@@ -91,13 +94,20 @@ class Kilosort2Sorter(BaseSorter):
             print("Could not set KILOSORT2_PATH environment variable:", e)
 
     def _setup_recording(self, recording, output_folder):
+        # save binary file
+        input_file_path = output_folder / 'recording'
+        recording.write_to_binary_dat_format(input_file_path, dtype='int16')
+
+    def _run(self, recording, output_folder):
         source_dir = Path(Path(__file__).parent)
         p = self.params
 
-        if not check_if_installed(Kilosort2Sorter.kilosort2_path):
-            raise Exception(Kilosort2Sorter.installation_mesg)
-        assert isinstance(Kilosort2Sorter.kilosort2_path, str)
-
+        dat_file=str((output_folder / 'recording.dat').absolute())
+        if p['car']:
+            use_car = 1
+        else:
+            use_car = 0
+        
         # prepare electrode positions
         if self.grouping_property == 'group' and 'group' in recording.get_shared_channel_property_names():
             groups = recording.get_channel_groups()
@@ -111,78 +121,64 @@ class Kilosort2Sorter(BaseSorter):
             print("'location' information is not found. Using linear configuration")
             positions = np.array(
                 [[0, i_ch] for i_ch in range(recording.get_num_channels())])
+        xcoords = [positions[i, 0] for i in range(positions.shape[0])]
+        ycoords = [positions[i, 1] for i in range(positions.shape[0])]
+        kcoords = groups
 
-        # save binary file
-        input_file_path = output_folder / 'recording'
-        recording.write_to_binary_dat_format(input_file_path, dtype='int16')
-
-        if p['car']:
-            use_car = 1
-        else:
-            use_car = 0
-
-        # read the template txt files
-        with (source_dir / 'kilosort2_master.m').open('r') as f:
-            kilosort2_master_txt = f.read()
-        with (source_dir / 'kilosort2_config.m').open('r') as f:
-            kilosort2_config_txt = f.read()
-        with (source_dir / 'kilosort2_channelmap.m').open('r') as f:
-            kilosort2_channelmap_txt = f.read()
-
-        # make substitutions in txt files
-        kilosort2_master_txt = kilosort2_master_txt.format(
-            kilosort2_path=str(
-                Path(Kilosort2Sorter.kilosort2_path).absolute()),
-            output_folder=str(output_folder),
-            channel_path=str(
-                (output_folder / 'kilosort2_channelmap.m').absolute()),
-            config_path=str((output_folder / 'kilosort2_config.m').absolute()),
-        )
-
-        kilosort2_config_txt = kilosort2_config_txt.format(
+        params0 = dict(
             nchan=recording.get_num_channels(),
             sample_rate=recording.get_sampling_frequency(),
-            dat_file=str((output_folder / 'recording.dat').absolute()),
-            projection_threshold=p['projection_threshold'],
-            preclust_threshold=p['preclust_threshold'],
-            minFR=p['minFR'],
-            freq_min=p['freq_min'],
-            sigmaMask=p['sigmaMask'],
-            kilo_thresh=p['detect_threshold'],
+            freq_min=p["freq_min"],
+            projection_threshold=p["projection_threshold"],
+            minFR=p["minFR"],
+            sigmaMask=p["sigmaMask"],
+            preclust_threshold=p["preclust_threshold"],
+            kilo_thresh=p["detect_threshold"],
             use_car=use_car,
-            nPCs=p['nPCs']
+            nPCs=p["nPCs"],
+            xcoords=xcoords,
+            ycoords=ycoords,
+            kcoords=kcoords
         )
+        params_path = str(output_folder / 'params.json')
+        with open(params_path, 'w') as f:
+            json.dump(params0, f)
 
-        kilosort2_channelmap_txt = kilosort2_channelmap_txt.format(
-            nchan=recording.get_num_channels(),
-            sample_rate=recording.get_sampling_frequency(),
-            xcoords=[p[0] for p in positions],
-            ycoords=[p[1] for p in positions],
-            kcoords=groups
-        )
-
-        for fname, txt in zip(['kilosort2_master.m', 'kilosort2_config.m',
-                               'kilosort2_channelmap.m'],
-                              [kilosort2_master_txt, kilosort2_config_txt,
-                               kilosort2_channelmap_txt]):
-            with (output_folder / fname).open('w') as f:
-                f.write(txt)
-
-        shutil.copy(str(source_dir / 'writeNPY.m'), str(output_folder))
-        shutil.copy(str(source_dir / 'constructNPYheader.m'), str(output_folder))
-
-    def _run(self, recording, output_folder):
-        if "win" in sys.platform:
-            shell_cmd = '''
-                        cd {tmpdir}
-                        matlab -nosplash -nodisplay -wait -r kilosort2_master
-                    '''.format(tmpdir=output_folder)
+        if os.getenv('KILOSORT2_BINARY_PATH', None):
+            shell_cmd = f'''
+            #!/bin/bash
+            exec $KILOSORT2_BINARY_PATH {dat_file} {str(output_folder)} {params_path}
+            '''
         else:
-            shell_cmd = '''
-                        #!/bin/bash
-                        cd "{tmpdir}"
-                        matlab -nosplash -nodisplay -r kilosort2_master
-                    '''.format(tmpdir=output_folder)
+            # copy m files
+            shutil.copy(str(source_dir / 'matlab' / 'kilosort2_master.m'), str(output_folder))
+            shutil.copy(str(source_dir / 'matlab' / 'kilosort2_config.m'), str(output_folder))
+            shutil.copy(str(source_dir / 'matlab' / 'kilosort2_channelmap.m'), str(output_folder))
+            shutil.copy(str(source_dir / 'matlab' / 'writeNPY.m'), str(output_folder))
+            shutil.copy(str(source_dir / 'matlab' / 'constructNPYheader.m'), str(output_folder))
+            matlab_script = f'''
+            try
+                addpath(genpath('{self.kilosort2_path}'));
+                kilosort2_master('{dat_file}', '{str(output_folder)}', '{params_path}')
+            catch
+                fprintf('----------------------------------------');
+                fprintf(lasterr());
+                quit(1);
+            end
+            quit(0);
+            '''
+            ShellScript(matlab_script).write(str(output_folder / 'kilosort2_script.m'))
+            if "win" in sys.platform:
+                shell_cmd = f'''
+                            cd {str(output_folder)}
+                            matlab -nosplash -nodisplay -wait -r kilosort2_script
+                        '''
+            else:
+                shell_cmd = f'''
+                            #!/bin/bash
+                            cd "{str(output_folder)}"
+                            matlab -nosplash -nodisplay -r kilosort2_script
+                        '''
         shell_cmd = ShellScript(shell_cmd, redirect_output_to_stdout=True)
         shell_cmd.start()
 

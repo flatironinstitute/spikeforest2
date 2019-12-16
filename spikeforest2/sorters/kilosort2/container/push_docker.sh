@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker push magland/sf-kilosort2:0.1.0
+docker push magland/sf-kilosort2:0.1.1

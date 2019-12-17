@@ -26,5 +26,5 @@ RUN pip install scipy numpy pandas scikit-learn matplotlib seaborn tqdm openpyxl
 RUN pip install tridesclous==1.3.1
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1
-RUN pip install kachery==0.4.4
+RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.2
+RUN pip install kachery==0.4.6

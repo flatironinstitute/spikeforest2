@@ -15,10 +15,10 @@ with ka.config(fr='default_readonly'):
 
 print('Status: ', result.status)
 print('Success: ', result.success)
-print('Timed out:', result.runtime_info['timeout'])
+print('Timed out:', result.runtime_info['timed_out'])
 
 assert result.status == 'error'
 assert result.success is False
-assert result.runtime_info['timeout'] is True
+assert result.runtime_info['timed_out'] is True
 
 print('Passed.')

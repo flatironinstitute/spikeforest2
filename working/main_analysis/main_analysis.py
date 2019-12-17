@@ -200,7 +200,7 @@ def main():
                         end_time=sorting_result.runtime_info['end_time'],
                         elapsed_sec=sorting_result.runtime_info['end_time'] - sorting_result.runtime_info['start_time'],
                         retcode=0 if sorting_result.success else -1,
-                        timed_out=False
+                        timed_out=sorting_result.runtime_info.get('timed_out', False)
                     ),
                     container=sorting_result.container,
                     console_out=ka.store_text(_console_out_to_str(sorting_result.runtime_info['console_out']))

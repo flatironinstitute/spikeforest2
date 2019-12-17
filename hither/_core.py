@@ -382,7 +382,7 @@ def _run_job(job):
 
     if _container is None and f is not None:
         with ConsoleCapture(name, show_console=_show_console) as cc:
-            print(f'###### RUNNING: {label}')
+            print('===== Hither: running [{}]'.format(label))
             try:
                 returnval = f(**resolved_kwargs)
                 success = True
@@ -425,6 +425,8 @@ def _run_job(job):
     result.success = success
     result.status = runtime_info['status']
     result.runtime_info = runtime_info
+
+    print('===== Hither: finished [{}] with status {} after {} sec'.format(label, runtime_info['status'], runtime_info['elapsed_sec']))
 
     job['status'] = runtime_info['status']
 

@@ -254,10 +254,10 @@ def run_function_in_container(*,
         runtime_info['status'] = status
 
         if did_timeout:
-            runtime_info['timeout'] = True
+            runtime_info['timed_out'] = True
             obj['status'] = 'error'
         else:
-            runtime_info['timeout'] = False
+            runtime_info['timed_out'] = False
 
         if obj['status'] == 'error':
             pass

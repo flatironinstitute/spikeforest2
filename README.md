@@ -8,6 +8,8 @@ Because this project is under active and early-stage development, we provide ins
 
 Prerequisites: We have containerized the processing methods. Therefore, to run the spike sorters and other processing, you must have Docker >=19 (or Singularity >= 3.3) installed. These versions are needed in order to provide GPU support. If you would like to use singularity (rather than docker) then set the environment variable `HITHER_USE_SINGULARITY=TRUE`.
 
+*Note*: It could be that kilosort2 inside singularity crashes when using singularity 3.3. The problem may be fixed in singularity 3.4.2, but further testing is required.
+
 Be sure to have Python >=3.6 as well as numpy installed.
 
 Then, after cloning this repo:

@@ -37,10 +37,11 @@ def _test_sort(
     from spikeforest2 import processing
     import kachery as ka
 
-    
+    # for now, in this test, don't use gpu for irc
+    gpu = sorter_name in ['kilosort2']
 
     with ka.config(fr='default_readonly'):
-        with hither.config(container='default', gpu=False):
+        with hither.config(container='default', gpu=gpu):
             sorter = getattr(sorters, sorter_name)
             sorting_result = sorter.run(
                 recording_path=recording_path,

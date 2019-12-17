@@ -25,6 +25,7 @@ def main():
     parser.add_argument('--parallel', help='Optional number of parallel jobs', required=False, default='0')    
     parser.add_argument('--slurm', help='Path to slurm config file', required=False, default=None)
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
+    parser.add_argument('--rerun-failing', help='Rerun sorting jobs that previously failed', action='store_true')
     parser.add_argument('--test', help='Only run a few.', action='store_true')
     parser.add_argument('--job-timeout', help='Timeout for sorting jobs', required=False, default=600)
 
@@ -32,6 +33,9 @@ def main():
     force_run = args.force_run or args.force_run_all
     force_run_all = args.force_run_all
     job_timeout = float(args.job_timeout)
+    cache_failing = True
+    if args.rerun_failing:
+        cache_failing = False
 
     with open(args.spec, 'r') as f:
         spec = json.load(f)
@@ -152,7 +156,7 @@ def main():
                     jh = job_handler
                     if gpu:
                         jh = job_handler_gpu
-                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh, job_timeout=job_timeout):
+                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=cache_failing, job_handler=jh, job_timeout=job_timeout):
                         sorting_result = Sorter.run(
                             _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
                             recording_path=recording['directory'],

@@ -3,7 +3,7 @@ import json
 import random
 import hither
 
-@hither.function('mountainsort4', '0.3.2-w5')
+@hither.function('mountainsort4', '0.3.2-w6')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-mountainsort4:0.3.2')
 @hither.local_module('../../../spikeforest2_utils')
@@ -44,6 +44,8 @@ def mountainsort4(
     num_workers = os.environ.get('NUM_WORKERS', None)
     if num_workers:
         num_workers = int(num_workers)
+    else:
+        num_workers = 0
 
     sorter.set_params(
         detect_sign=detect_sign,

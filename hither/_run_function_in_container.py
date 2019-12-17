@@ -6,6 +6,7 @@ import json
 import fnmatch
 import inspect
 import shutil
+import time
 from pathlib import Path
 from copy import deepcopy
 from ._temporarydirectory import TemporaryDirectory
@@ -25,7 +26,8 @@ def run_function_in_container(*,
         additional_files: List[str]=[],
         local_modules: List[str]=[],
         gpu: bool=False,
-        show_console: bool=True
+        show_console: bool=True,
+        timeout: Union[float, None]=None
     ) -> Tuple[Union[Any, None], dict]:
     import kachery as ka
 
@@ -228,9 +230,20 @@ def run_function_in_container(*,
 
         ss = ShellScript(run_outside_container_script, keep_temp_files=False, label='run_outside_container', docker_container_name=docker_container_name)
         ss.start()
-        retcode = ss.wait()
+        timer = time.time()
+        did_timeout = False
+        while True:
+            retcode = ss.wait(1)
+            if retcode is not None:
+                break
+            elapsed = time.time() - timer
+            if timeout is not None:
+                if elapsed > timeout:
+                    print(f'Stopping job due to timeout {elapsed} > {timeout}')
+                    did_timeout = True
+                    ss.stop()
 
-        if retcode != 0:
+        if (retcode != 0) and (not did_timeout):
             raise Exception('Non-zero exit code ({}) running [{}] in container {}'.format(retcode, label, container))
 
         with open(os.path.join(temp_path, 'result.json')) as f:
@@ -239,6 +252,12 @@ def run_function_in_container(*,
         runtime_info = obj['runtime_info']
         status = obj['status']
         runtime_info['status'] = status
+
+        if did_timeout:
+            runtime_info['timeout'] = True
+            obj['status'] = 'error'
+        else:
+            runtime_info['timeout'] = False
 
         if obj['status'] == 'error':
             pass

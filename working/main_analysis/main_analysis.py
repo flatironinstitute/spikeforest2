@@ -18,7 +18,6 @@ def main():
     # parser.add_argument('analysis_file', help='Path to the analysis specification file (.json format).')
     # parser.add_argument('--config', help='Configuration file', required=True)
     # parser.add_argument('--output', help='Analysis output file (.json format)', required=True)
-    # parser.add_argument('--job_timeout', help='Job timeout in seconds. Default is 20 minutes = 1200 seconds.', required=False, default=1200)
     # parser.add_argument('--slurm', help='Optional SLURM configuration file (.json format)', required=False, default=None)
     # parser.add_argument('--verbose', help='Provide some additional verbose output.', action='store_true')
     parser.add_argument('spec', help='Path to the .json file containing the analysis specification')
@@ -29,6 +28,7 @@ def main():
     parser.add_argument('--slurm', help='Path to slurm config file', required=False, default=None)
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--test', help='Only run a few.', action='store_true')
+    parser.add_argument('--job-timeout', help='Timeout for sorting jobs', required=False, default=600)
 
     args = parser.parse_args()
     force_run = args.force_run or args.force_run_all
@@ -153,7 +153,7 @@ def main():
                     jh = job_handler
                     if gpu:
                         jh = job_handler_gpu
-                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh):
+                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh, job_timeout=args.job_timeout):
                         sorting_result = Sorter.run(
                             _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
                             recording_path=recording['directory'],

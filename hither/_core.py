@@ -23,7 +23,8 @@ _global_config = ETConf(
         exception_on_fail=None, # None means True
         job_handler=None,
         show_console=None, # None means True
-        show_cached_console=None # None means False
+        show_cached_console=None, # None means False
+        job_timeout=None
     )
 )
 
@@ -46,7 +47,8 @@ class config:
         exception_on_fail: Union[bool, None]=None,
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
-        show_cached_console: Union[bool, None]=None
+        show_cached_console: Union[bool, None]=None,
+        job_timeout: Union[float, None]=None
     ):
         self._config = dict(
             container=container,
@@ -57,7 +59,8 @@ class config:
             exception_on_fail=exception_on_fail,
             job_handler=job_handler,
             show_console=show_console,
-            show_cached_console=show_cached_console
+            show_cached_console=show_cached_console,
+            job_timeout=job_timeout
         )
         self._old_config = None
     def __enter__(self):
@@ -86,9 +89,10 @@ def set_config(
         exception_on_fail: Union[bool, None]=None,
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
-        show_cached_console: Union[bool, None]=None
+        show_cached_console: Union[bool, None]=None,
+        job_timeout: Union[float, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console)
+    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout)
 
 def get_config() -> dict:
     return _global_config.get_config()
@@ -111,6 +115,7 @@ def function(name, version):
             if _show_console is None: _show_console = True
             _show_cached_console = config['show_cached_console']
             if _show_cached_console is None: _show_cached_console = False
+            _job_timeout=config['job_timeout']
 
             if hasattr(f, '_hither_containers'):
                 if _container in getattr(f, '_hither_containers'):
@@ -213,7 +218,8 @@ def function(name, version):
                 job_handler=_job_handler,
                 show_console=_show_console,
                 show_cached_console=_show_cached_console,
-                status='pending'
+                status='pending',
+                timeout=_job_timeout
             )
             if _global['inside_job_queue'] and job['job_handler'] is not None:
                 _global['pending_jobs'].append(job)
@@ -289,6 +295,7 @@ def _prepare_job_to_run(job):
     # hither_parameters = getattr(f, '_hither_parameters', [])
     _show_console = job['show_console']
     _show_cached_console = job['show_cached_console']
+    _job_timeout = job['timeout']
 
     input_file_keys = []
     input_file_extensions = dict()
@@ -366,6 +373,7 @@ def _run_job(job):
     _cache = job['cache']
     _show_console = job['show_console']
     _show_cached_console = job['show_cached_console']
+    _job_timeout = job['timeout']
     input_file_keys = job['input_file_keys']
     input_file_extensions = job['input_file_extensions']
     output_file_keys = job['output_file_keys']
@@ -408,12 +416,14 @@ def _run_job(job):
             local_modules=local_modules,
             additional_files=additional_files,
             gpu=_gpu,
-            show_console=_show_console
+            show_console=_show_console,
+            timeout=_job_timeout
         )
         success = (runtime_info['status'] == 'finished')
     
     result.retval = returnval
     result.success = success
+    result.status = runtime_info['status']
     result.runtime_info = runtime_info
 
     job['status'] = runtime_info['status']

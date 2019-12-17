@@ -100,7 +100,6 @@ class ShellScript():
             print(line)
 
     def _cleanup(self) -> None:
-        print(self._stdout_buffer.getvalue())
         try:
             if not hasattr(self, '_dirs_to_remove'):
                 return

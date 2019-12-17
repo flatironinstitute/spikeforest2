@@ -18,6 +18,7 @@ _global_config = ETConf(
         container=None,
         cache=None,
         cache_failing=None,
+        rerun_failing=None,
         force_run=None,
         gpu=None,
         exception_on_fail=None, # None means True
@@ -42,6 +43,7 @@ class config:
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
         cache_failing: Union[bool, None]=None,
+        rerun_failing: Union[bool, None]=None,
         force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None,
         exception_on_fail: Union[bool, None]=None,
@@ -54,6 +56,7 @@ class config:
             container=container,
             cache=cache,
             cache_failing=cache_failing,
+            rerun_failing=rerun_failing,
             force_run=force_run,
             gpu=gpu,
             exception_on_fail=exception_on_fail,
@@ -84,6 +87,7 @@ def set_config(
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
         cache_failing: Union[bool, None]=None,
+        rerun_failing: Union[bool, None]=None,
         force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None,
         exception_on_fail: Union[bool, None]=None,
@@ -92,7 +96,7 @@ def set_config(
         show_cached_console: Union[bool, None]=None,
         job_timeout: Union[float, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout)
+    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, rerun_failing=rerun_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout)
 
 def get_config() -> dict:
     return _global_config.get_config()
@@ -107,6 +111,7 @@ def function(name, version):
             _cache = config['cache']
             _force_run = config['force_run']
             _cache_failing = config['cache_failing']
+            _rerun_failing = config['rerun_failing']
             _gpu = config['gpu']
             _exception_on_fail = config['exception_on_fail']
             if _exception_on_fail is None: _exception_on_fail = True
@@ -212,6 +217,7 @@ def function(name, version):
                 container=_container,
                 cache=_cache,
                 cache_failing=_cache_failing,
+                rerun_failing=_rerun_failing,
                 force_run=_force_run,
                 gpu=_gpu,
                 exception_on_fail=_exception_on_fail,
@@ -608,6 +614,7 @@ def parameter(name: str, required=True, default=None):
 def _check_cache_for_job_result(job):
     _cache = job['cache']
     _cache_failing = job['cache_failing']
+    _rerun_failing = job['rerun_failing']
     _force_run = job['force_run']
     _exception_on_fail = job['exception_on_fail']
     _show_cached_console = job['show_cached_console']
@@ -621,7 +628,7 @@ def _check_cache_for_job_result(job):
     if result0 is None:
         return False
     if not result0.success:
-        if (not _cache_failing) or _exception_on_fail:
+        if (not _cache_failing) or (_rerun_failing) or _exception_on_fail:
             print('===== Hither: not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
     print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name'])))

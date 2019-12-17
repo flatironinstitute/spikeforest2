@@ -30,12 +30,13 @@ def main():
     parser.add_argument('--job-timeout', help='Timeout for sorting jobs', required=False, default=600)
 
     args = parser.parse_args()
-    force_run = args.force_run or args.force_run_all
     force_run_all = args.force_run_all
+
+    # the following apply to sorting jobs only
+    force_run = args.force_run or args.force_run_all
     job_timeout = float(args.job_timeout)
     cache_failing = True
-    if args.rerun_failing:
-        cache_failing = False
+    rerun_failing = args.rerun_failing
 
     with open(args.spec, 'r') as f:
         spec = json.load(f)
@@ -60,30 +61,26 @@ def main():
     if int(args.parallel) > 0:
         job_handler = hither.ParallelJobHandler(int(args.parallel))
         job_handler_gpu = job_handler
+        job_handler_ks = job_handler
     elif args.slurm:
         with open(args.slurm, 'r') as f:
             slurm_config = json.load(f)
         job_handler = hither.SlurmJobHandler(
             working_dir='tmp_slurm',
-            use_slurm=slurm_config['cpu'].get('use_slurm', True),
-            num_workers_per_batch=slurm_config['cpu'].get('num_workers_per_batch', 14),
-            num_cores_per_job=slurm_config['cpu'].get('num_cores_per_job', 2),
-            time_limit_per_batch=slurm_config['cpu'].get('time_limit_per_batch', 3600),
-            max_simultaneous_batches=slurm_config['cpu'].get('max_simultaneous_batches', 10),
-            additional_srun_opts=slurm_config['cpu'].get('additional_srun_opts', [])
+            **slurm_config['cpu']
         )
         job_handler_gpu = hither.SlurmJobHandler(
             working_dir='tmp_slurm',
-            use_slurm=slurm_config['gpu'].get('use_slurm', True),
-            num_workers_per_batch=slurm_config['gpu'].get('num_workers_per_batch', 14),
-            num_cores_per_job=slurm_config['gpu'].get('num_cores_per_job', 2),
-            time_limit_per_batch=slurm_config['gpu'].get('time_limit_per_batch', 3600),
-            max_simultaneous_batches=slurm_config['gpu'].get('max_simultaneous_batches', 10),
-            additional_srun_opts=slurm_config['gpu'].get('additional_srun_opts', [])
+            **slurm_config['gpu']
+        )
+        job_handler_ks = hither.SlurmJobHandler(
+            working_dir='tmp_slurm',
+            **slurm_config['ks']
         )
     else:
         job_handler = None
         job_handler_gpu = None
+        job_handler_ks = None
 
     with hither.job_queue(), hither.config(
         container='default',
@@ -152,11 +149,16 @@ def main():
                         raise Exception(f'No such sorting algorithm: {algorithm}')
                     Sorter = getattr(sorters, algorithm)
 
-                    gpu = (algorithm in ['kilosort2', 'ironclust'])
-                    jh = job_handler
-                    if gpu:
+                    if algorithm in ['ironclust']:
+                        gpu = True
                         jh = job_handler_gpu
-                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=cache_failing, job_handler=jh, job_timeout=job_timeout):
+                    elif algorithm in ['kilosort', 'kilosort2']:
+                        gpu = True
+                        jh = job_handler_ks
+                    else:
+                        gpu = False
+                        jh = job_handler
+                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=cache_failing, rerun_failing=rerun_failing, job_handler=jh, job_timeout=job_timeout):
                         sorting_result = Sorter.run(
                             _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
                             recording_path=recording['directory'],

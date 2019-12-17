@@ -33,6 +33,7 @@ def main():
     args = parser.parse_args()
     force_run = args.force_run or args.force_run_all
     force_run_all = args.force_run_all
+    job_timeout = float(args.job_timeout)
 
     with open(args.spec, 'r') as f:
         spec = json.load(f)
@@ -153,7 +154,7 @@ def main():
                     jh = job_handler
                     if gpu:
                         jh = job_handler_gpu
-                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh, job_timeout=args.job_timeout):
+                    with hither.config(gpu=gpu, force_run=force_run, exception_on_fail=False, cache_failing=True, job_handler=jh, job_timeout=job_timeout):
                         sorting_result = Sorter.run(
                             _label=f'{algorithm}:{recording["study"]}/{recording["name"]}',
                             recording_path=recording['directory'],

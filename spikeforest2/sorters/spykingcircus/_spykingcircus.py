@@ -2,7 +2,7 @@ import os
 import random
 import hither
 
-@hither.function('spykingcircus', '0.8.8b-w1')
+@hither.function('spykingcircus', '0.8.8b-w2')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://magland/sf-spykingcircus:0.8.8b')
 @hither.local_module('../../../spikeforest2_utils')

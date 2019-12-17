@@ -5,7 +5,7 @@
         "num_cores_per_job": 2,
         "time_limit_per_batch": 1200,
         "max_simultaneous_batches": 10,
-        "additional_srun_opts": ["-p ccm"]]
+        "additional_srun_opts": ["-p ccm"]
     },
     "gpu": {
         "use_slurm": true,

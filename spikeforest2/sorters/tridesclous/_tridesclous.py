@@ -2,9 +2,9 @@ import os
 import random
 import hither
 
-@hither.function('tridesclous', '1.3.1b-w1')
+@hither.function('tridesclous', '1.3.3-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-tridesclous:1.3.1b')
+@hither.container(default='docker://magland/sf-tridesclous:1.3.3')
 @hither.local_module('../../../spikeforest2_utils')
 def tridesclous(
     recording_path,

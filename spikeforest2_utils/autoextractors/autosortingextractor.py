@@ -43,6 +43,24 @@ class AutoSortingExtractor(se.SortingExtractor):
                 raise Exception('Missing argument: samplerate or paramsPath')
             self._sorting = MdaSortingExtractor(firings_file=path, samplerate=samplerate)
         else:
+            try:
+                obj = ka.load_object(path)
+            except:
+                obj = None
+            if obj is not None:
+                if 'firings' in obj:
+                    if 'paramsPath' in kwargs:
+                        params = ka.load_object(kwargs['paramsPath'])
+                        samplerate = params['samplerate']
+                    elif 'samplerate' in kwargs:
+                        samplerate = kwargs['samplerate']
+                    elif 'samplerate' in obj:
+                        samplerate = obj['samplerate']
+                    else:
+                        raise Exception('Missing argument: samplerate or paramsPath')
+                    self._sorting = MdaSortingExtractor(firings_file=obj['firings'], samplerate=samplerate)
+            
+        if not self._sorting:
             raise Exception('Unsupported format for {} of size {}'.format(path, os.path.getsize(path)))
         
     

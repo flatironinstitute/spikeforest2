@@ -27,5 +27,5 @@ RUN apt-get update && apt-get install -y packagekit-gtk3-module libcanberra-gtk-
 RUN pip install spyking-circus==0.8.8
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1
+RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.2
 RUN pip install kachery==0.4.4

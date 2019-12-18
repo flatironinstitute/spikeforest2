@@ -23,8 +23,8 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN pip install Cython
 RUN pip install scipy numpy pandas scikit-learn matplotlib seaborn tqdm openpyxl PyQt5 pyqtgraph==0.10 quantities neo numba hdbscan
-RUN pip install tridesclous==1.3.1
+RUN pip install tridesclous==1.3.3
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1
-RUN pip install kachery==0.4.4
+RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.2
+RUN pip install kachery==0.4.6

@@ -1,18 +1,26 @@
 {
     "cpu": {
-        "use_slurm": false,
+        "use_slurm": true,
         "num_workers_per_batch": 14,
         "num_cores_per_job": 2,
-        "time_limit_per_batch": 3600,
+        "time_limit_per_batch": 1200,
         "max_simultaneous_batches": 10,
-        "additional_srun_opts": []
+        "additional_srun_opts": ["-p ccm"]
     },
     "gpu": {
-        "use_slurm": false,
-        "num_workers_per_batch": 14,
-        "num_cores_per_job": 2,
-        "time_limit_per_batch": 3600,
+        "use_slurm": true,
+        "num_workers_per_batch": 4,
+        "num_cores_per_job": 10,
+        "time_limit_per_batch": 1200,
         "max_simultaneous_batches": 10,
+        "additional_srun_opts": ["-p gpu", "--gres=gpu:v100-32gb:1"]
+    },
+    "ks": {
+        "use_slurm": false,
+        "num_workers_per_batch": 1,
+        "num_cores_per_job": 2,
+        "time_limit_per_batch": 1200,
+        "max_simultaneous_batches": 1,
         "additional_srun_opts": []
     }
 }

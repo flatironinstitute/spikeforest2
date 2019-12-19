@@ -12,7 +12,7 @@ def main():
         num_workers_per_batch=2,
         num_cores_per_job=2,
         use_slurm=True,
-        additional_srun_opts=['-p gpu']
+        additional_srun_opts=['-p gpu', '--gres=gpu:v100-32gb:1']
     )
     test_sort_tetrode(sorter_name='kilosort2', min_avg_accuracy=0.15, num_jobs=1, job_handler=jh)
 

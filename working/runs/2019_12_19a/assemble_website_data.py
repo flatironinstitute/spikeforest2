@@ -40,7 +40,7 @@ def main():
                 if study_set['name'] not in studysets_included:
                     study_sets.append(study_set)
                     studysets_included[study_set['name']] = True
-            for recording in obj['recoordings']:
+            for recording in obj['recordings']:
                 label = recording['study'] + '/' + recording['name']
                 if label not in recordings_included:
                     recordings.append(recording)

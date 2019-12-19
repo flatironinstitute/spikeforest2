@@ -5,43 +5,48 @@ def test_sort_tetrode(
     sorter_name,
     min_avg_accuracy,
     num_jobs=1,
-    job_handler=None
+    job_handler=None,
+    container='default'
 ):
     recording_path = 'sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_TETRODE/synth_mearec_tetrode_noise10_K10_C4/002_synth.json'
     sorting_true_path = 'sha1://cce42806bcfe86f4f58c51aefb61f2c28a99f6cf/SYNTH_MEAREC_TETRODE/synth_mearec_tetrode_noise10_K10_C4/002_synth.firings_true.json'
-    _test_sort(
+    test_sort(
         sorter_name=sorter_name,
         min_avg_accuracy=min_avg_accuracy,
         recording_path=recording_path,
         sorting_true_path=sorting_true_path,
         num_jobs=num_jobs,
-        job_handler=job_handler
+        job_handler=job_handler,
+        container=container
     )
 
 def test_sort_32c(
     sorter_name,
     min_avg_accuracy,
     num_jobs=1,
-    job_handler=None
+    job_handler=None,
+    container='default'
 ):
     recording_path = 'sha1://17a13b1869b17e4783f3b8c96a58ffa38f25d5e0/PAIRED_KAMPFF/paired_kampff/2015_09_03_Pair_9_0A.json'
     sorting_true_path = 'sha1://2cb5f3cfb67eb4aec6314fb7fa8f8ea906752b35/PAIRED_KAMPFF/paired_kampff/2015_09_03_Pair_9_0A.firings_true.json'
-    _test_sort(
+    test_sort(
         sorter_name=sorter_name,
         min_avg_accuracy=min_avg_accuracy,
         recording_path=recording_path,
         sorting_true_path=sorting_true_path,
         num_jobs=num_jobs,
-        job_handler=job_handler
+        job_handler=job_handler,
+        container=container
     )
 
-def _test_sort(
+def test_sort(
     sorter_name,
     min_avg_accuracy,
     recording_path,
     sorting_true_path,
     num_jobs=1,
-    job_handler=None
+    job_handler=None,
+    container='default'
 ):
     from spikeforest2 import sorters
     from spikeforest2 import processing
@@ -52,7 +57,7 @@ def _test_sort(
 
     sorting_results = []
     with ka.config(fr='default_readonly'):
-        with hither.config(container='default', gpu=gpu, job_handler=job_handler), hither.job_queue():
+        with hither.config(container=container, gpu=gpu, job_handler=job_handler), hither.job_queue():
             sorter = getattr(sorters, sorter_name)
             for _ in range(num_jobs):
                 sorting_result = sorter.run(

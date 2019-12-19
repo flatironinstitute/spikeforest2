@@ -193,7 +193,7 @@ def main():
     for sorter in spike_sorters:
         for recording in recordings:
             if recording['study_set'] in sorter['studysets']:
-                print(f'Sorting: {sorter['processor_name']} {recording["study"]}/{recording["name"]}')
+                print(f'Sorting: {sorter["processor_name"]} {recording["study"]}/{recording["name"]}')
                 sorting_result = recording['results']['sorting-' + sorter['name']]
                 comparison_result = recording['results']['comparison-with-truth-' + sorter['name']]
                 units_info_result = recording['results']['units-info-' + sorter['name']]

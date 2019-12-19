@@ -183,6 +183,7 @@ def main():
     print('=======================================================')
     print('Assembling results...')
     for recording in recordings:
+        print(f'Recording: {recording["study"]}/{recording["name"]}')
         recording['summary'] = dict(
             plots=dict(),
             computed_info=ka.load_object(recording['results']['computed-info'].outputs.json_out._path),
@@ -192,6 +193,7 @@ def main():
     for sorter in spike_sorters:
         for recording in recordings:
             if recording['study_set'] in sorter['studysets']:
+                print(f'Sorting: {sorter['processor_name']} {recording["study"]}/{recording["name"]}')
                 sorting_result = recording['results']['sorting-' + sorter['name']]
                 comparison_result = recording['results']['comparison-with-truth-' + sorter['name']]
                 units_info_result = recording['results']['units-info-' + sorter['name']]

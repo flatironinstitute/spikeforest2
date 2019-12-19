@@ -7,7 +7,6 @@ import numpy as np
 from typing import List, Union, Dict
 import kachery as ka
 import hither
-from assemble_website_data import assemble_website_data
 
 def main():
     from spikeforest2 import sorters

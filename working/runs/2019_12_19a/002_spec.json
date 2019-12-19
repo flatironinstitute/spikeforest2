@@ -1,5 +1,5 @@
 {
-    "studysets": "sha1://3dff25a16ea0797776a824446a446d7ccf427915/studysets.json",
+    "studysets": "sha1://4a24e5c43bf2f8963de0287356714fdb76ca78f9/studysets.json",
     "studyset_names": [
         "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
         "SYNTH_MEAREC_TETRODE"
@@ -9,7 +9,8 @@
             "name": "KiloSort2",
             "processor_name": "kilosort2",
             "params": {},
-            "studysets": ["PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "SYNTH_MEAREC_TETRODE"]
+            "studysets": ["PAIRED_KAMPFF"],
+            "studysets2": ["PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "SYNTH_MEAREC_TETRODE"]
         }
     ]
 }

@@ -439,6 +439,7 @@ def _run_job(job):
 def wait(timeout: Union[float, None]=None):
     try:
         timer = time.time()
+        timer_show_summary = time.time()
         while True:
             pending_jobs = _global['pending_jobs']
             queued_jobs = _global['queued_jobs']
@@ -513,6 +514,11 @@ def wait(timeout: Union[float, None]=None):
                     unique_active_job_handlers.append(h)
             for h in unique_active_job_handlers:
                 h.iterate()
+
+            elapsed_show_summary = time.time() - timer_show_summary
+            if elapsed_show_summary > 10:
+                timer_show_summary = time.time()
+                print(f'====== HITHER JOB QUEUE: {len(pending_jobs)} pending, {len(queued_jobs)} queued, {len(finished_jobs)} finished')
 
             time.sleep(0.02)
     except:

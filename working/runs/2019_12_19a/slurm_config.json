@@ -21,6 +21,6 @@
         "num_cores_per_job": 10,
         "time_limit_per_batch": 1200,
         "max_simultaneous_batches": 10,
-        "additional_srun_opts": ["-p gpu", "--gres=gpu:v100-32gb:1"]
+        "additional_srun_opts": ["-p gpu", "--gres=gpu:3", "--mem=100GB"]
     }
 }

@@ -88,13 +88,13 @@ def main():
         job_handler_gpu = None
         job_handler_ks = None
 
-    with hither.job_queue(), hither.config(
+    with hither.config(
         container='default',
         cache=args.cache,
         force_run=force_run_all,
         job_handler=job_handler,
         log_path=args.log_file
-    ):
+    ), hither.job_queue():
         studies = []
         recordings = []
         for studyset in study_sets:

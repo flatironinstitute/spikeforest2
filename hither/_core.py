@@ -100,7 +100,20 @@ def set_config(
         job_timeout: Union[float, None]=None,
         log_path: Union[str, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, rerun_failing=rerun_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout, log_path=log_path)
+    _global_config.set_config(
+        container=container,
+        cache=cache,
+        force_run=force_run,
+        cache_failing=cache_failing,
+        rerun_failing=rerun_failing,
+        gpu=gpu,
+        exception_on_fail=exception_on_fail,
+        job_handler=job_handler,
+        show_console=show_console,
+        show_cached_console=show_cached_console,
+        job_timeout=job_timeout,
+        log_path=log_path
+    )
 
 def get_config() -> dict:
     return _global_config.get_config()

@@ -276,6 +276,7 @@ def function(name, version):
                                 output._path = None
                         if job['cache'] is not None:
                             if job['result'].success or job['cache_failing']:
+                                _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
                                 _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
             return job['result']
         setattr(f, 'run', run)
@@ -506,6 +507,7 @@ def wait(timeout: Union[float, None]=None):
                                     if _exception_on_fail:
                                         raise Exception(f'Error running job: {_label}')
                                 if job['cache'] is not None:
+                                    _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
                                     _store_result(serialized_result=_internal_serialize_result(result0), cache=job['cache'])
                     else:
                         new_pending_jobs.append(job)
@@ -514,11 +516,13 @@ def wait(timeout: Union[float, None]=None):
             new_queued_jobs = []
             for job in queued_jobs:
                 active_job_handlers.append(job['job_handler'])
+                if job['status'] in ['finished', 'error']:
+                    if job['cache'] is not None:
+                        _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
+                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                 if job['status'] == 'queued':
                     new_queued_jobs.append(job)
                 elif job['status'] == 'finished':
-                    if job['cache'] is not None:
-                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                     finished_jobs.append(job)
                 elif job['status'] == 'error':
                     _exception_on_fail = job.get('exception_on_fail', None)
@@ -656,15 +660,21 @@ def _check_cache_for_job_result(job):
         return False
     result0 = _load_result(hash_object=job['hash_object'], cache=job['cache'])
     if result0 is None:
+        _write_to_log('Did not find cached result for [{}]'.format(job.get('label', job['name'])))
         return False
     result0 = _internal_deserialize_result(result0)
     if result0 is None:
+        _write_to_log('Unable to deserialize cached result for [{}]'.format(job.get('label', job['name'])))
         return False
-    if not result0.success:
+    if result0.success:
+        _write_to_log('Found cached result for [{}]'.format(job.get('label', job['name'])))
+    else:
         if (not _cache_failing) or (_rerun_failing) or _exception_on_fail:
-            _write_to_log('not using failing cached result for [{}]'.format(job.get('label', job['name'])))
+            _write_to_log('Not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
-    _write_to_log('found result of [{}] in cache'.format(job.get('label', job['name'])))
+        else:
+            _write_to_log('Using failing cached result for [{}]'.format(job.get('label', job['name'])))
+    
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])
@@ -934,6 +944,7 @@ def _prepare_container(container):
 
 
 def _do_prepare_singularity_container(container):
+    _write_to_log(f'Building singularity container: {container}')
     ss = ShellScript(f'''
         #!/bin/bash
 

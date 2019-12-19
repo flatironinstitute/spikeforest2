@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--rerun-failing', help='Rerun sorting jobs that previously failed', action='store_true')
     parser.add_argument('--test', help='Only run a few.', action='store_true')
     parser.add_argument('--job-timeout', help='Timeout for sorting jobs', required=False, default=600)
+    parser.add_argument('--log-file', help='Log file for analysis progress', required=False, default=None)
 
     args = parser.parse_args()
     force_run_all = args.force_run_all
@@ -40,6 +41,11 @@ def main():
 
     with open(args.spec, 'r') as f:
         spec = json.load(f)
+
+    # clear the log file    
+    if args.log_file is not None:
+        with open(args.log_file, 'w'):
+            pass
 
     studysets_path = spec['studysets']
     studyset_names = spec['studyset_names']
@@ -86,7 +92,8 @@ def main():
         container='default',
         cache=args.cache,
         force_run=force_run_all,
-        job_handler=job_handler
+        job_handler=job_handler,
+        log_path=args.log_file
     ):
         studies = []
         recordings = []

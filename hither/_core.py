@@ -25,7 +25,8 @@ _global_config = ETConf(
         job_handler=None,
         show_console=None, # None means True
         show_cached_console=None, # None means False
-        job_timeout=None
+        job_timeout=None,
+        log_path=None
     )
 )
 
@@ -50,7 +51,8 @@ class config:
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
         show_cached_console: Union[bool, None]=None,
-        job_timeout: Union[float, None]=None
+        job_timeout: Union[float, None]=None,
+        log_path: Union[str, None]=None
     ):
         self._config = dict(
             container=container,
@@ -63,7 +65,8 @@ class config:
             job_handler=job_handler,
             show_console=show_console,
             show_cached_console=show_cached_console,
-            job_timeout=job_timeout
+            job_timeout=job_timeout,
+            log_path=log_path
         )
         self._old_config = None
     def __enter__(self):
@@ -94,9 +97,10 @@ def set_config(
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
         show_cached_console: Union[bool, None]=None,
-        job_timeout: Union[float, None]=None
+        job_timeout: Union[float, None]=None,
+        log_path: Union[str, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, rerun_failing=rerun_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout)
+    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, rerun_failing=rerun_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console, job_timeout=job_timeout, log_path=log_path)
 
 def get_config() -> dict:
     return _global_config.get_config()
@@ -368,6 +372,14 @@ def _prepare_job_to_run(job):
     job['output_file_keys'] = output_file_keys
     job['output_file_extensions'] = output_file_extensions
 
+def _write_to_log(txt):
+    print(f'===== Hither: {txt}')
+    config = _global_config.get_config()
+    _log_path = config['log_path']
+    if _log_path is not None:
+        with open(_log_path, 'a') as f:
+            f.write(f'{txt}\n')
+
 def _run_job(job):
     resolved_kwargs = job['resolved_kwargs']
     name = job['name']
@@ -388,7 +400,7 @@ def _run_job(job):
 
     if _container is None and f is not None:
         with ConsoleCapture(name, show_console=_show_console) as cc:
-            print('===== Hither: running [{}]'.format(label))
+            _write_to_log(f'running [{label}]')
             try:
                 returnval = f(**resolved_kwargs)
                 success = True
@@ -407,7 +419,7 @@ def _run_job(job):
         else:
             local_modules = []
             additional_files = []
-        print('===== Hither: running [{}] in container: {}'.format(label, _container))
+        _write_to_log('running [{}] in container: {}'.format(label, _container))
         returnval, runtime_info = run_function_in_container(
             name=name,
             function=f,
@@ -432,7 +444,7 @@ def _run_job(job):
     result.status = runtime_info['status']
     result.runtime_info = runtime_info
 
-    print('===== Hither: finished [{}] with status {} after {} sec'.format(label, runtime_info['status'], runtime_info['elapsed_sec']))
+    _write_to_log('finished [{}] with status {} after {} sec'.format(label, runtime_info['status'], runtime_info['elapsed_sec']))
 
     job['status'] = runtime_info['status']
 
@@ -518,7 +530,8 @@ def wait(timeout: Union[float, None]=None):
             elapsed_show_summary = time.time() - timer_show_summary
             if elapsed_show_summary > 10:
                 timer_show_summary = time.time()
-                print(f'====== HITHER JOB QUEUE: {len(pending_jobs)} pending, {len(queued_jobs)} queued, {len(finished_jobs)} finished')
+                _write_to_log(f'{len(pending_jobs)} pending, {len(queued_jobs)} queued, {len(finished_jobs)} finished')
+                
 
             time.sleep(0.02)
     except:
@@ -635,9 +648,9 @@ def _check_cache_for_job_result(job):
         return False
     if not result0.success:
         if (not _cache_failing) or (_rerun_failing) or _exception_on_fail:
-            print('===== Hither: not using failing cached result for [{}]'.format(job.get('label', job['name'])))
+            _write_to_log('not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
-    print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name'])))
+    _write_to_log('found result of [{}] in cache'.format(job.get('label', job['name'])))
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])

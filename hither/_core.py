@@ -378,7 +378,12 @@ def _write_to_log(txt):
     _log_path = config['log_path']
     if _log_path is not None:
         with open(_log_path, 'a') as f:
-            f.write(f'{txt}\n')
+            timestamp0 = _fmt_time(time.time() - 0)
+            f.write(f'{timestamp0}: {txt}\n')
+
+def _fmt_time(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(t).isoformat()
 
 def _run_job(job):
     resolved_kwargs = job['resolved_kwargs']
@@ -563,10 +568,6 @@ def _console_out_to_str(console_out):
     for console_line in console_out['lines']:
         txt = txt + '{} {}: {}\n'.format(console_out.get('label', ''), _fmt_time(console_line['timestamp']), console_line['text'])
     return txt
-
-def _fmt_time(t):
-    import datetime
-    return datetime.datetime.fromtimestamp(t).isoformat()
         
 
 def input_file(name: str, required=True, kachery_resolve=True):

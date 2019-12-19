@@ -30,7 +30,7 @@ class CustomStdout():
 
 def _fmt_time(t):
     import datetime
-    return datetime.datetime.fromtimestamp(time.time()).isoformat()
+    return datetime.datetime.fromtimestamp(t).isoformat()
 
 class ConsoleCapture():
     def __init__(self, label='', show_console=True):

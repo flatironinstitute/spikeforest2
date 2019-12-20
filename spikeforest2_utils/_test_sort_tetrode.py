@@ -53,7 +53,7 @@ def test_sort(
     import kachery as ka
 
     # for now, in this test, don't use gpu for irc
-    gpu = sorter_name in ['kilosort2']
+    gpu = sorter_name in ['kilosort2', 'tridesclous']
 
     sorting_results = []
     with ka.config(fr='default_readonly'):

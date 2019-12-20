@@ -1,7 +1,7 @@
-function kilosort2_binary(dat_file, output_dir, params_path)
+function kilosort_binary(dat_file, output_dir, params_path)
 
 try
-    kilosort2_master(dat_file, output_dir, params_path)
+    kilosort_master(dat_file, output_dir, params_path)
 catch
     fprintf('----------------------------------------\n');
     fprintf(lasterr());

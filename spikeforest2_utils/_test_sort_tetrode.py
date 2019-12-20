@@ -39,6 +39,25 @@ def test_sort_32c(
         container=container
     )
 
+def test_sort_monotrode(
+    sorter_name,
+    min_avg_accuracy,
+    num_jobs=1,
+    job_handler=None,
+    container='default'
+):
+    recording_path = 'sha1://34e73017bc6770946c2e3b3d6ec8260f9ce42280/PAIRED_MONOTRODE/paired_monotrode_boyden32c/1103_1_1_ch1.json'
+    sorting_true_path = 'sha1://f023cc44216b60084ef7b710039ec6642b76d93f/PAIRED_MONOTRODE/paired_monotrode_boyden32c/1103_1_1_ch1.firings_true.json'
+    test_sort(
+        sorter_name=sorter_name,
+        min_avg_accuracy=min_avg_accuracy,
+        recording_path=recording_path,
+        sorting_true_path=sorting_true_path,
+        num_jobs=num_jobs,
+        job_handler=job_handler,
+        container=container
+    )
+
 def test_sort(
     sorter_name,
     min_avg_accuracy,
@@ -53,7 +72,7 @@ def test_sort(
     import kachery as ka
 
     # for now, in this test, don't use gpu for irc
-    gpu = sorter_name in ['kilosort2', 'tridesclous']
+    gpu = sorter_name in ['kilosort2', 'kilosort', 'tridesclous']
 
     sorting_results = []
     with ka.config(fr='default_readonly'):

@@ -6,7 +6,7 @@ def sort(algorithm: str, recording_path: str):
     if not hasattr(sorters, algorithm):
         raise Exception('Sorter not found: {}'.format(algorithm))
     sorter = getattr(sorters, algorithm)
-    if algorithm in ['kilosort2', 'ironclust']:
+    if algorithm in ['kilosort2', 'kilosort', 'ironclust']:
         gpu = True
     else:
         gpu = False

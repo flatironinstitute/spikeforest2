@@ -18,12 +18,15 @@ _global_config = ETConf(
         container=None,
         cache=None,
         cache_failing=None,
+        rerun_failing=None,
         force_run=None,
         gpu=None,
         exception_on_fail=None, # None means True
         job_handler=None,
         show_console=None, # None means True
-        show_cached_console=None # None means False
+        show_cached_console=None, # None means False
+        job_timeout=None,
+        log_path=None
     )
 )
 
@@ -41,23 +44,29 @@ class config:
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
         cache_failing: Union[bool, None]=None,
+        rerun_failing: Union[bool, None]=None,
         force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None,
         exception_on_fail: Union[bool, None]=None,
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
-        show_cached_console: Union[bool, None]=None
+        show_cached_console: Union[bool, None]=None,
+        job_timeout: Union[float, None]=None,
+        log_path: Union[str, None]=None
     ):
         self._config = dict(
             container=container,
             cache=cache,
             cache_failing=cache_failing,
+            rerun_failing=rerun_failing,
             force_run=force_run,
             gpu=gpu,
             exception_on_fail=exception_on_fail,
             job_handler=job_handler,
             show_console=show_console,
-            show_cached_console=show_cached_console
+            show_cached_console=show_cached_console,
+            job_timeout=job_timeout,
+            log_path=log_path
         )
         self._old_config = None
     def __enter__(self):
@@ -81,14 +90,30 @@ def set_config(
         container: Union[str, None]=None,
         cache: Union[str, dict, None]=None,
         cache_failing: Union[bool, None]=None,
+        rerun_failing: Union[bool, None]=None,
         force_run: Union[bool, None]=None,
         gpu: Union[bool, None]=None,
         exception_on_fail: Union[bool, None]=None,
         job_handler: Union[Any, None]=None,
         show_console: Union[bool, None]=None,
-        show_cached_console: Union[bool, None]=None
+        show_cached_console: Union[bool, None]=None,
+        job_timeout: Union[float, None]=None,
+        log_path: Union[str, None]=None
 ) -> None:
-    _global_config.set_config(container=container, cache=cache, force_run=force_run, cache_failing=cache_failing, gpu=gpu, exception_on_fail=exception_on_fail, job_handler=job_handler, show_console=show_console, show_cached_console=show_cached_console)
+    _global_config.set_config(
+        container=container,
+        cache=cache,
+        force_run=force_run,
+        cache_failing=cache_failing,
+        rerun_failing=rerun_failing,
+        gpu=gpu,
+        exception_on_fail=exception_on_fail,
+        job_handler=job_handler,
+        show_console=show_console,
+        show_cached_console=show_cached_console,
+        job_timeout=job_timeout,
+        log_path=log_path
+    )
 
 def get_config() -> dict:
     return _global_config.get_config()
@@ -103,6 +128,7 @@ def function(name, version):
             _cache = config['cache']
             _force_run = config['force_run']
             _cache_failing = config['cache_failing']
+            _rerun_failing = config['rerun_failing']
             _gpu = config['gpu']
             _exception_on_fail = config['exception_on_fail']
             if _exception_on_fail is None: _exception_on_fail = True
@@ -111,6 +137,7 @@ def function(name, version):
             if _show_console is None: _show_console = True
             _show_cached_console = config['show_cached_console']
             if _show_cached_console is None: _show_cached_console = False
+            _job_timeout=config['job_timeout']
 
             if hasattr(f, '_hither_containers'):
                 if _container in getattr(f, '_hither_containers'):
@@ -207,13 +234,15 @@ def function(name, version):
                 container=_container,
                 cache=_cache,
                 cache_failing=_cache_failing,
+                rerun_failing=_rerun_failing,
                 force_run=_force_run,
                 gpu=_gpu,
                 exception_on_fail=_exception_on_fail,
                 job_handler=_job_handler,
                 show_console=_show_console,
                 show_cached_console=_show_cached_console,
-                status='pending'
+                status='pending',
+                timeout=_job_timeout
             )
             if _global['inside_job_queue'] and job['job_handler'] is not None:
                 _global['pending_jobs'].append(job)
@@ -247,6 +276,7 @@ def function(name, version):
                                 output._path = None
                         if job['cache'] is not None:
                             if job['result'].success or job['cache_failing']:
+                                _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
                                 _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
             return job['result']
         setattr(f, 'run', run)
@@ -289,6 +319,7 @@ def _prepare_job_to_run(job):
     # hither_parameters = getattr(f, '_hither_parameters', [])
     _show_console = job['show_console']
     _show_cached_console = job['show_cached_console']
+    _job_timeout = job['timeout']
 
     input_file_keys = []
     input_file_extensions = dict()
@@ -355,6 +386,19 @@ def _prepare_job_to_run(job):
     job['output_file_keys'] = output_file_keys
     job['output_file_extensions'] = output_file_extensions
 
+def _write_to_log(txt):
+    print(f'===== Hither: {txt}')
+    config = _global_config.get_config()
+    _log_path = config['log_path']
+    if _log_path is not None:
+        with open(_log_path, 'a') as f:
+            timestamp0 = _fmt_time(time.time() - 0)
+            f.write(f'{timestamp0}: {txt}\n')
+
+def _fmt_time(t):
+    import datetime
+    return datetime.datetime.fromtimestamp(t).isoformat()
+
 def _run_job(job):
     resolved_kwargs = job['resolved_kwargs']
     name = job['name']
@@ -366,6 +410,7 @@ def _run_job(job):
     _cache = job['cache']
     _show_console = job['show_console']
     _show_cached_console = job['show_cached_console']
+    _job_timeout = job['timeout']
     input_file_keys = job['input_file_keys']
     input_file_extensions = job['input_file_extensions']
     output_file_keys = job['output_file_keys']
@@ -374,7 +419,7 @@ def _run_job(job):
 
     if _container is None and f is not None:
         with ConsoleCapture(name, show_console=_show_console) as cc:
-            print(f'###### RUNNING: {label}')
+            _write_to_log(f'running [{label}]')
             try:
                 returnval = f(**resolved_kwargs)
                 success = True
@@ -393,7 +438,7 @@ def _run_job(job):
         else:
             local_modules = []
             additional_files = []
-        print('===== Hither: running [{}] in container: {}'.format(label, _container))
+        _write_to_log('running [{}] in container: {}'.format(label, _container))
         returnval, runtime_info = run_function_in_container(
             name=name,
             function=f,
@@ -408,19 +453,24 @@ def _run_job(job):
             local_modules=local_modules,
             additional_files=additional_files,
             gpu=_gpu,
-            show_console=_show_console
+            show_console=_show_console,
+            timeout=_job_timeout
         )
         success = (runtime_info['status'] == 'finished')
     
     result.retval = returnval
     result.success = success
+    result.status = runtime_info['status']
     result.runtime_info = runtime_info
+
+    _write_to_log('finished [{}] with status {} after {} sec'.format(label, runtime_info['status'], runtime_info['elapsed_sec']))
 
     job['status'] = runtime_info['status']
 
 def wait(timeout: Union[float, None]=None):
     try:
         timer = time.time()
+        timer_show_summary = time.time()
         while True:
             pending_jobs = _global['pending_jobs']
             queued_jobs = _global['queued_jobs']
@@ -457,6 +507,7 @@ def wait(timeout: Union[float, None]=None):
                                     if _exception_on_fail:
                                         raise Exception(f'Error running job: {_label}')
                                 if job['cache'] is not None:
+                                    _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
                                     _store_result(serialized_result=_internal_serialize_result(result0), cache=job['cache'])
                     else:
                         new_pending_jobs.append(job)
@@ -465,11 +516,13 @@ def wait(timeout: Union[float, None]=None):
             new_queued_jobs = []
             for job in queued_jobs:
                 active_job_handlers.append(job['job_handler'])
+                if job['status'] in ['finished', 'error']:
+                    if job['cache'] is not None:
+                        _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
+                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                 if job['status'] == 'queued':
                     new_queued_jobs.append(job)
                 elif job['status'] == 'finished':
-                    if job['cache'] is not None:
-                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
                     finished_jobs.append(job)
                 elif job['status'] == 'error':
                     _exception_on_fail = job.get('exception_on_fail', None)
@@ -495,6 +548,12 @@ def wait(timeout: Union[float, None]=None):
                     unique_active_job_handlers.append(h)
             for h in unique_active_job_handlers:
                 h.iterate()
+
+            elapsed_show_summary = time.time() - timer_show_summary
+            if elapsed_show_summary > 10:
+                timer_show_summary = time.time()
+                _write_to_log(f'{len(pending_jobs)} pending, {len(queued_jobs)} queued, {len(finished_jobs)} finished')
+                
 
             time.sleep(0.02)
     except:
@@ -526,10 +585,6 @@ def _console_out_to_str(console_out):
     for console_line in console_out['lines']:
         txt = txt + '{} {}: {}\n'.format(console_out.get('label', ''), _fmt_time(console_line['timestamp']), console_line['text'])
     return txt
-
-def _fmt_time(t):
-    import datetime
-    return datetime.datetime.fromtimestamp(t).isoformat()
         
 
 def input_file(name: str, required=True, kachery_resolve=True):
@@ -596,6 +651,7 @@ def parameter(name: str, required=True, default=None):
 def _check_cache_for_job_result(job):
     _cache = job['cache']
     _cache_failing = job['cache_failing']
+    _rerun_failing = job['rerun_failing']
     _force_run = job['force_run']
     _exception_on_fail = job['exception_on_fail']
     _show_cached_console = job['show_cached_console']
@@ -604,15 +660,21 @@ def _check_cache_for_job_result(job):
         return False
     result0 = _load_result(hash_object=job['hash_object'], cache=job['cache'])
     if result0 is None:
+        _write_to_log('Did not find cached result for [{}]'.format(job.get('label', job['name'])))
         return False
     result0 = _internal_deserialize_result(result0)
     if result0 is None:
+        _write_to_log('Unable to deserialize cached result for [{}]'.format(job.get('label', job['name'])))
         return False
-    if not result0.success:
-        if (not _cache_failing) or _exception_on_fail:
-            print('===== Hither: not using failing cached result for [{}]'.format(job.get('label', job['name'])))
+    if result0.success:
+        _write_to_log('Found cached result for [{}]'.format(job.get('label', job['name'])))
+    else:
+        if (not _cache_failing) or (_rerun_failing) or _exception_on_fail:
+            _write_to_log('Not using failing cached result for [{}]'.format(job.get('label', job['name'])))
             return False
-    print('===== Hither: found result of [{}] in cache'.format(job.get('label', job['name'])))
+        else:
+            _write_to_log('Using failing cached result for [{}]'.format(job.get('label', job['name'])))
+    
     result = job['result']
     _set_result(job, result0)
     console_out_str = _console_out_to_str(result.runtime_info['console_out'])
@@ -882,6 +944,7 @@ def _prepare_container(container):
 
 
 def _do_prepare_singularity_container(container):
+    _write_to_log(f'Building singularity container: {container}')
     ss = ShellScript(f'''
         #!/bin/bash
 

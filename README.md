@@ -8,6 +8,8 @@ Because this project is under active and early-stage development, we provide ins
 
 Prerequisites: We have containerized the processing methods. Therefore, to run the spike sorters and other processing, you must have Docker >=19 (or Singularity >= 3.3) installed. These versions are needed in order to provide GPU support. If you would like to use singularity (rather than docker) then set the environment variable `HITHER_USE_SINGULARITY=TRUE`.
 
+*Note*: It could be that kilosort2 inside singularity crashes when using singularity 3.3. The problem may be fixed in singularity 3.4.2, but further testing is required. It also seems that kilosort2 has trouble when more than one job is running on the same node on our cluster, even when it is running inside singularity containers. This probably has something to do with gpu conflicts (not sure).
+
 Be sure to have Python >=3.6 as well as numpy installed.
 
 Then, after cloning this repo:
@@ -29,14 +31,14 @@ The SpikeForest recordings (arranged into studies and study sets) may be found h
 
 Python wrappers for the spike sorters, including the docker container definitions, are found in the [spikeforest2/sorters](spikeforest2/sorters) directory.
 
-| Sorter  | Python wrapper | Dockerfile | Python example | Command-line example |
+| Sorter  | Python wrapper | Dockerfile | Example | Tests |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| MountainSort4  | [mountainsort4](spikeforest2/sorters/mountainsort4) | [Dockerfile](spikeforest2/sorters/mountainsort4/container)  | [example_mountainsort4.py](examples/example_mountainsort4.py) | [example_mountainsort4.sh](examples/example_mountainsort4.sh) |
-| HerdingSpikes2  | [herdingspikes2](spikeforest2/sorters/herdingspikes2) | [Dockerfile](spikeforest2/sorters/herdingspikes2/container)  | [example_herdingspikes2.py](examples/example_herdingspikes2.py) |[example_herdingspikes2.sh](examples/example_herdingspikes2.sh) |
-| IronClust  | [ironclust](spikeforest2/sorters/ironclust) | [Dockerfile](spikeforest2/sorters/ironclust/container)  | [example_ironclust.py](examples/example_ironclust.py) | [example_ironclust.sh](examples/example_ironclust.sh) |
-| KiloSort2  | [kilosort2](spikeforest2/sorters/kilosort2) | [Dockerfile](spikeforest2/sorters/kilosort2/container)  | [example_kilosort2.py](examples/example_kilosort2.py) | [example_kilosort2.sh](examples/example_kilosort2.sh) |
-| SpyKING CIRCUS  | [spykingcircus](spikeforest2/sorters/spykingcircus) | [Dockerfile](spikeforest2/sorters/spykingcircus/container)  | [example_spykingcircus.py](examples/example_spykingcircus.py) |[example_spykingcircus.sh](examples/example_spykingcircus.sh) |
-| Tridesclous  | [tridesclous](spikeforest2/sorters/tridesclous) | [Dockerfile](spikeforest2/sorters/tridesclous/container)  | [example_tridesclous.py](examples/example_tridesclous.py) |[example_tridesclous.sh](examples/example_tridesclous.sh) |
+| MountainSort4  | [mountainsort4](spikeforest2/sorters/mountainsort4) | [Dockerfile](spikeforest2/sorters/mountainsort4/container)  | [example_mountainsort4.py](examples/example_mountainsort4.py) | [tests](working/tests) |
+| HerdingSpikes2  | [herdingspikes2](spikeforest2/sorters/herdingspikes2) | [Dockerfile](spikeforest2/sorters/herdingspikes2/container)  | [example_herdingspikes2.py](examples/example_herdingspikes2.py) | [tests](working/tests) |
+| IronClust  | [ironclust](spikeforest2/sorters/ironclust) | [Dockerfile](spikeforest2/sorters/ironclust/container)  | [example_ironclust.py](examples/example_ironclust.py) | [tests](working/tests) |
+| KiloSort2  | [kilosort2](spikeforest2/sorters/kilosort2) | [Dockerfile](spikeforest2/sorters/kilosort2/container)  | [example_kilosort2.py](examples/example_kilosort2.py) | [tests](working/tests) |
+| SpyKING CIRCUS  | [spykingcircus](spikeforest2/sorters/spykingcircus) | [Dockerfile](spikeforest2/sorters/spykingcircus/container)  | [example_spykingcircus.py](examples/example_spykingcircus.py) | [tests](working/tests) |
+| Tridesclous  | [tridesclous](spikeforest2/sorters/tridesclous) | [Dockerfile](spikeforest2/sorters/tridesclous/container)  | [example_tridesclous.py](examples/example_tridesclous.py) | [tests](working/tests) |
 
 ## SpikeForest widgets
 

@@ -25,13 +25,26 @@ def main():
     study_sets = []
     recordings = []
     sorting_results = []
+    studies_included = dict()
+    studysets_included = dict()
+    recordings_included = dict()
     for analysis_file in args.analysis_files:
         print('Loading: {}'.format(analysis_file))
         obj = ka.load_object(analysis_file)
         if obj is not None:
-            studies = studies + obj['studies']
-            study_sets = study_sets + obj.get('study_sets', [])
-            recordings = recordings + obj['recordings']
+            for study in obj['studies']:
+                if study['name'] not in studies_included:
+                    studies.append(study)
+                    studies_included[study['name']] = True
+            for study_set in obj['study_sets']:
+                if study_set['name'] not in studysets_included:
+                    study_sets.append(study_set)
+                    studysets_included[study_set['name']] = True
+            for recording in obj['recordings']:
+                label = recording['study'] + '/' + recording['name']
+                if label not in recordings_included:
+                    recordings.append(recording)
+                    recordings_included[label] = True
             sorting_results = sorting_results + obj['sorting_results']
         else:
             raise Exception('Unable to load: {}'.format(analysis_file))
@@ -40,7 +53,7 @@ def main():
     print('******************************** ASSEMBLING ALGORITHMS...')
     algorithms_by_processor_name = dict()
     Algorithms = []
-    basepath = '../../spikeforest2/sorters/descriptions'
+    basepath = '../../../spikeforest2/sorters/descriptions'
     repo_base_url = 'https://github.com/flatironinstitute/spikeforest/blob/master'
     for item in os.listdir(basepath):
         if item.endswith('.md'):

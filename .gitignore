@@ -1,4 +1,5 @@
 .vscode
+tmp_slurm
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

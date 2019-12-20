@@ -1,2 +1,3 @@
 from ._compute_units_info import compute_units_info
 from ._compute_recording_info import compute_recording_info
+from ._compare_with_truth import compare_with_truth

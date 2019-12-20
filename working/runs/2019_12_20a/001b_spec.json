@@ -1,0 +1,15 @@
+{
+    "studysets": "sha1://4a24e5c43bf2f8963de0287356714fdb76ca78f9/studysets.json",
+    "studyset_names": [
+        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+        "SYNTH_MEAREC_TETRODE"
+    ],
+    "spike_sorters": [
+        {
+            "name": "KiloSort2",
+            "processor_name": "kilosort2",
+            "params": {},
+            "studysets": ["PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "SYNTH_MEAREC_TETRODE"]
+        }
+    ]
+}

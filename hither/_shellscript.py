@@ -7,6 +7,7 @@ import os
 import time
 import io
 from typing import Optional, List, Any
+from ._preventkeyboardinterrupt import PreventKeyboardInterrupt
 
 class ShellScript():
     def __init__(self, script: str, script_path: Optional[str]=None, keep_temp_files: bool=False, verbose: bool=False, label='', docker_container_name=None, redirect_output_to_stdout=False):
@@ -100,7 +101,6 @@ class ShellScript():
             print(line)
 
     def _cleanup(self) -> None:
-        print(self._stdout_buffer.getvalue())
         try:
             if not hasattr(self, '_dirs_to_remove'):
                 return
@@ -112,25 +112,27 @@ class ShellScript():
             print('WARNING: Problem in cleanup() of ShellScript')
 
     def stop(self) -> None:
-        if not self.isRunning():
-            return
-        assert self._process is not None, "Unexpected self._process is None even though it is running."
-
-        self._cleanup()
-
-        signals = [signal.SIGINT] * 10 + [signal.SIGTERM] * 10 + [signal.SIGKILL] * 10
-        signal_strings = ['SIGINT'] * 10 + ['SIGTERM'] * 10 + ['SIGKILL'] * 10
-
-        for iis in range(len(signals)):
-            if self._docker_container_name is None:
-                self._process.send_signal(signals[iis])
-            else:
-                self._send_docker_signal(signal_strings[iis])
-            try:
-                self._process.wait(timeout=0.02)
+        with PreventKeyboardInterrupt():
+            if not self.isRunning():
                 return
-            except:
-                pass
+            assert self._process is not None, "Unexpected self._process is None even though it is running."
+
+            self._cleanup()
+
+            signals = [signal.SIGINT, signal.SIGINT, signal.SIGINT] + [signal.SIGTERM, signal.SIGTERM, signal.SIGTERM] + [signal.SIGKILL]
+            signal_strings = ['SIGINT', 'SIGINT', 'SIGINT'] + ['SIGTERM', 'SIGTERM', 'SIGTERM'] + ['SIGKILL']
+            delays = [5, 5, 5] + [5, 5, 5] + [1]
+
+            for iis in range(len(signals)):
+                if self._docker_container_name is None:
+                    self._process.send_signal(signals[iis])
+                else:
+                    self._send_docker_signal(signal_strings[iis])
+                try:
+                    self._process.wait(timeout=delays[iis])
+                    return
+                except:
+                    pass
     
     def _send_docker_signal(self, sig_str):
         cmd = f'docker kill {self._docker_container_name} -s {sig_str}'

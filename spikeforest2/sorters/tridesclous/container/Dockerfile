@@ -23,7 +23,7 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN pip install Cython
 RUN pip install scipy numpy pandas scikit-learn matplotlib seaborn tqdm openpyxl PyQt5 pyqtgraph==0.10 quantities neo numba hdbscan
-RUN pip install tridesclous==1.4.0
+RUN pip install tridesclous==1.4.1
 
 #########################################
 ## OpenCL/NVIDIA

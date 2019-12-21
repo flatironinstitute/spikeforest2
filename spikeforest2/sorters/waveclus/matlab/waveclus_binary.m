@@ -10,6 +10,7 @@ try
     vcFile_mat = fullfile(vcDir_temp, 'raw.mat');
     data = double(readmda(vcFile_raw) * -1);
     sr = sRateHz;
+    fprintf('Converting file %s -> %s\n', vcFile_raw, vcFile_mat)
     try
         save(vcFile_mat, 'data', 'sr', '-v7.3', '-nocompression'); %faster    
     catch
@@ -22,7 +23,7 @@ try
     cd(vcDir_temp);
     Get_spikes(vcFile_mat, 'par', S_par);
     vcFile_spikes = strrep(vcFile_mat, '.mat', '_spikes.mat');
-    Do_clustering(vcFile_spikes);
+    Do_clustering(vcFile_spikes, 'make_plots', false);
     [vcDir_, vcFile_, vcExt_] = fileparts(vcFile_mat);
     vcFile_cluster = fullfile(vcDir_, ['times_', vcFile_, vcExt_]);
     
@@ -40,7 +41,7 @@ try
 catch ME
     arrayfun(@(x)disp(x), ME.stack);
     fprintf('----------------------------------------\n');
-    fprintf(ME);
+    disp(ME)
     fprintf('----------------------------------------\n');
 
     quit(1);

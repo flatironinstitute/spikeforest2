@@ -76,11 +76,12 @@ class WaveclusSorter(BaseSorter):
         source_dir = Path(Path(__file__).parent)
         p = self.params
 
-        dat_file=str((output_folder / 'recording/raw.mda').absolute())
+        dat_file=str((output_folder / 'recording' / 'raw.mda').absolute())
 
         if os.getenv('WAVECLUS_BINARY_PATH', None):
             shell_cmd = f'''
             #!/bin/bash
+            cd {str(output_folder)}
             exec $WAVECLUS_BINARY_PATH {str(output_folder)} {dat_file} {str(output_folder)}/firings.mda {recording.get_sampling_frequency()}
             '''
         else:

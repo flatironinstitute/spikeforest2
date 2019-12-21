@@ -6,6 +6,10 @@ function waveclus_binary(vcDir_temp, vcFile_raw, vcFile_mda, sRateHz)
 % vcFile_mda: output .mda file (firings.mda)
 
 try
+    if isstr(sRateHz)
+        % need to do this because on command-line, sRateHz comes in as a string
+        sRateHz = str2double(sRateHz)
+    end;
     % convert input to matlab format. flip polarity for positive detection
     vcFile_mat = fullfile(vcDir_temp, 'raw.mat');
     data = double(readmda(vcFile_raw) * -1);

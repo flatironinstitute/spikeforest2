@@ -11,7 +11,7 @@
             "name": "KiloSort",
             "processor_name": "kilosort",
             "params": {},
-            "studyset_names": [
+            "studysets": [
                 "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
                 "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
                 "HYBRID_JANELIA",
@@ -22,7 +22,7 @@
             "name": "KiloSort2",
             "processor_name": "kilosort2",
             "params": {},
-            "studyset_names": [
+            "studysets": [
                 "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
                 "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
                 "HYBRID_JANELIA",

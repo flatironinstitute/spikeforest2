@@ -33,12 +33,16 @@ Python wrappers for the spike sorters, including the docker container definition
 
 | Sorter  | Python wrapper | Dockerfile | Example | Tests |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| MountainSort4  | [mountainsort4](spikeforest2/sorters/mountainsort4) | [Dockerfile](spikeforest2/sorters/mountainsort4/container)  | [example_mountainsort4.py](examples/example_mountainsort4.py) | [tests](working/tests) |
-| HerdingSpikes2  | [herdingspikes2](spikeforest2/sorters/herdingspikes2) | [Dockerfile](spikeforest2/sorters/herdingspikes2/container)  | [example_herdingspikes2.py](examples/example_herdingspikes2.py) | [tests](working/tests) |
-| IronClust  | [ironclust](spikeforest2/sorters/ironclust) | [Dockerfile](spikeforest2/sorters/ironclust/container)  | [example_ironclust.py](examples/example_ironclust.py) | [tests](working/tests) |
-| KiloSort2  | [kilosort2](spikeforest2/sorters/kilosort2) | [Dockerfile](spikeforest2/sorters/kilosort2/container)  | [example_kilosort2.py](examples/example_kilosort2.py) | [tests](working/tests) |
-| SpyKING CIRCUS  | [spykingcircus](spikeforest2/sorters/spykingcircus) | [Dockerfile](spikeforest2/sorters/spykingcircus/container)  | [example_spykingcircus.py](examples/example_spykingcircus.py) | [tests](working/tests) |
-| Tridesclous  | [tridesclous](spikeforest2/sorters/tridesclous) | [Dockerfile](spikeforest2/sorters/tridesclous/container)  | [example_tridesclous.py](examples/example_tridesclous.py) | [tests](working/tests) |
+| HerdingSpikes2  | [herdingspikes2](spikeforest2/sorters/herdingspikes2) | [Dockerfile](spikeforest2/sorters/herdingspikes2/container)  | | [tests](working/tests) |
+| IronClust  | [ironclust](spikeforest2/sorters/ironclust) | [Dockerfile](spikeforest2/sorters/ironclust/container)  | | [tests](working/tests) |
+| JRClust  | [not yet ported] | | | |
+| Kilosort  | [kilosort](spikeforest2/sorters/kilosort) | [Dockerfile](spikeforest2/sorters/kilosort/container)  | | [tests](working/tests) |
+| KiloSort2  | [kilosort2](spikeforest2/sorters/kilosort2) | [Dockerfile](spikeforest2/sorters/kilosort2/container)  | | [tests](working/tests) |
+| Klusta  | [klusta](spikeforest2/sorters/klusta) | [Dockerfile](spikeforest2/sorters/klusta/container)  | | [tests](working/tests) |
+| MountainSort4  | [mountainsort4](spikeforest2/sorters/mountainsort4) | [Dockerfile](spikeforest2/sorters/mountainsort4/container)  | | [tests](working/tests) |
+| SpyKING CIRCUS  | [spykingcircus](spikeforest2/sorters/spykingcircus) | [Dockerfile](spikeforest2/sorters/spykingcircus/container)  | | [tests](working/tests) |
+| Tridesclous  | [tridesclous](spikeforest2/sorters/tridesclous) | [Dockerfile](spikeforest2/sorters/tridesclous/container)  | | [tests](working/tests) |
+| Waveclus  | [waveclus](spikeforest2/sorters/waveclus) | [Dockerfile](spikeforest2/sorters/waveclus/container)  | | [tests](working/tests) |
 
 ## SpikeForest widgets
 

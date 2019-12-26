@@ -1,0 +1,19 @@
+{
+    "studysets": "sha1://4a24e5c43bf2f8963de0287356714fdb76ca78f9/studysets.json",
+    "studyset_names": [
+        "PAIRED_BOYDEN"
+    ],
+    "spike_sorters": [
+        {
+            "name": "IronClust",
+            "processor_name": "ironclust",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        }
+    ]
+}

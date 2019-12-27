@@ -1,9 +1,9 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.3.17-w1')
+@hither.function('ironclust', '5.3.19-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://jamesjun/sf-ironclust:5.3.17')
+@hither.container(default='docker://jamesjun/sf-ironclust:5.3.19')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording_path, sorting_out):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor

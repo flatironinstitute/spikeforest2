@@ -7,8 +7,9 @@
 
 thisdir=$PWD
 
-git clone https://github.com/alexmorley/Kilosort2
-cd Kilosort2 && git checkout 43cbbfff89b9c88cdeb147ffd4ac35bfde9c7956 && cd ..
+# git clone https://github.com/alexmorley/Kilosort2
+git clone https://github.com/MouseLand/Kilosort2 Kilosort2
+cd Kilosort2 && git checkout 67a42a87b866b6150385a46eec358adb349d9ff2 && cd ..
 KILOSORT2_PATH=$PWD/Kilosort2
 
 cd $KILOSORT2_PATH/CUDA

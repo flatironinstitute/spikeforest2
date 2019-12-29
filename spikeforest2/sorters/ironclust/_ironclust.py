@@ -1,9 +1,9 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.0.5-w1')
+@hither.function('ironclust', '5.3.19-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-ironclust:5.0.5')
+@hither.container(default='docker://jamesjun/sf-ironclust:5.3.19')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording_path, sorting_out):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
@@ -22,7 +22,7 @@ def ironclust(recording_path, sorting_out):
     sorter.set_params(
         detect_sign=-1,
         adjacency_radius=50,
-        adjacency_radius_out=75,
+        adjacency_radius_out=100,
         detect_threshold=4,
         prm_template_name='',
         freq_min=300,
@@ -32,7 +32,7 @@ def ironclust(recording_path, sorting_out):
         whiten=False,
         filter_type='bandpass',
         filter_detect_type='none',
-        common_ref_type='mean',
+        common_ref_type='none',
         batch_sec_drift=300,
         step_sec_drift=20,
         knn=30,
@@ -47,7 +47,7 @@ def ironclust(recording_path, sorting_out):
         sort_mode=1
     )     
     timer = sorter.run()
-    print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
+    #print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))
     sorting = sorter.get_result()
 
     AutoSortingExtractor.write_sorting(sorting=sorting, save_path=sorting_out)

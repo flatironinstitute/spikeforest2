@@ -1,10 +1,9 @@
 import random
 import hither
 
-# in 0.1.4 I use alexmorley's fork of kilosort2
-@hither.function('kilosort2', '0.1.4-w1')
+@hither.function('kilosort2', '0.1.5-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-kilosort2:0.1.4')
+@hither.container(default='docker://magland/sf-kilosort2:0.1.5')
 @hither.container(default=None)
 @hither.local_module('../../../spikeforest2_utils')
 @hither.additional_files(['*.m'])

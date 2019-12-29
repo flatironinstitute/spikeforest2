@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM nvidia/opencl
 
 #########################################
 ### Python                                                               
@@ -23,8 +23,14 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN pip install Cython
 RUN pip install scipy numpy pandas scikit-learn matplotlib seaborn tqdm openpyxl PyQt5 pyqtgraph==0.10 quantities neo numba hdbscan
-RUN pip install tridesclous==1.3.3
+RUN pip install tridesclous==1.4.1
 
+#########################################
+## OpenCL/NVIDIA
+RUN apt-get update && apt-get install -y opencl-headers ocl-icd-opencl-dev libclc-dev ocl-icd-libopencl1 clinfo
+RUN pip install pyopencl
+
+#########################################
 # python packages
 RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.2
 RUN pip install kachery==0.4.6

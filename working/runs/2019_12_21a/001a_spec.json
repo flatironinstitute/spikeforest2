@@ -1,0 +1,82 @@
+{
+    "studysets": "sha1://4a24e5c43bf2f8963de0287356714fdb76ca78f9/studysets.json",
+    "studyset_names": [
+        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+        "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+        "HYBRID_JANELIA",
+        "MANUAL_FRANKLAB"
+    ],
+    "spike_sorters": [
+        {
+            "name": "HerdingSpikes2",
+            "processor_name": "herdingspikes2",
+            "params": {},
+            "studysets": [
+                "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "SYNTH_VISAPY",
+                "HYBRID_JANELIA"
+            ]
+        },
+        {
+            "name": "IronClust",
+            "processor_name": "ironclust",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        },
+        {
+            "name": "Klusta",
+            "processor_name": "klusta",
+            "params": {},
+            "studysets": [
+                "PAIRED_CRCNS_HC1", "PAIRED_MONOTRODE", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY"
+            ]
+        },
+        {
+            "name": "MountainSort4",
+            "processor_name": "mountainsort4",
+            "params": {},
+            "studysets2": ["PAIRED_BOYDEN"],
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        },
+        {
+            "name": "SpykingCircus",
+            "processor_name": "spykingcircus",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        },
+        {
+            "name": "Tridesclous",
+            "processor_name": "tridesclous",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        },
+        {
+            "name": "Waveclus",
+            "processor_name": "waveclus",
+            "params": {},
+            "studysets": [
+                "PAIRED_MONOTRODE", "SYNTH_MONOTRODE"
+            ]
+        }
+    ]
+}

@@ -8,4 +8,4 @@ from .herdingspikes2 import herdingspikes2
 from .tridesclous import tridesclous
 from .klusta import klusta
 from .waveclus import waveclus
-from .jrclustwip import jrclust
+from .jrclust import jrclust

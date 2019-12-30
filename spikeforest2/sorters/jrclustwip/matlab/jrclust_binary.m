@@ -1,3 +1,19 @@
+function jrclust_binary(dataset_dir, output_dir, params_path)
+
+try
+    jrclust_master(dataset_dir, output_dir, params_path)
+catch ME
+    arrayfun(@(x)disp(x), ME.stack);
+    fprintf('----------------------------------------\n');
+    disp(ME)
+    fprintf('----------------------------------------\n');
+
+    quit(1);
+end
+quit(0);
+    
+end %func
+    
 function jrclust_master(dataset_dir, output_dir, params_path)
 
 vcFile_raw = fullfile(dataset_dir, 'raw.mda');
@@ -40,7 +56,7 @@ edit_prm_file_('template.prm', vcFile_prm, P);
 jrc('detect-sort', vcFile_prm);
 
 % convert the output to .mda file
-S0 = load(fullfile(outputDir, 'myparam_res.mat'));
+S0 = load(fullfile(output_dir, 'myparam_res.mat'));
 nSpikes = numel(S0.spikeTimes);
 mr_mda = zeros(nSpikes, 3, 'double');
 mr_mda(:,1) = S0.spikeSites;

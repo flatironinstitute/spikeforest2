@@ -1,0 +1,33 @@
+{
+    "studysets": "sha1://4a24e5c43bf2f8963de0287356714fdb76ca78f9/studysets.json",
+    "studyset_names": [
+        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+        "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
+        "HYBRID_JANELIA",
+        "MANUAL_FRANKLAB"
+    ],
+    "spike_sorters": [
+        {
+            "name": "KiloSort",
+            "processor_name": "kilosort",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        },
+        {
+            "name": "KiloSort2",
+            "processor_name": "kilosort2",
+            "params": {},
+            "studysets": [
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
+                "HYBRID_JANELIA",
+                "MANUAL_FRANKLAB"
+            ]
+        }
+    ]
+}

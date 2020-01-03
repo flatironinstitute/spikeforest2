@@ -22,7 +22,7 @@ ka.set_config(fr='default_readonly')
 ka.load_file(recording_path + '/raw.mda')
 
 # Run the spike sorting
-with hither.config(container='docker://jamesjun/sf-ironclust:5.4.0', gpu=gpu):
+with hither.config(container='default', gpu=gpu):
   sorting_result = sorter.run(
     recording_path=recording_path,
     sorting_out=hither.File(),

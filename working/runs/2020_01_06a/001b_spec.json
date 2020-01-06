@@ -13,7 +13,7 @@
             "params": {},
             "studysets": [
                 "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
-                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
+                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
             ]
@@ -24,7 +24,7 @@
             "params": {},
             "studysets": [
                 "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
-                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
+                "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
             ]

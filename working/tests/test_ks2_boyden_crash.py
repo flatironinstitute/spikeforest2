@@ -6,10 +6,10 @@ from spikeforest2 import processing
 import hither
 import kachery as ka
 
-recording_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/915_10_1'
-sorting_true_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/915_10_1/firings_true.mda'
+recording_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/509_1_1'
+sorting_true_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/509_1_1/firings_true.mda'
 
-sorter_name = 'ironclust'
+sorter_name = 'kilosort2'
 sorter = getattr(sorters, sorter_name)
 params = {}
 
@@ -17,7 +17,7 @@ params = {}
 gpu = sorter_name in ['kilosort2', 'kilosort', 'tridesclous', 'ironclust']
 
 # In the future we will check whether we have the correct version of the wrapper here
-# Version: 5.4.0-w1
+# Version: 0.1.5-w1
 
 # Download the data (if needed)
 ka.set_config(fr='default_readonly')

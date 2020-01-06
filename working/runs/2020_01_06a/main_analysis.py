@@ -121,7 +121,10 @@ def main():
 
         # Download recordings
         for recording in recordings:
+            print(f'Downloading recording: {recording["study"]}/{recording["name"]}')
             ka.load_file(recording['directory'] + '/raw.mda')
+            ka.load_file(recording['directory'] + '/params.json')
+            ka.load_file(recording['directory'] + '/geom.csv')
             ka.load_file(recording['directory'] + '/firings_true.mda')
         
         # Attach results objects

@@ -311,7 +311,7 @@ def _create_spikesprays(*, rx, sx_true, sx_sorted, neighborhood_size, num_spikes
     return ret
 
 
-@hither.function(name='create_spike_sprays', version='0.1.0')
+@hither.function(name='create_spike_sprays', version='0.1.1')
 @hither.input_file('filtered_timeseries')
 @hither.input_file('firings_true')
 @hither.input_file('firings_sorted')

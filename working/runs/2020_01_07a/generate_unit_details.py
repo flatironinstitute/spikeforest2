@@ -51,18 +51,18 @@ def main():
     for sr in sorting_results:
         study_name = sr['studyName']
         if study_name in studies_to_include:
-            sorting_results_to_consider.append(sr)
-            print('----', sr.keys())
-            key = dict(
-                name='unit-details-v0.1.0',
-                recording_directory=sr['recordingDirectory'],
-                firings_true=sr['firingsTrue'],
-                firings=sr['firings']
-            )
-            val = mt.getValue(key=key, collection='spikeforest')
-            if not val:
-                sr['key'] = key
-                sorting_results_to_process.append(sr)
+            if 'firings' in sr:
+                sorting_results_to_consider.append(sr)
+                key = dict(
+                    name='unit-details-v0.1.0',
+                    recording_directory=sr['recordingDirectory'],
+                    firings_true=sr['firingsTrue'],
+                    firings=sr['firings']
+                )
+                val = mt.getValue(key=key, collection='spikeforest')
+                if not val:
+                    sr['key'] = key
+                    sorting_results_to_process.append(sr)
     
     print('Need to process {} of {} sorting results'.format(len(sorting_results_to_process), len(sorting_results_to_consider)))
 

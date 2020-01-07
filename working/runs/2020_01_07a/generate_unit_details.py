@@ -52,6 +52,7 @@ def main():
         study_name = sr['studyName']
         if study_name in studies_to_include:
             sorting_results_to_consider.append(sr)
+            print('----', sr.keys())
             key = dict(
                 name='unit-details-v0.1.0',
                 recording_directory=sr['recording']['directory'],

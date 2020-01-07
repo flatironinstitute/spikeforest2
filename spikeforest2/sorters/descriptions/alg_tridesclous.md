@@ -1,7 +1,7 @@
 ---
 label: TRIDESCLOUS
-dockerfile: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/container/Dockerfile
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/tridesclous/tridesclous.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/tridesclous/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/tridesclous/_tridesclous.py
 notes:
 website: https://github.com/tridesclous/tridesclous
 source_code:

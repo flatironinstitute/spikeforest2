@@ -2,7 +2,8 @@
 label: JRCLUST
 dockerfile:
 environment: MATLAB
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/jrclust/jrclust.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/jrclust/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/jrclust/_jrclust.py
 notes: 
 website: https://github.com/JaneliaSciComp/JRCLUST
 source_code: https://github.com/JaneliaSciComp/JRCLUST

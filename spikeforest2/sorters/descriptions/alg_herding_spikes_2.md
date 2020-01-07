@@ -1,7 +1,7 @@
 ---
 label: HERDING_SPIKES_2
-dockerfile: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/herdingspikes2/container/Dockerfile
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/herdingspikes2/herdingspikes2.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/herdingspikes/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/herdingspikes2/_herdingspikes2.py
 notes: 
 website: https://github.com/mhhennig/HS2
 source_code: https://github.com/mhhennig/HS2

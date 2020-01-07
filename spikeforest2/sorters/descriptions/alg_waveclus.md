@@ -1,7 +1,8 @@
 ---
 label: Waveclus
 dockerfile: 
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/waveclus/waveclus.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/waveclus/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/waveclus/_waveclus.py
 website: https://github.com/csn-le/wave_clus/wiki
 source_code: https://github.com/csn-le/wave_clus
 authors: F. J. Chaure, H. G. Rey and R. Quian Quiroga

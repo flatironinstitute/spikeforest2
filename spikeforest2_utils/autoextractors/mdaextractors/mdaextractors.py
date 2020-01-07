@@ -12,7 +12,7 @@ class MdaRecordingExtractor(RecordingExtractor):
     def __init__(self, *, recording_directory=None, timeseries_path=None, download=False, samplerate=None, geom=None, geom_path=None, params_path=None):
         RecordingExtractor.__init__(self)
         if recording_directory:
-            if timeseries_path is not None:
+            if timeseries_path is None:
                 timeseries_path = recording_directory + '/raw.mda'
             geom_path = recording_directory + '/geom.csv'
             params_path = recording_directory + '/params.json'

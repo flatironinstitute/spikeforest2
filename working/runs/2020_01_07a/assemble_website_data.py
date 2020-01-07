@@ -137,7 +137,9 @@ def main():
         )
         if sr.get('firings', None):
             SR['firings'] = sr['firings']
-            if not sr.get('comparison_with_truth', None):
+            if sr.get('comparison_with_truth', None):
+                SR['comparisonWithTruth'] = sr['comparison_with_truth']
+            else:
                 print('Warning: comparison with truth not found for sorting result: {} {}/{}'.format(sr['sorter']['name'], sr['recording']['study'], sr['recording']['name']))
                 print('Console output is here: ' + sr['console_out'])
         else:

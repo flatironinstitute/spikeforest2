@@ -10,7 +10,7 @@ import kachery as ka
 
 def main():
     from mountaintools import client as mt
-    
+
     parser = argparse.ArgumentParser(description='Generate unit detail data (including spikesprays) for website')
     parser.add_argument('analysis_path', help='assembled analysis file (output.json)')
     parser.add_argument('--studysets', help='Comma-separated list of study set names to include', required=False, default=None)
@@ -54,17 +54,18 @@ def main():
         study_name = sr['studyName']
         if study_name in studies_to_include:
             if 'firings' in sr:
-                sorting_results_to_consider.append(sr)
-                key = dict(
-                    name='unit-details-v0.1.0',
-                    recording_directory=sr['recordingDirectory'],
-                    firings_true=sr['firingsTrue'],
-                    firings=sr['firings']
-                )
-                val = mt.getValue(key=key, collection='spikeforest')
-                if not val:
-                    sr['key'] = key
-                    sorting_results_to_process.append(sr)
+                if sr.get('comparisonWithTruth', None) is not None:
+                    sorting_results_to_consider.append(sr)
+                    key = dict(
+                        name='unit-details-v0.1.0',
+                        recording_directory=sr['recordingDirectory'],
+                        firings_true=sr['firingsTrue'],
+                        firings=sr['firings']
+                    )
+                    val = mt.getValue(key=key, collection='spikeforest')
+                    if not val:
+                        sr['key'] = key
+                        sorting_results_to_process.append(sr)
     if args.test and len(sorting_results_to_process) > 0:
         sorting_results_to_process = [sorting_results_to_process[0]]
     
@@ -128,26 +129,25 @@ def main():
 
             print('====== COMPUTING {}/{}/{}'.format(study_name, rec_name, sorter_name))
 
-            if sr.get('comparison_with_truth', None) is not None:
-                cwt = ka.load_object(path=sr['comparison_with_truth']['json'])
+            cwt = ka.load_object(path=sr['comparisonWithTruth']['json'])
 
-                filtered_timeseries = filtered_timeseries_by_recdir[recdir]
+            filtered_timeseries = filtered_timeseries_by_recdir[recdir]
 
-                spike_spray_results = []
-                list0 = list(cwt.values())
-                for _, unit in enumerate(list0):
-                    result = create_spike_sprays.run(
-                        recording_directory=recdir,
-                        filtered_timeseries=filtered_timeseries,
-                        firings_true=os.path.join(recdir, 'firings_true.mda'),
-                        firings_sorted=sr['firings'],
-                        unit_id_true=unit['unit_id'],
-                        unit_id_sorted=unit['best_unit'],
-                        json_out=hither.File()
-                    )
-                    setattr(result, 'unit', unit)
-                    spike_spray_results.append(result)
-                sr['spike_spray_results'] = spike_spray_results
+            spike_spray_results = []
+            list0 = list(cwt.values())
+            for _, unit in enumerate(list0):
+                result = create_spike_sprays.run(
+                    recording_directory=recdir,
+                    filtered_timeseries=filtered_timeseries,
+                    firings_true=os.path.join(recdir, 'firings_true.mda'),
+                    firings_sorted=sr['firings'],
+                    unit_id_true=unit['unit_id'],
+                    unit_id_sorted=unit['best_unit'],
+                    json_out=hither.File()
+                )
+                setattr(result, 'unit', unit)
+                spike_spray_results.append(result)
+            sr['spike_spray_results'] = spike_spray_results
 
     for sr in sorting_results_to_process:
         recdir = sr['recordingDirectory']

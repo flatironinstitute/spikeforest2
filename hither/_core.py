@@ -82,9 +82,15 @@ class job_queue:
         if _global['inside_job_queue']:
             raise Exception('Cannot be in more than one hither job queue')
         _global['inside_job_queue'] = True
+        _global['pending_jobs'] = []
+        _global['queued_jobs'] = []
+        _global['finished_jobs'] = []
     def __exit__(self, exc_type, exc_val, exc_tb):
         wait()
         _global['inside_job_queue'] = False
+        _global['pending_jobs'] = []
+        _global['queued_jobs'] = []
+        _global['finished_jobs'] = []
 
 def set_config(
         container: Union[str, None]=None,

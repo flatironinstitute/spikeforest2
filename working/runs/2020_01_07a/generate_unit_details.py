@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--job-timeout', help='Timeout for processing jobs', required=False, default=600)
     parser.add_argument('--log-file', help='Log file for analysis progress', required=False, default=None)
+    parser.add_argument('--test', help='Whether to just test by running only 1', action='store_true')
 
     args = parser.parse_args()
 
@@ -63,6 +64,8 @@ def main():
                 if not val:
                     sr['key'] = key
                     sorting_results_to_process.append(sr)
+    if args.test and len(sorting_results_to_process) > 0:
+        sorting_results_to_process = [sorting_results_to_process[0]]
     
     print('Need to process {} of {} sorting results'.format(len(sorting_results_to_process), len(sorting_results_to_consider)))
 
@@ -183,7 +186,7 @@ def main():
 @hither.function(name='filter_recording', version='0.1.0')
 @hither.output_file('timeseries_out') # timeseries out
 @hither.container(default='docker://magland/spikeforest2:0.1.0')
-@hither.local_module('../../spikeforest2_utils')
+@hither.local_module('../../../spikeforest2_utils')
 def filter_recording(recording_directory, timeseries_out):
     from spikeforest2_utils import AutoRecordingExtractor
     from spikeforest2_utils import writemda32
@@ -313,7 +316,7 @@ def _create_spikesprays(*, rx, sx_true, sx_sorted, neighborhood_size, num_spikes
 @hither.input_file('firings_sorted')
 @hither.output_file('json_out')
 @hither.container(default='docker://magland/spikeforest2:0.1.0')
-@hither.local_module('../../spikeforest2_utils')
+@hither.local_module('../../../spikeforest2_utils')
 def create_spike_sprays(
     recording_directory, # Recording directory
     filtered_timeseries, # filtered timeseries file (.mda)

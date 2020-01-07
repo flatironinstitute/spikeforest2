@@ -33,16 +33,16 @@ def main():
 
     if args.studysets is not None:
         studyset_names = args.studysets.split(',')
+        print('Using study sets: ', studyset_names)
     else:
-        studyset_names = ['PAIRED_KAMPFF']
-    print('Using study sets: ', studyset_names)
-
+        studyset_names = None
+    
     study_sets = analysis['StudySets']
     sorting_results = analysis['SortingResults']
 
     studies_to_include = []
     for ss in study_sets:
-        if ss['name'] in studyset_names:
+        if (studyset_names is None) or (ss['name'] in studyset_names):
             for study in ss['studies']:
                 studies_to_include.append(study['name'])
     

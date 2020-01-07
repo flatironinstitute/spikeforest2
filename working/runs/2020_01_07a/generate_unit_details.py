@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--cache', help='The cache database to use', required=False, default=None)
     parser.add_argument('--job-timeout', help='Timeout for processing jobs', required=False, default=600)
     parser.add_argument('--log-file', help='Log file for analysis progress', required=False, default=None)
+    parser.add_argument('--force-regenerate', help='Whether to force regenerating spike sprays (for when code has changed)', action='store_true')
     parser.add_argument('--test', help='Whether to just test by running only 1', action='store_true')
 
     args = parser.parse_args()
@@ -63,7 +64,7 @@ def main():
                         firings=sr['firings']
                     )
                     val = mt.getValue(key=key, collection='spikeforest')
-                    if not val:
+                    if (not val) or (args.force_regenerate):
                         sr['key'] = key
                         sorting_results_to_process.append(sr)
     if args.test and len(sorting_results_to_process) > 0:

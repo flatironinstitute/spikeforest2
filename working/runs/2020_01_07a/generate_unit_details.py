@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-from mountaintools import client as mt
 import hither
 import os
 import json
@@ -10,6 +9,8 @@ import numpy as np
 import kachery as ka
 
 def main():
+    from mountaintools import client as mt
+    
     parser = argparse.ArgumentParser(description='Generate unit detail data (including spikesprays) for website')
     parser.add_argument('analysis_path', help='assembled analysis file (output.json)')
     parser.add_argument('--studysets', help='Comma-separated list of study set names to include', required=False, default=None)

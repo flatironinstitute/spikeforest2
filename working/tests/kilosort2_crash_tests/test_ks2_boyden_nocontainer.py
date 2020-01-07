@@ -7,6 +7,8 @@ import hither
 import kachery as ka
 import os
 
+os.environ['HITHER_USE_SINGULARITY'] = 'TRUE'
+
 if not os.getenv('KILOSORT2_PATH'):
   raise Exception('You must set the environment variable: KILOSORT2_PATH')
 
@@ -28,7 +30,7 @@ ka.set_config(fr='default_readonly')
 ka.load_file(recording_path + '/raw.mda')
 
 # Run the spike sorting
-with hither.config(container='default', gpu=gpu):
+with hither.config(container=None):
   sorting_result = sorter.run(
     recording_path=recording_path,
     sorting_out=hither.File(),
@@ -38,7 +40,7 @@ assert sorting_result.success
 sorting_path = sorting_result.outputs.sorting_out
 
 # Compare with ground truth
-with hither.config(container=None):
+with hither.config(container='default'):
   compare_result = processing.compare_with_truth.run(
     sorting_path=sorting_path,
     sorting_true_path=sorting_true_path,

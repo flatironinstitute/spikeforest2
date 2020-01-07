@@ -55,8 +55,8 @@ def main():
             print('----', sr.keys())
             key = dict(
                 name='unit-details-v0.1.0',
-                recording_directory=sr['recording']['directory'],
-                firings_true=sr['firings_true'],
+                recording_directory=sr['recordingDirectory'],
+                firings_true=sr['firingsTrue'],
                 firings=sr['firings']
             )
             val = mt.getValue(key=key, collection='spikeforest')
@@ -66,7 +66,7 @@ def main():
     
     print('Need to process {} of {} sorting results'.format(len(sorting_results_to_process), len(sorting_results_to_consider)))
 
-    recording_directories_to_process = sorted(list(set([sr['recording']['directory'] for sr in sorting_results_to_process])))
+    recording_directories_to_process = sorted(list(set([sr['recordingDirectory'] for sr in sorting_results_to_process])))
     print('{} recording directories to process'.format(len(recording_directories_to_process)))
 
     if int(args.parallel) > 0:
@@ -117,25 +117,25 @@ def main():
         job_timeout=args.job_timeout
     ), hither.job_queue():
         for sr in sorting_results_to_process:
-            rec = sr['recording']
-            study_name = rec['study']
-            rec_name = rec['name']
-            sorter_name = sr['sorter']['name']
+            recdir = sr['recordingDirectory']
+            study_name = sr['studyName']
+            rec_name = sr['recordingName']
+            sorter_name = sr['sorterName']
 
             print('====== COMPUTING {}/{}/{}'.format(study_name, rec_name, sorter_name))
 
             if sr.get('comparison_with_truth', None) is not None:
                 cwt = ka.load_object(path=sr['comparison_with_truth']['json'])
 
-                filtered_timeseries = filtered_timeseries_by_recdir[rec['directory']]
+                filtered_timeseries = filtered_timeseries_by_recdir[recdir]
 
                 spike_spray_results = []
                 list0 = list(cwt.values())
                 for _, unit in enumerate(list0):
                     result = create_spike_sprays.run(
-                        recording_directory=rec['directory'],
+                        recording_directory=recdir,
                         filtered_timeseries=filtered_timeseries,
-                        firings_true=os.path.join(rec['directory'], 'firings_true.mda'),
+                        firings_true=os.path.join(recdir, 'firings_true.mda'),
                         firings_sorted=sr['firings'],
                         unit_id_true=unit['unit_id'],
                         unit_id_sorted=unit['best_unit'],
@@ -146,10 +146,10 @@ def main():
                 sr['spike_spray_results'] = spike_spray_results
 
     for sr in sorting_results_to_process:
-        rec = sr['recording']
-        study_name = rec['study']
-        rec_name = rec['name']
-        sorter_name = sr['sorter']['name']
+        recdir = sr['recordingDirectory']
+        study_name = sr['studyName']
+        rec_name = sr['recordingName']
+        sorter_name = sr['sorterName']
 
         print('====== SAVING {}/{}/{}'.format(study_name, rec_name, sorter_name))
         spike_spray_results = sr['spike_spray_results']

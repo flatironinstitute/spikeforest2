@@ -19,9 +19,9 @@ cd spikeforest2
 pip install -e .
 ```
 
-See below for instructions on [installing spikeforest_widgets](#installing-spikeforest_widgets).
+Optional: See below for instructions on [installing spikeforest_widgets](#installing-spikeforest_widgets).
 
-Hint: it is useful to operate in a conda environment or a virtualenv to avoid potential package conflicts.
+Hint: It is useful to operate in a conda environment or a virtualenv to avoid potential package conflicts.
 
 ## Recordings
 
@@ -35,7 +35,7 @@ Python wrappers for the spike sorters, including the docker container definition
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | HerdingSpikes2  | [herdingspikes2](spikeforest2/sorters/herdingspikes2) | [Dockerfile](spikeforest2/sorters/herdingspikes2/container)  | | [tests](working/tests) |
 | IronClust  | [ironclust](spikeforest2/sorters/ironclust) | [Dockerfile](spikeforest2/sorters/ironclust/container)  | | [tests](working/tests) |
-| JRClust  | [not yet ported] | | | |
+| JRClust  | [ironclust](spikeforest2/sorters/jrclust) | [Dockerfile](spikeforest2/sorters/jrclust/container)  | | [tests](working/tests) |
 | Kilosort  | [kilosort](spikeforest2/sorters/kilosort) | [Dockerfile](spikeforest2/sorters/kilosort/container)  | | [tests](working/tests) |
 | KiloSort2  | [kilosort2](spikeforest2/sorters/kilosort2) | [Dockerfile](spikeforest2/sorters/kilosort2/container)  | | [tests](working/tests) |
 | Klusta  | [klusta](spikeforest2/sorters/klusta) | [Dockerfile](spikeforest2/sorters/klusta/container)  | | [tests](working/tests) |

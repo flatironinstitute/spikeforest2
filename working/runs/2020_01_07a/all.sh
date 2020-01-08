@@ -10,3 +10,5 @@ set -ex
 
 ./004_upload_console_out.sh
 ./004_upload_firings.sh
+
+./005_generate_unit_details.sh

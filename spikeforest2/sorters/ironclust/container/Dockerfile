@@ -39,6 +39,7 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 ###    put the resulting file "run_irc" here
 COPY run_irc /run_irc
 RUN chmod a+x /run_irc
+ENV IRONCLUST_BINARY_PATH=/run_irc
 
 # python packages
 RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1

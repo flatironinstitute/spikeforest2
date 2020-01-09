@@ -9,13 +9,31 @@ from spikesorters import BaseSorter
 from hither import ShellScript
 
 
+def check_if_installed(ironclust_path: Union[str, None]):
+    if os.getenv('IRONCLUST_BINARY_PATH', None):
+        return True
+    if ironclust_path is None:
+        return False
+    assert isinstance(ironclust_path, str)
+
+    if ironclust_path.startswith('"'):
+        ironclust_path = ironclust_path[1:-1]
+    ironclust_path = str(Path(ironclust_path).absolute())
+
+    if (Path(ironclust_path) / 'irc2.m').is_file():
+        return True
+    else:
+        return False
+
+
 class IronClustSorter(BaseSorter):
     """
     """
 
     sorter_name: str = 'ironclust'
-    installed = True
-    requires_locations = True
+    ironclust_path: Union[str, None] = os.getenv('IRONCLUST_PATH', None)
+    installed = check_if_installed(ironclust_path)
+    requires_locations = False    
 
     _default_params = dict(
         detect_sign=-1,  # Use -1, 0, or 1, depending on the sign of the spikes in the recording
@@ -121,11 +139,36 @@ class IronClustSorter(BaseSorter):
         if self.verbose:
             print('Running ironclust in {tmpdir}...'.format(tmpdir=str(tmpdir)))
 
-        shell_cmd = '''
+        if os.getenv('IRONCLUST_BINARY_PATH', None):
+            shell_cmd = f'''
             #!/bin/bash
             cd {tmpdir}
-            exec /run_irc {dataset_dir} {tmpdir} {dataset_dir}/argfile.txt
-        '''.format(tmpdir=str(tmpdir), dataset_dir=str(dataset_dir))
+            exec $IRONCLUST_BINARY_PATH {dataset_dir} {tmpdir} {dataset_dir}/argfile.txt
+            '''
+        else:
+            matlab_script = f'''
+            try
+                addpath(genpath('{self.ironclust_path}'));
+                irc2('{dataset_dir}', '{str(tmpdir)}', '{dataset_dir}/argfile.txt')
+            catch
+                fprintf('----------------------------------------');
+                fprintf(lasterr());
+                quit(1);
+            end
+            quit(0);
+            '''
+            ShellScript(matlab_script).write(str(output_folder / 'ironclust_script.m'))
+            if "win" in sys.platform:
+                shell_cmd = f'''
+                            cd {str(output_folder)}
+                            matlab -nosplash -nodisplay -wait -r ironclust_script
+                        '''
+            else:
+                shell_cmd = f'''
+                            #!/bin/bash
+                            cd "{str(output_folder)}"
+                            matlab -nosplash -nodisplay -r ironclust_script
+                        '''
 
         shell_script = ShellScript(shell_cmd, redirect_output_to_stdout=True)
         shell_script.start()

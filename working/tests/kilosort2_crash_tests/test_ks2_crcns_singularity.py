@@ -9,17 +9,12 @@ import os
 
 os.environ['HITHER_USE_SINGULARITY'] = 'TRUE'
 
-if not os.getenv('KILOSORT2_PATH'):
-  raise Exception('You must set the environment variable: KILOSORT2_PATH')
-
-recording_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/509_1_1'
-sorting_true_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/509_1_1/firings_true.mda'
+recording_path = 'sha1dir://779d96521176077ec260ef99573dea3b772c74e6.paired_crcns/d18811_d18811.001'
+sorting_true_path = 'sha1dir://779d96521176077ec260ef99573dea3b772c74e6.paired_crcns/d18811_d18811.001/firings_true.mda'
 
 sorter_name = 'kilosort2'
 sorter = getattr(sorters, sorter_name)
-params = dict(
-  detect_threshold=6
-)
+params = {}
 
 # Determine whether we are going to use gpu based on the name of the sorter
 gpu = sorter_name in ['kilosort2', 'kilosort', 'tridesclous', 'ironclust']
@@ -32,7 +27,7 @@ ka.set_config(fr='default_readonly')
 ka.load_file(recording_path + '/raw.mda')
 
 # Run the spike sorting
-with hither.config(container=None):
+with hither.config(container='default', gpu=gpu):
   sorting_result = sorter.run(
     recording_path=recording_path,
     sorting_out=hither.File(),

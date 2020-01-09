@@ -41,6 +41,7 @@ class KilosortSorter(BaseSorter):
 
     _default_params = {
         'detect_threshold': 6,
+        'Nt': 128 * 1024 * 5 + 64,
         'car': True,
         'useGPU': True,
         'freq_min': 300,
@@ -49,6 +50,7 @@ class KilosortSorter(BaseSorter):
 
     _extra_gui_params = [
         {'name': 'detect_threshold', 'type': 'float', 'value': 6.0, 'default': 6.0, 'title': "Relative detection threshold"},
+        {'name': 'Nt', 'type': 'int', 'value': 128 * 1024 * 5 + 64, 'default': 128 * 1024 * 5 + 64, 'title': "Nt - batch size for kilosort"},
         {'name': 'car', 'type': 'bool', 'value': True, 'default': True, 'title': "car"},
         {'name': 'useGPU', 'type': 'bool', 'value': True, 'default': True, 'title': "If True, will use GPU"},
         {'name': 'freq_min', 'type': 'float', 'value': 300.0, 'default': 300.0, 'title': "Low-pass frequency"},
@@ -114,7 +116,6 @@ class KilosortSorter(BaseSorter):
         Nfilt = (nchan // 32) * 32 * 8
         if Nfilt == 0:
             Nfilt = nchan * 8
-        Nt = 128 * 1024 + 64
 
         params0 = dict(
             nchan=recording.get_num_channels(),
@@ -124,7 +125,7 @@ class KilosortSorter(BaseSorter):
             kilo_thresh=p["detect_threshold"],
             use_car=use_car,
             Nfilt=Nfilt,
-            Nt=Nt,
+            Nt=p["Nt"],
             xcoords=xcoords,
             ycoords=ycoords,
             kcoords=kcoords

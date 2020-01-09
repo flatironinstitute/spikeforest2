@@ -12,7 +12,8 @@ def kilosort(
     sorting_out,
     detect_threshold=6,
     freq_min=300,
-    freq_max=6000
+    freq_max=6000,
+    Nt=128 * 1024 * 5 + 64 # batch size for kilosort
 ):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._kilosortsorter import KilosortSorter

@@ -30,6 +30,8 @@ gpu = sorter_name in ['kilosort2', 'kilosort', 'tridesclous', 'ironclust']
 # Download the data (if needed)
 ka.set_config(fr='default_readonly')
 ka.load_file(recording_path + '/raw.mda')
+ka.load_file(recording_path + '/geom.csv')
+ka.load_file(recording_path + '/params.json')
 
 # Run the spike sorting
 with hither.config(container=None):

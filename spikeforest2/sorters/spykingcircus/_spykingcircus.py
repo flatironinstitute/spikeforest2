@@ -2,9 +2,10 @@ import os
 import random
 import hither
 
-@hither.function('spykingcircus', '0.8.8b-w2')
+
+@hither.function('spykingcircus', '0.9.0')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-spykingcircus:0.8.8b')
+@hither.container(default='docker://magland/sf-spykingcircus:0.9.0')
 @hither.local_module('../../../spikeforest2_utils')
 def spykingcircus(
     recording_path,

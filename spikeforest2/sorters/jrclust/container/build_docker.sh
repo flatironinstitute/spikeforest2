@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t jamesjun/sf-jrclust:0.0.1 .
+docker build -t magland/sf-jrclust:0.1.0 .

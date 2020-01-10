@@ -331,8 +331,12 @@ def _read_python_code_of_directory(dirname, exclude_init, additional_files=[]):
             if exclude_init and (fname == '__init__.py'):
                 matches = False
             if matches:
-                with open(dirname + '/' + fname) as f:
-                    txt = f.read()
+                with open(dirname + '/' + fname, 'rb') as f:
+                    try:
+                        txt = f.read().decode('utf-8')
+                    except:
+                        print('WARNING: Problem decoding text file: {}'.format(dirname + '/' + fname))
+                        txt = f.read().decode('utf-8', 'ignore')
                 files.append(dict(
                     name=fname,
                     content=txt

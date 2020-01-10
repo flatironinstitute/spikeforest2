@@ -12,7 +12,8 @@ class MdaRecordingExtractor(RecordingExtractor):
     def __init__(self, *, recording_directory=None, timeseries_path=None, download=False, samplerate=None, geom=None, geom_path=None, params_path=None):
         RecordingExtractor.__init__(self)
         if recording_directory:
-            timeseries_path = recording_directory + '/raw.mda'
+            if timeseries_path is None:
+                timeseries_path = recording_directory + '/raw.mda'
             geom_path = recording_directory + '/geom.csv'
             params_path = recording_directory + '/params.json'
         self._timeseries_path = timeseries_path
@@ -30,7 +31,13 @@ class MdaRecordingExtractor(RecordingExtractor):
         if download:
             path0 = ka.load_file(path=self._timeseries_path)
             if not path0:
-                raise Exception('Unable to realize file: ' + self._timeseries_path)
+                raise Exception('Unable to download file: ' + self._timeseries_path)
+            if geom_path is not None:
+                if not ka.load_file(geom_path):
+                    raise Exception('Unable to download file: ' + geom_path)
+            if params_path is not None:
+                if not ka.load_file(params_path):
+                    raise Exception('Unable to download file: ' + params_path)
             self._timeseries_path = path0
 
         self._timeseries = DiskReadMda(self._timeseries_path)

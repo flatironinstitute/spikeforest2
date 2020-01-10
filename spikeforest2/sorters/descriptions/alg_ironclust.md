@@ -2,7 +2,8 @@
 label: IRONCLUST
 dockerfile:
 environment: MATLAB
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/ironclust/ironclust.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/ironclust/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/ironclust/_ironclust.py
 website: https://github.com/jamesjun/ironclust
 source_code: https://github.com/jamesjun/ironclust
 authors: James J. Jun

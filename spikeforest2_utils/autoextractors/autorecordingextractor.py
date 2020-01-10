@@ -44,6 +44,8 @@ class AutoRecordingExtractor(se.RecordingExtractor):
                 setattr(self, 'hash', hash0)
             elif path.endswith('.json') and (not path.endswith('.nwb.json')):
                 obj = ka.load_object(path)
+                if obj is None:
+                    raise Exception(f'Unable to load object: {path}')
                 if ('raw' in obj) and ('params' in obj) and ('geom' in obj):
                     self._recording = MdaRecordingExtractor(timeseries_path=obj['raw'], samplerate=obj['params']['samplerate'], geom=np.array(obj['geom']), download=download)
                 else:

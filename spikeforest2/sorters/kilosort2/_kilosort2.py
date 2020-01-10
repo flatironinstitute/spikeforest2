@@ -3,7 +3,7 @@ import hither
 
 @hither.function('kilosort2', '0.1.5-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-kilosort2:0.1.5')
+@hither.container(default='docker://magland/sf-kilosort2:0.1.5b')
 @hither.container(default=None)
 @hither.local_module('../../../spikeforest2_utils')
 @hither.additional_files(['*.m'])
@@ -16,6 +16,7 @@ def kilosort2(
     freq_min=150, # min. bp filter freq (Hz), use 0 for no filter
     sigmaMask=30, # sigmaMask
     nPCs=3, # PCs per channel?
+    Nt=128 * 1024 * 5 + 64 # batch size for kilosort2 (sort of a delicate choice)
 ):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._kilosort2sorter import Kilosort2Sorter
@@ -38,7 +39,8 @@ def kilosort2(
         minFR=minFR,
         freq_min=freq_min,
         sigmaMask=sigmaMask,
-        nPCs=nPCs
+        nPCs=nPCs,
+        Nt=Nt
     )
 
     timer = sorter.run()

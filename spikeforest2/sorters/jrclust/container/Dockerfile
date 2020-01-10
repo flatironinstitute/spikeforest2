@@ -8,7 +8,6 @@ RUN mkdir /install_matlab \
     && curl http://ssd.mathworks.com/supportfiles/downloads/R2019b/Release/1/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2019b_Update_1_glnxa64.zip > /install_matlab/MATLAB_Runtime_R2019b_Update_1_glnxa64.zip \
     && cd /install_matlab && unzip MATLAB_Runtime_R2019b_Update_1_glnxa64.zip && ./install -mode silent -agreeToLicense yes && cd / && rm -rf /install_matlab
 
-# See comment above
 ENV LD_LIBRARY_PATH /usr/local/MATLAB/MATLAB_Runtime/v97/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/extern/bin/glnxa64
 
 #########################################
@@ -30,15 +29,15 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apt-get install -y locales && locale-gen en_US.UTF-8
 
 #########################################
-### Compiled irc
-### To generate (must have matlab compiler):
-###    clone jrclust
-###    start matlab
-###    irc mcc
-###    put the resulting file "run_irc" here
+### Compiled jrclust
+### To generate (matlab compiler required):
+###    See matlab/ directory
 COPY jrclust_binary /jrclust_binary
 RUN chmod a+x /jrclust_binary
+ENV JRCLUST_BINARY_PATH=/jrclust_binary
 
 # python packages
-RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0 spikesorters==0.2.1
-RUN pip install kachery==0.4.4
+RUN pip install spikeextractors==0.7.0 spiketoolkit==0.5.0
+RUN pip install spikesorters==0.2.2
+
+RUN pip install kachery==0.4.6

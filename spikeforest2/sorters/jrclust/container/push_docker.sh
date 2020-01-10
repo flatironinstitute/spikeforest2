@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker push jamesjun/sf-jrclust:0.0.1
+docker push magland/sf-jrclust:0.1.0

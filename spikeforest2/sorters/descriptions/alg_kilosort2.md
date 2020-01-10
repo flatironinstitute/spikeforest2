@@ -2,7 +2,8 @@
 label: KILOSORT2
 dockerfile:
 environment: MATLAB
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/kilosort2/kilosort2.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/kilosort2/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/kilosort2/_kilosort2.py
 website: https://github.com/MouseLand/Kilosort2
 source_code: https://github.com/MouseLand/Kilosort2
 authors: Marius Pachitariu

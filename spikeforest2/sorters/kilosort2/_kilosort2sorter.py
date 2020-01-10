@@ -46,7 +46,8 @@ class Kilosort2Sorter(BaseSorter):
         'minFR': 0.1,
         'freq_min': 150,
         'sigmaMask': 30,
-        'nPCs': 3
+        'nPCs': 3,
+        'Nt': 128 * 1024 * 5 + 64
     }
 
     _extra_gui_params = [
@@ -61,6 +62,7 @@ class Kilosort2Sorter(BaseSorter):
         {'name': 'freq_min', 'type': 'float', 'value': 150.0, 'default': 150.0, 'title': "Low-pass frequency"},
         {'name': 'sigmaMask', 'type': 'int', 'value': 30, 'default': 30, 'title': "Sigma mask"},
         {'name': 'nPCs', 'type': 'int', 'value': 3, 'default': 3, 'title': "Number of principal components"},
+        {'name': 'Nt', 'type': 'int', 'value': 128 * 1024 * 5 + 64, 'default': 128 * 1024 * 5 + 64, 'title': "Nt - batch size for kilosort2"},
     ]
 
     sorter_gui_params = copy.deepcopy(BaseSorter.sorter_gui_params)
@@ -134,6 +136,7 @@ class Kilosort2Sorter(BaseSorter):
             sigmaMask=p["sigmaMask"],
             preclust_threshold=p["preclust_threshold"],
             kilo_thresh=p["detect_threshold"],
+            Nt=p["Nt"],
             use_car=use_car,
             nPCs=p["nPCs"],
             xcoords=xcoords,

@@ -1,8 +1,8 @@
 ---
 label: SPYKING_CIRCUS
 processor_name: SpykingCircus
-dockerfile: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/spyking_circus/container/Dockerfile
-wrapper: https://github.com/flatironinstitute/spikeforest/blob/master/spikeforest/spikesorters/spyking_circus/spyking_circus.py
+dockerfile: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/spykingcircus/container/Dockerfile
+wrapper: https://github.com/flatironinstitute/spikeforest2/blob/master/spikeforest2/sorters/spykingcircus/spykingcircus.py
 website: https://spyking-circus.readthedocs.io/en/latest/
 authors: Pierre Yger and Olivier Marre
 processor_name: SpykingCircus

@@ -19,6 +19,8 @@ cd spikeforest2
 pip install -e .
 ```
 
+Set the KACHERY_STORAGE_DIR environment variable to point to a path on your local machine where temporary files will be stored.
+
 Optional: See below for instructions on [installing spikeforest_widgets](#installing-spikeforest_widgets).
 
 Hint: It is useful to operate in a conda environment or a virtualenv to avoid potential package conflicts.

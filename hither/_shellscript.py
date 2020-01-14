@@ -43,7 +43,7 @@ class ShellScript():
             script_path = self._script_path
         if script_path is None:
             raise Exception('Cannot write script. No path specified')
-        with open(script_path, 'w') as f:
+        with open(script_path, 'w', newline='\n') as f:
             f.write(self._script)
         os.chmod(script_path, 0o744)
 
@@ -52,8 +52,11 @@ class ShellScript():
             script_path = self._script_path
         else:
             tempdir = tempfile.mkdtemp(prefix='tmp_shellscript_')
-            script_path = os.path.join(tempdir, 'script.sh')
-            self._dirs_to_remove.append(tempdir)
+            if (sys.platform == "win32"):
+                script_path = os.path.join(tempdir, 'script.bat')
+            else:
+                script_path = os.path.join(tempdir, 'script.sh')
+            self._dirs_to_remove.append(tempdir)        
         self.write(script_path)
         cmd = script_path
         if self._verbose:

@@ -1,6 +1,7 @@
 from inspect import Traceback
 import json
 import os
+import sys
 import random
 # import tempfile
 import traceback
@@ -963,11 +964,16 @@ def _do_prepare_singularity_container(container):
 
 def _do_pull_docker_image(container):
     container = _docker_form_of_container_string(container)
-    ss = ShellScript(f'''
-        #!/bin/bash
+    if (sys.platform == "win32"):
+        ss = ShellScript(f'''
+            docker pull {container}
+        ''')
+    else:
+        ss = ShellScript(f'''
+            #!/bin/bash
 
-        exec docker pull {container}
-    ''')
+            exec docker pull {container}
+        ''')
     ss.start()
     retcode = ss.wait()
     if retcode != 0:

@@ -12,10 +12,9 @@ from typing import IO, Optional
 
 class FileLock():
     def __init__(self, path: str, exclusive: bool=True, _disable_lock: bool=False):
-        """Lock a file via portalocker using an exclusive or non-exclusive lock.
+        """Lock a file using an exclusive or non-exclusive lock.
         
-        Modified by James Jun on 2020/1/13. fcntl is replaced by portalocker 
-        to enable cross-platform operation in Windows
+        Modified by James Jun on 2020/1/13. fcntl is replaced by portalocker when in windows
 
         Example usage:
         ```

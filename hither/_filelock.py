@@ -1,4 +1,5 @@
-import fcntl
+#import fcntl
+import portalocker # https://portalocker.readthedocs.io/en/latest/portalocker.html
 import errno
 import time
 import random
@@ -7,8 +8,11 @@ from typing import IO, Optional
 
 class FileLock():
     def __init__(self, path: str, exclusive: bool=True, _disable_lock: bool=False):
-        """Lock a file via fcntl.flock using an exclusive or non-exclusive lock.
+        """Lock a file via portalocker using an exclusive or non-exclusive lock.
         
+        Modified by James Jun on 2020/1/13. fcntl is replaced by portalocker 
+        to enable cross-platform operation in Windows
+
         Example usage:
         ```
         with FileLock('some_file.txt.lock', exclusive=True):
@@ -43,9 +47,11 @@ class FileLock():
         while True:
             try:
                 if self._exclusive:
-                    fcntl.flock(self._file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    #fcntl.flock(self._file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    portalocker.lock(self._file, portalocker.LOCK_EX | portalocker.LOCK_NB)
                 else:
-                    fcntl.flock(self._file, fcntl.LOCK_SH | fcntl.LOCK_NB)
+                    #fcntl.flock(self._file, fcntl.LOCK_SH | fcntl.LOCK_NB)
+                    portalocker.lock(self._file, portalocker.LOCK_SH | portalocker.LOCK_NB)
                 if num_tries > 10:
                     print('Locked file {} after {} tries (exclusive={})...'.format(self._path, num_tries, self._exclusive))
                 break
@@ -60,5 +66,6 @@ class FileLock():
         if self._disable_lock:
             return
         if self._file is not None:
-            fcntl.flock(self._file, fcntl.LOCK_UN)
+            #fcntl.flock(self._file, fcntl.LOCK_UN)
+            portalocker.unlock(self._file)
             self._file.close()

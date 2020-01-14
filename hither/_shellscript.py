@@ -52,8 +52,11 @@ class ShellScript():
             script_path = self._script_path
         else:
             tempdir = tempfile.mkdtemp(prefix='tmp_shellscript_')
-            script_path = os.path.join(tempdir, 'script.sh')
-            self._dirs_to_remove.append(tempdir)
+            if (sys.platform == "win32"):
+                script_path = os.path.join(tempdir, 'script.bat')
+            else:
+                script_path = os.path.join(tempdir, 'script.sh')
+            self._dirs_to_remove.append(tempdir)        
         self.write(script_path)
         cmd = script_path
         if self._verbose:

@@ -158,10 +158,11 @@ class IronClustSorter(BaseSorter):
             quit(0);
             '''
             ShellScript(matlab_script).write(str(output_folder / 'ironclust_script.m'))
+            
             if "win" in sys.platform:
                 shell_cmd = f'''
                             cd {str(output_folder)}
-                            matlab -nosplash -nodisplay -wait -r ironclust_script
+                            matlab -nosplash -wait -batch ironclust_script
                         '''
             else:
                 shell_cmd = f'''
@@ -169,7 +170,6 @@ class IronClustSorter(BaseSorter):
                             cd "{str(output_folder)}"
                             matlab -nosplash -nodisplay -r ironclust_script
                         '''
-
         shell_script = ShellScript(shell_cmd, redirect_output_to_stdout=True)
         shell_script.start()
 

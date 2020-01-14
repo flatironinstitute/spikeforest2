@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 from sys import stdout
 from typing import Any, List, Tuple, Union, Dict
 import json
@@ -204,7 +205,22 @@ def run_function_in_container(*,
                 gpu_opt = ''
             docker_container_name = _random_string(8) + '_' + name
             # May not want to use -t below as it has the potential to mess up line feeds in the parent process!
-            run_outside_container_script = """
+            if (sys.platform == "win32"):
+                winpath_ = lambda a : '/' + a.replace('\\','/').replace(':','')
+                binds_str_ = ' '.join(['-v {}:{}'.format(winpath_(a), b) for a, b in binds.items()])
+                container_ = _docker_form_of_container_string(container)
+                temp_path_ = winpath_(temp_path)
+                kachery_storage_dir_ = winpath_(os.getenv('KACHERY_STORAGE_DIR'))
+                print('temp_path_: ' + temp_path_)
+                run_outside_container_script = f'''
+                    docker run --name {docker_container_name} -i {gpu_opt} ^
+                    -v {kachery_storage_dir_}:/kachery-storage ^
+                    -v {temp_path_}:/run_in_container ^
+                    {binds_str_} ^
+                    {container_} ^
+                    bash /run_in_container/run.sh'''
+            else:
+                run_outside_container_script = """
                 #!/bin/bash
 
                 exec docker run --name {docker_container_name} -i {gpu_opt} \\
@@ -217,13 +233,13 @@ def run_function_in_container(*,
                     {binds_str} \\
                     {container} \\
                     bash /run_in_container/run.sh
-            """.format(
-                docker_container_name=docker_container_name,
-                gpu_opt=gpu_opt,
-                binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
-                container=_docker_form_of_container_string(container),
-                temp_path=temp_path
-            )
+                """.format(
+                    docker_container_name=docker_container_name,
+                    gpu_opt=gpu_opt,
+                    binds_str=' '.join(['-v {}:{}'.format(a, b) for a, b in binds.items()]),
+                    container=_docker_form_of_container_string(container),
+                    temp_path=temp_path
+                )
         print('#############################################################')
         print(run_outside_container_script)
         print('#############################################################')
@@ -362,7 +378,7 @@ def _write_python_code_to_directory(dirname: str, code: dict) -> None:
     os.mkdir(dirname)
     for item in code['files']:
         fname0 = dirname + '/' + item['name']
-        with open(fname0, 'w') as f:
+        with open(fname0, 'w', newline='\n') as f:
             f.write(item['content'])
     for item in code['dirs']:
         _write_python_code_to_directory(

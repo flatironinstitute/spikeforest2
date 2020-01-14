@@ -212,8 +212,6 @@ def run_function_in_container(*,
                 temp_path_ = winpath_(temp_path)
                 kachery_storage_dir_ = winpath_(os.getenv('KACHERY_STORAGE_DIR'))
                 print('temp_path_: ' + temp_path_)
-                import pdb
-                pdb.set_trace()
                 run_outside_container_script = f'''
                     docker run --name {docker_container_name} -i {gpu_opt} ^
                     -v {kachery_storage_dir_}:/kachery-storage ^
@@ -380,7 +378,7 @@ def _write_python_code_to_directory(dirname: str, code: dict) -> None:
     os.mkdir(dirname)
     for item in code['files']:
         fname0 = dirname + '/' + item['name']
-        with open(fname0, 'w') as f:
+        with open(fname0, 'w', newline='\n') as f:
             f.write(item['content'])
     for item in code['dirs']:
         _write_python_code_to_directory(

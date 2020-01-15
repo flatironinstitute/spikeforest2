@@ -25,35 +25,40 @@ class AutoRecordingExtractor(se.RecordingExtractor):
 
             if 'kachery_config' in arg:
                 ka.set_config(**arg['kachery_config'])
-            path = arg.get('path', '')
-            if not path:
-                path = arg.get('directory', '')
-            if path.endswith('.mda'):
-                if 'samplerate' not in arg:
-                    raise Exception('Missing argument: samplerate')
-                samplerate = arg['samplerate']
-                self._recording = MdaRecordingExtractor(timeseries_path=path, samplerate=samplerate, download=download)
-                hash0 = _sha1_of_object(dict(
-                    timeseries_sha1=ka.get_file_info(path, algorithm='sha1')['sha1'],
-                    samplerate=samplerate
-                ))
-                setattr(self, 'hash', hash0)
-            elif path.endswith('.nwb.json'):
-                self._recording = NwbJsonRecordingExtractor(file_path=path)
-                hash0 = ka.get_file_info(path)['sha1']
-                setattr(self, 'hash', hash0)
-            elif path.endswith('.json') and (not path.endswith('.nwb.json')):
-                obj = ka.load_object(path)
-                if obj is None:
-                    raise Exception(f'Unable to load object: {path}')
-                if ('raw' in obj) and ('params' in obj) and ('geom' in obj):
-                    self._recording = MdaRecordingExtractor(timeseries_path=obj['raw'], samplerate=obj['params']['samplerate'], geom=np.array(obj['geom']), download=download)
-                else:
-                    raise Exception('Problem initializing recording extractor')
-            elif ka.get_file_info(path + '/raw.mda'):
-                self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
+
+            if ('raw' in arg) and ('params' in arg) and ('geom' in arg):
+                self._recording = MdaRecordingExtractor(timeseries_path=arg['raw'], samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
+                return
             else:
-                raise Exception('Unable to initialize recording extractor. Unable to determine format of recording: {}'.format(path))
+                path = arg.get('path', '')
+                if not path:
+                    path = arg.get('directory', '')
+                if path.endswith('.mda'):
+                    if 'samplerate' not in arg:
+                        raise Exception('Missing argument: samplerate')
+                    samplerate = arg['samplerate']
+                    self._recording = MdaRecordingExtractor(timeseries_path=path, samplerate=samplerate, download=download)
+                    hash0 = _sha1_of_object(dict(
+                        timeseries_sha1=ka.get_file_info(path, algorithm='sha1')['sha1'],
+                        samplerate=samplerate
+                    ))
+                    setattr(self, 'hash', hash0)
+                elif path.endswith('.nwb.json'):
+                    self._recording = NwbJsonRecordingExtractor(file_path=path)
+                    hash0 = ka.get_file_info(path)['sha1']
+                    setattr(self, 'hash', hash0)
+                elif path.endswith('.json') and (not path.endswith('.nwb.json')):
+                    obj = ka.load_object(path)
+                    if obj is None:
+                        raise Exception(f'Unable to load object: {path}')
+                    if ('raw' in obj) and ('params' in obj) and ('geom' in obj):
+                        self._recording = MdaRecordingExtractor(timeseries_path=obj['raw'], samplerate=obj['params']['samplerate'], geom=np.array(obj['geom']), download=download)
+                    else:
+                        raise Exception('Problem initializing recording extractor')
+                elif ka.get_file_info(path + '/raw.mda'):
+                    self._recording = MdaRecordingExtractor(recording_directory=path, download=download)
+                else:
+                    raise Exception('Unable to initialize recording extractor. Unable to determine format of recording: {}'.format(path))
         self.copy_channel_properties(recording=self._recording)
     
     def _apply_filters(self, recording, filters):

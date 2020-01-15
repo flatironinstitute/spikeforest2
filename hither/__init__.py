@@ -7,3 +7,4 @@ from ._slurmjobhandler import SlurmJobHandler
 from ._filelock import FileLock
 from ._shellscript import ShellScript
 from ._consolecapture import ConsoleCapture
+from ._temporarydirectory import TemporaryDirectory

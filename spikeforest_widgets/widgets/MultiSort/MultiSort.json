@@ -1,0 +1,6 @@
+{
+    "project_name": "spikeforest_widgets",
+    "type": "MultiSort",
+    "description": "Sort a recording using multiple spike sorters",
+    "defaultProps": {}
+}

@@ -1,6 +1,12 @@
-# spikeforest2
+# SpikeForest (v2)
 
-SpikeForest -- spike sorting analysis for website -- version 2
+This project contains the processing pipelines needed to reproduce the benchmarking results presented on the [spikeforest website](https://spikeforest.flatironinstitute.org).
+
+Our bioRxiv preprint: [SpikeForest: reproducible web-facing ground-truth validation of automated neural spike sorters](https://www.biorxiv.org/content/10.1101/2020.01.14.900688v1)
+
+High-level scripts used to generate the website results may be found in the [working/runs](working/runs) directory.
+
+See below for information about the spike sorter wrappers and ground truth recordings.
 
 ## Installation
 

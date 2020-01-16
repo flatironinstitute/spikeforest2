@@ -2,7 +2,7 @@ import kachery as ka
 import hither
 import os
 
-def sort(algorithm: str, recording_path: str, params: dict=None, sorting_out: str=None, container: str='default', git_annex_mode=True, use_singularity: bool=False)->str:
+def sort(algorithm: str, recording_path: str, sorting_out: str=None, params: dict=None, container: str='default', git_annex_mode=True, use_singularity: bool=False)->str:
     
     from spikeforest2 import sorters
     HITHER_USE_SINGULARITY = os.getenv('HITHER_USE_SINGULARITY')
@@ -10,10 +10,8 @@ def sort(algorithm: str, recording_path: str, params: dict=None, sorting_out: st
         HITHER_USE_SINGULARITY = False
     print('HITHER_USE_SINGULARITY: ' + HITHER_USE_SINGULARITY)
     if not hasattr(sorters, algorithm):
-        raise Exception('Sorter not found: {}'.format(algorithm))
+        raise Exception('Sorter not found: {}'.format(algorithm))    
     sorter = getattr(sorters, algorithm)
-    if params is not None:
-        sorter.set_params(**params)
     if algorithm in ['kilosort2', 'kilosort', 'ironclust', 'tridesclous']:
         gpu = True
     else:
@@ -24,9 +22,13 @@ def sort(algorithm: str, recording_path: str, params: dict=None, sorting_out: st
         if os.path.isfile(recording_path):
             recording_path = ka.store_file(recording_path)
         elif os.path.isdir(recording_path):
-            recording_path = ka.store_dir(recording_path, git_annex_mode = git_annex_mode)        
-    with hither.config(gpu=gpu, container=container):
-        result = sorter.run(recording_path=recording_path, sorting_out=sorting_out)
+            recording_path = ka.store_dir(recording_path, git_annex_mode = git_annex_mode)     
+    if params is None:
+        with hither.config(gpu=gpu, container=container):        
+            result = sorter.run(recording_path=recording_path, sorting_out=sorting_out)
+    else:
+        with hither.config(gpu=gpu, container=container):        
+            result = sorter.run(recording_path=recording_path, sorting_out=sorting_out, **params)
     print('SORTING')
     print('==============================================')
     return ka.store_file(result.outputs.sorting_out._path, basename='firings.mda')

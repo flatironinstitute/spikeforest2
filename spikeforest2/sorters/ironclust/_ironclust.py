@@ -1,11 +1,16 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.5.4-w1')
+@hither.function('ironclust', '5.5.5-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://jamesjun/sf-ironclust:5.5.4')
+@hither.container(default='docker://jamesjun/sf-ironclust:5.5.5')
 @hither.local_module('../../../spikeforest2_utils')
-def ironclust(recording_path, sorting_out):
+def ironclust(recording_path, sorting_out, 
+    detect_threshold=4, 
+    freq_min=300, 
+    freq_max=8000
+    ):
+
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._ironclustsorter import IronClustSorter
 
@@ -23,10 +28,10 @@ def ironclust(recording_path, sorting_out):
         detect_sign=-1,
         adjacency_radius=50,
         adjacency_radius_out=100,
-        detect_threshold=4,
+        detect_threshold=detect_threshold,
         prm_template_name='',
-        freq_min=300,
-        freq_max=8000,
+        freq_min=freq_min,
+        freq_max=freq_max,
         merge_thresh=0.99,
         pc_per_chan=0,
         whiten=False,

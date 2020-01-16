@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t jamesjun/sf-ironclust:5.5.2 .
+docker build -t jamesjun/sf-ironclust:5.5.4 .

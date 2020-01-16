@@ -60,7 +60,8 @@ class IronClustSorter(BaseSorter):
         feature_type='gpca',  # gpca, pca, vpp, vmin, vminmax, cov, energy, xcov
         delta_cut=1,  # Cluster detection threshold (delta-cutoff)
         post_merge_mode=1,  # post merge mode
-        sort_mode=1  # sort mode
+        sort_mode=1,  # sort mode
+        filter=True # Enable or disable filter
     )
 
     _extra_gui_params = [
@@ -90,6 +91,7 @@ class IronClustSorter(BaseSorter):
         {'name': 'delta_cut', 'type': 'int', 'value': 1, 'default': 1, 'title': "Cluster detection threshold (delta-cutoff)"},
         {'name': 'post_merge_mode', 'type': 'int', 'value': 1, 'default': 1, 'title': "post merge mode"},
         {'name': 'sort_mode', 'type': 'int', 'value': 1, 'default': 1, 'title': "sort mode"},
+        {'name': 'filter', 'type': 'bool', 'value': True, 'default': True, 'title': "filter on/off"}
     ]
 
     sorter_gui_params = copy.deepcopy(BaseSorter.sorter_gui_params)

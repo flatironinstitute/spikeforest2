@@ -16,7 +16,10 @@ def mountainsort4(
     detect_threshold=3,
     detect_interval=10,
     freq_min=300,
-    freq_max=6000
+    freq_max=6000,
+    whiten=True,
+    curation=False,
+    filter=True
 ):
     import spiketoolkit as st
     import spikesorters as ss
@@ -54,9 +57,9 @@ def mountainsort4(
         detect_threshold=detect_threshold,
         detect_interval=detect_interval,
         num_workers=num_workers,
-        curation=False,
-        whiten=True,
-        filter=True,
+        curation=curation,
+        whiten=whiten,
+        filter=filter,
         freq_min=freq_min,
         freq_max=freq_max
     )     

@@ -39,12 +39,12 @@ class Kilosort2Sorter(BaseSorter):
     requires_locations = False
 
     _default_params = {
-        'detect_threshold': 5,
+        'detect_threshold': 5, 'freq_min': 150,
         'projection_threshold': [10, 4],
         'preclust_threshold': 8,
         'car': True,
         'minFR': 0.1,
-        'freq_min': 150,
+        
         'sigmaMask': 30,
         'nPCs': 3,
         'Nt': 128 * 1024 * 5 + 64

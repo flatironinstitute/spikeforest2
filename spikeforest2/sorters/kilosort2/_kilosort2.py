@@ -16,7 +16,9 @@ def kilosort2(
     freq_min=150, # min. bp filter freq (Hz), use 0 for no filter
     sigmaMask=30, # sigmaMask
     nPCs=3, # PCs per channel?
-    Nt=128 * 1024 * 5 + 64 # batch size for kilosort2 (sort of a delicate choice)
+    Nt=128 * 1024 * 5 + 64, # batch size for kilosort2 (sort of a delicate choice)
+    preclust_threshold=8,
+    projection_threshold=[10, 4]
 ):
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
     from ._kilosort2sorter import Kilosort2Sorter

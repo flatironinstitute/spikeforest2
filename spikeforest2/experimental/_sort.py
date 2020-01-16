@@ -2,17 +2,18 @@ import kachery as ka
 import hither
 import os
 
-def sort(algorithm: str, recording_path: str, sorting_out: str=None, container: str='default', git_annex_mode=True, use_singularity: bool=False)->str:
+def sort(algorithm: str, recording_path: str, params: dict=None, sorting_out: str=None, container: str='default', git_annex_mode=True, use_singularity: bool=False)->str:
     
     from spikeforest2 import sorters
-    # if not use_singularity:
-    #     os.environ['HITHER_USE_SINGULARITY'] = 'FALSE'
-    # else:        
-    #     os.environ['HITHER_USE_SINGULARITY'] = 'TRUE'
-    print('HITHER_USE_SINGULARITY: ' + os.getenv('HITHER_USE_SINGULARITY'))
+    HITHER_USE_SINGULARITY = os.getenv('HITHER_USE_SINGULARITY')
+    if HITHER_USE_SINGULARITY is None:
+        HITHER_USE_SINGULARITY = False
+    print('HITHER_USE_SINGULARITY: ' + HITHER_USE_SINGULARITY)
     if not hasattr(sorters, algorithm):
         raise Exception('Sorter not found: {}'.format(algorithm))
     sorter = getattr(sorters, algorithm)
+    if params is not None:
+        sorter.set_params(**params)
     if algorithm in ['kilosort2', 'kilosort', 'ironclust', 'tridesclous']:
         gpu = True
     else:
@@ -29,3 +30,15 @@ def sort(algorithm: str, recording_path: str, sorting_out: str=None, container: 
     print('SORTING')
     print('==============================================')
     return ka.store_file(result.outputs.sorting_out._path, basename='firings.mda')
+
+
+# def set_params(sorter, params_file):
+#     params = {}
+#     names_float = ['detection_thresh']
+#     with open(params_file, 'r') as myfile:
+#         for line in myfile:
+#             name, var = line.partition("=")[::2]
+#             name = name.strip()
+
+#             params[name.strip()] = var
+#     sorter.set_params(**params)

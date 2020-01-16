@@ -31,6 +31,11 @@ Optional: See below for instructions on [installing spikeforest_widgets](#instal
 
 Hint: It is useful to operate in a conda environment or a virtualenv to avoid potential package conflicts.
 
+### Support for Windows
+- Containerized sorters run on Docker but Singularity is not supported. Set the environment variable 'HITHER_USE_SINGULARITY=FALSE'. 
+- GPU-only sorters (Kilosort, Kilosort2) are not supported in Windows due to a lack of GPU-support for Docker in Windows.
+
+
 ## Recordings
 
 The SpikeForest recordings (arranged into studies and study sets) may be found here: [spikeforest_recordings](https://github.com/flatironinstitute/spikeforest_recordings).

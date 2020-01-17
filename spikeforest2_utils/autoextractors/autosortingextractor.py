@@ -79,8 +79,8 @@ class AutoSortingExtractor(se.SortingExtractor):
     def get_unit_ids(self):
         return self._sorting.get_unit_ids()
 
-    def get_unit_spike_train(self, **kwargs):
-        return self._sorting.get_unit_spike_train(**kwargs)
+    def get_unit_spike_train(self, unit_id, start_frame=None, end_frame=None):
+        return self._sorting.get_unit_spike_train(unit_id=unit_id, start_frame=start_frame, end_frame=end_frame)
     
     def get_sampling_frequency(self):
         return self._sorting.get_sampling_frequency()

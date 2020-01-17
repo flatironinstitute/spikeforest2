@@ -99,8 +99,8 @@ class AutoRecordingExtractor(se.RecordingExtractor):
     def get_sampling_frequency(self):
         return self._recording.get_sampling_frequency()
 
-    def get_traces(self, **kwargs):
-        return self._recording.get_traces(**kwargs)
+    def get_traces(self, channel_ids=None, start_frame=None, end_frame=None):
+        return self._recording.get_traces(channel_ids=channel_ids, start_frame=start_frame, end_frame=end_frame)
 
 class NwbJsonRecordingExtractor(se.RecordingExtractor):
     extractor_name = 'NwbJsonRecordingExtractor'

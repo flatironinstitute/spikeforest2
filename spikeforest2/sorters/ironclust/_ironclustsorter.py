@@ -61,7 +61,9 @@ class IronClustSorter(BaseSorter):
         delta_cut=1,  # Cluster detection threshold (delta-cutoff)
         post_merge_mode=1,  # post merge mode
         sort_mode=1,  # sort mode
-        filter=True # Enable or disable filter
+        filter=True, # Enable or disable filter
+        clip_pre=.25, # pre-peak clip duration in ms
+        clip_post=.75 # post-peak clip duration in ms
     )
 
     _extra_gui_params = [
@@ -91,7 +93,9 @@ class IronClustSorter(BaseSorter):
         {'name': 'delta_cut', 'type': 'int', 'value': 1, 'default': 1, 'title': "Cluster detection threshold (delta-cutoff)"},
         {'name': 'post_merge_mode', 'type': 'int', 'value': 1, 'default': 1, 'title': "post merge mode"},
         {'name': 'sort_mode', 'type': 'int', 'value': 1, 'default': 1, 'title': "sort mode"},
-        {'name': 'filter', 'type': 'bool', 'value': True, 'default': True, 'title': "filter on/off"}
+        {'name': 'filter', 'type': 'bool', 'value': True, 'default': True, 'title': "filter on/off"},
+        {'name': 'clip_pre', 'type': 'float', 'value': .25, 'default': .25, 'title': "pre-peak clip duration in ms"},
+        {'name': 'clip_post', 'type': 'float', 'value': .75, 'default': .75, 'title': "post-peak clip duration in ms"}
     ]
 
     sorter_gui_params = copy.deepcopy(BaseSorter.sorter_gui_params)

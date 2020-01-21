@@ -145,3 +145,57 @@ sorting_true_path = 'sha1dir://fb52d510d2543634e247e0d2d1d4390be9ed9e20.synth_ma
 ```
 
 This is just a different way of referencing the same information.
+
+## Registering a new recording
+
+To register a new recording in the SpikeForest system, you will need to set an environment variable
+that will allow you to upload to the SpikeForest kachery database.
+
+Next you will need to load your recording into a [SpikeInterface](https://github.com/SpikeInterface) recording extractor.
+
+Finally, use this example code:
+
+```
+import numpy as np
+import json
+from spikeforest2_utils import AutoRecordingExtractor, MdaRecordingExtractor
+import hither
+import kachery as ka
+
+def register_recording(*, recording, output_fname, label, to):
+    with ka.config(to=to):
+        with hither.TemporaryDirectory() as tmpdir:
+            recdir = tmpdir + '/recording'
+            MdaRecordingExtractor.write_recording(recording=recording, save_path=recdir)
+            raw_path = ka.store_file(recdir + '/raw.mda')
+            obj = dict(
+                raw=raw_path,
+                params=ka.load_object(recdir + '/params.json'),
+                geom=np.genfromtxt(ka.load_file(recdir + '/geom.csv'), delimiter=',').tolist()
+            )
+            obj['self_reference'] = ka.store_object(obj, basename='{}.json'.format(label))
+            with open(output_fname, 'w') as f:
+                json.dump(obj, f, indent=4)
+
+register_recording(
+    recording=recording,
+    output_fname='new_recording.json',
+    label='new_recording',
+    to='default_readwrite'
+)
+```
+
+This will upload the recording to the SpikeForest kachery and will write a small
+pointer file on your local system called 'new_recording.json' (or whatever you
+decide to call it). You may then push that small file to a git repository, and
+then anyone with access to the repo can load the recording using an autorecording extractor:
+
+```
+R = AutoRecordingExtractor('new_recording.json') 
+```
+
+Alternatively, the self-reference sha1:// string found in the .json file may be
+used as the argument to the AutoRecordingExtractor.
+
+The new recording will not automatically be included in the SpikeForest
+pipeline. You can inquire with Jeremy about having it included.

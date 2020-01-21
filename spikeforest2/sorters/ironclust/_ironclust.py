@@ -26,11 +26,11 @@ def ironclust(recording_path, sorting_out,
     )
 
     sorter.set_params(
+        fft_thresh_low=0, nSites_whiten=32, feature_type='gpca', post_merge_mode=1, sort_mode=1, prm_template_name='', filter_type='bandpass', filter_detect_type='none',
         detect_threshold=detect_threshold, freq_min=freq_min, freq_max=freq_max, detect_sign=detect_sign, adjacency_radius=adjacency_radius, whiten=whiten,
         adjacency_radius_out=adjacency_radius_out, merge_thresh=merge_thresh, fft_thresh=fft_thresh, knn=knn, min_count=min_count, delta_cut=delta_cut,
         pc_per_chan=pc_per_chan, batch_sec_drift=batch_sec_drift, step_sec_drift=step_sec_drift, 
-        common_ref_type=common_ref_type, fGpu=fGpu,
-        fft_thresh_low=0, nSites_whiten=32, feature_type='gpca', post_merge_mode=1, sort_mode=1, prm_template_name='', filter_type='bandpass', filter_detect_type='none'
+        common_ref_type=common_ref_type, fGpu=fGpu, clip_pre=clip_pre, clip_post=clip_post        
     )     
     timer = sorter.run()
     #print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))

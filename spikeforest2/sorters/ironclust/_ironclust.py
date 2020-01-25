@@ -1,13 +1,13 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.5.13-w1')
+@hither.function('ironclust', '5.5.14-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://jamesjun/sf-ironclust:5.5.13')
+@hither.container(default='docker://jamesjun/sf-ironclust:5.5.14')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording_path, sorting_out, 
     detect_threshold=4, freq_min=300, freq_max=8000, detect_sign=-1, adjacency_radius=50, whiten=False,
-    adjacency_radius_out=100, merge_thresh=0.98, fft_thresh=8, knn=30, min_count=30, delta_cut=1,    
+    adjacency_radius_out=100, merge_thresh=0.99, fft_thresh=8, knn=30, min_count=30, delta_cut=1,    
     pc_per_chan=0, batch_sec_drift=300, step_sec_drift=20,
     common_ref_type='trimmean', fGpu=True, clip_pre=.25, clip_post=.75
 ):

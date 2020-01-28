@@ -1,9 +1,9 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.5.14-w1')
+@hither.function('ironclust', '5.6.1-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://jamesjun/sf-ironclust:5.5.14')
+@hither.container(default='docker://jamesjun/sf-ironclust:5.6.1')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording_path, sorting_out, 
     detect_threshold=4, freq_min=300, freq_max=8000, detect_sign=-1, adjacency_radius=50, whiten=False,

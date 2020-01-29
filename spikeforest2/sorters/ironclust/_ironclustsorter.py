@@ -39,11 +39,11 @@ class IronClustSorter(BaseSorter):
         detect_sign=-1,  # Use -1, 0, or 1, depending on the sign of the spikes in the recording
         adjacency_radius=50,  # Use -1 to include all channels in every neighborhood
         adjacency_radius_out=10,  # Use -1 to include all channels in every neighborhood
-        detect_threshold=4.5,  # detection threshold
+        detect_threshold=4,  # detection threshold
         prm_template_name='',  # .prm template file name
         freq_min=300,
         freq_max=8000,
-        merge_thresh=0.98,  # Threshold for automated merging
+        merge_thresh=0.99,  # Threshold for automated merging
         pc_per_chan=0,  # Number of principal components per channel
         whiten=False,  # Whether to do channel whitening as part of preprocessing
         filter_type='bandpass',  # none, bandpass, wiener, fftdiff, ndiff

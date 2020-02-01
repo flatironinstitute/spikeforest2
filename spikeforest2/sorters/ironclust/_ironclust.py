@@ -1,7 +1,7 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.6.2-w1')
+@hither.function('ironclust', '5.6.4-w1')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://jamesjun/sf-ironclust:5.6.2')
 @hither.local_module('../../../spikeforest2_utils')

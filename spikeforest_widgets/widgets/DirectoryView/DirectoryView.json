@@ -1,0 +1,6 @@
+{
+    "project_name": "spikeforest_widgets",
+    "type": "DirectoryView",
+    "description": "View a directory on a local or remote machine",
+    "defaultProps": {}
+}

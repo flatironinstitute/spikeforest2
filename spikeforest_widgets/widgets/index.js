@@ -4,3 +4,4 @@ export { default as Recording } from './Recording/Recording';
 export { default as TimeseriesView } from './TimeseriesView/TimeseriesView';
 export { default as ElectrodeGeometry } from './ElectrodeGeometry/ElectrodeGeometry';
 export { default as MultiSort } from './MultiSort/MultiSort';
+export { default as DirectoryView } from './DirectoryView/DirectoryView';

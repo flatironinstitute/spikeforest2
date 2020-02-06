@@ -1,5 +1,5 @@
 import numpy as np
-from mountaintools import client as mt
+import kachery as ka
 import spikeextractors as se
 
 class ElectrodeGeometry:
@@ -8,12 +8,11 @@ class ElectrodeGeometry:
 
     def javascript_state_changed(self, prev_state, state):
         self.set_python_state(dict(status='running', status_message='Running'))
-        mt.configDownloadFrom(state.get('download_from', []))
         path = state.get('path', None)
         if path:
             self.set_python_state(dict(status_message='Realizing file: {}'.format(path)))
             if path.endswith('.csv'):
-                path2 = mt.realizeFile(path)
+                path2 = ka.load_file(path)
                 if not path2:
                     self.set_python_state(dict(
                         status='error',

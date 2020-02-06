@@ -17,16 +17,14 @@ class AutoRecordingExtractor(se.RecordingExtractor):
         else:
             self._recording = None
 
+            if 'kachery_config' in arg:
+                ka.set_config(**arg['kachery_config'])
+
             # filters
             if ('recording' in arg) and ('filters' in arg):
                 recording1 = AutoRecordingExtractor(arg['recording'])
                 self._recording = self._apply_filters(recording1, arg['filters'])
-                return
-
-            if 'kachery_config' in arg:
-                ka.set_config(**arg['kachery_config'])
-
-            if ('raw' in arg) and ('params' in arg) and ('geom' in arg):
+            elif ('raw' in arg) and ('params' in arg) and ('geom' in arg):
                 self._recording = MdaRecordingExtractor(timeseries_path=arg['raw'], samplerate=arg['params']['samplerate'], geom=np.array(arg['geom']), download=download)
                 return
             else:

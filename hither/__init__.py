@@ -8,3 +8,5 @@ from ._filelock import FileLock
 from ._shellscript import ShellScript
 from ._consolecapture import ConsoleCapture
 from ._temporarydirectory import TemporaryDirectory
+from ._remotejobhandler import RemoteJobHandler
+from ._hithercomputeresource import HitherComputeResource

@@ -1,5 +1,4 @@
-from mountaintools import client as mt
-from mountaintools import MountainClient
+import kachery as ka
 import traceback
 import spikeextractors as se
 import numpy as np
@@ -176,7 +175,7 @@ class _DownsampledRecordingExtractor(se.RecordingExtractor):
                     self._recording_hash = self._recording.hash()
             else:
                 self._recording_hash = _samplehash(self._recording)
-        return mt.sha1OfObject(dict(
+        return ka.get_object_hash(dict(
             name='downsampled-recording-extractor',
             version=2,
             recording=self._recording_hash,
@@ -243,13 +242,13 @@ class _DownsampledRecordingExtractor(se.RecordingExtractor):
             recording=recording, _dest_path=save_path)
 
 def _samplehash(recording):
-    from mountaintools import client as mt
+    # from mountaintools import client as mt
     obj = {
         'channels': tuple(recording.get_channel_ids()),
         'frames': recording.get_num_frames(),
         'data': _samplehash_helper(recording)
     }
-    return mt.sha1OfObject(obj)
+    return ka.get_object_hash(obj)
 
 
 def _samplehash_helper(recording):

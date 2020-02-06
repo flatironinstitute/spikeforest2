@@ -23,9 +23,22 @@ class _MongoClient:
     def find_one(self, *, query, config):
         db = self._get_db(config)
         if not db:
-            return None
+            raise Exception('No db.')
         for doc in db.find(query).sort('time', direction=pymongo.DESCENDING):
             return doc
+    def find_all(self, *, query, config):
+        db = self._get_db(config)
+        if not db:
+            raise Exception('No db.')
+        ret = []
+        for doc in db.find(query).sort('time', direction=pymongo.ASCENDING):
+            ret.append(doc)
+        return ret
+    def update(self, *, query, update, config):
+        db = self._get_db(config)
+        if not db:
+            raise Exception('No db.')
+        db.update(query, update)
     def _get_db(self, config):
         if not config['url']:
             return None
@@ -92,6 +105,11 @@ def get_config() -> dict:
 def insert_one(message: dict):
     return _global_client.insert_one(message=message, config=_global_config.get_config())
 
+def update(query, update):
+    _global_client.update(query=query, update=update, config=_global_config.get_config())
+
 def find_one(query):
     return _global_client.find_one(query=query, config=_global_config.get_config())
 
+def find_all(query):
+    return _global_client.find_all(query=query, config=_global_config.get_config())

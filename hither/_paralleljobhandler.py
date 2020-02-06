@@ -1,4 +1,5 @@
 from typing import List, Dict, Any
+import time
 import multiprocessing
 from multiprocessing.connection import Connection
 import time
@@ -46,6 +47,8 @@ class ParallelJobHandler:
                     p['pjh_status'] = 'running'
                     p['process'].start()
                     num_running = num_running + 1
+
+        time.sleep(1)
     def cleanup(self):
         pass
 

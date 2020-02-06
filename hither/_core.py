@@ -265,7 +265,7 @@ def function(name, version):
                         else:
                             raise Exception(f'Job [{_label}] is not ready and you are not using a job handler.')
                     _prepare_job_to_run(job)
-                    if not _check_cache_for_job_result(job):
+                    if not _check_cache_for_job_result(job, cache=job['cache']):
                         if job['container'] is not None:
                             _prepare_container(job['container'])
                         _run_job(job)
@@ -284,7 +284,7 @@ def function(name, version):
                         if job['cache'] is not None:
                             if job['result'].success or job['cache_failing']:
                                 _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
-                                _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
+                                _store_job_result_in_cache(result=result, cache=job['cache'])
             return job['result']
         setattr(f, 'run', run)
         return f
@@ -494,7 +494,7 @@ def wait(timeout: Union[float, None]=None):
                         _set_job_as_failed_due_to_failing_inputs(job)
                     elif _job_is_ready(job):
                         _prepare_job_to_run(job)
-                        if not _check_cache_for_job_result(job):
+                        if not _check_cache_for_job_result(job, cache=job['cache']):
                             if job['container'] is not None:
                                 _prepare_container(job['container'])
                             job['status'] = 'queued'
@@ -515,7 +515,7 @@ def wait(timeout: Union[float, None]=None):
                                         raise Exception(f'Error running job: {_label}')
                                 if job['cache'] is not None:
                                     _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
-                                    _store_result(serialized_result=_internal_serialize_result(result0), cache=job['cache'])
+                                    _store_job_result_in_cache(result=result0, cache=job['cache'])
                     else:
                         new_pending_jobs.append(job)
             _global['pending_jobs'] = new_pending_jobs
@@ -526,7 +526,7 @@ def wait(timeout: Union[float, None]=None):
                 if job['status'] in ['finished', 'error']:
                     if job['cache'] is not None:
                         _write_to_log('Storing result for [{}] success={}'.format(job.get('label', job['name']), job['result'].success))
-                        _store_result(serialized_result=_internal_serialize_result(job['result']), cache=job['cache'])
+                        _store_job_result_in_cache(result=job['result'], cache=job['cache'])
                 if job['status'] == 'queued':
                     new_queued_jobs.append(job)
                 elif job['status'] == 'finished':
@@ -655,17 +655,16 @@ def parameter(name: str, required=True, default=None):
         return f
     return wrap
 
-def _check_cache_for_job_result(job):
-    _cache = job['cache']
+def _check_cache_for_job_result(job, *, cache):
     _cache_failing = job['cache_failing']
     _rerun_failing = job['rerun_failing']
     _force_run = job['force_run']
     _exception_on_fail = job['exception_on_fail']
     _show_cached_console = job['show_cached_console']
     if _exception_on_fail is None: _exception_on_fail = True
-    if _cache is None or _force_run:
+    if cache is None or _force_run:
         return False
-    result0 = _load_result(hash_object=job['hash_object'], cache=job['cache'])
+    result0 = _load_job_result_from_cache(hash_object=job['hash_object'], cache=cache)
     if result0 is None:
         _write_to_log('Did not find cached result for [{}]'.format(job.get('label', job['name'])))
         return False
@@ -731,7 +730,7 @@ def _set_job_as_failed_due_to_failing_inputs(job):
     result.status = 'error'
     job['status'] = 'error'
 
-def _load_result(*, hash_object, cache):
+def _load_job_result_from_cache(*, hash_object, cache):
     import kachery as ka
     import loggery
     if type(cache) == str:
@@ -744,8 +743,9 @@ def _load_result(*, hash_object, cache):
             return None
         return doc['message']
 
-def _store_result(*, serialized_result, cache):
+def _store_job_result_in_cache(*, result, cache):
     import loggery
+    serialized_result = _internal_serialize_result(result)
     if type(cache) == str:
         cache = dict(preset=cache)
     with loggery.config(**cache):

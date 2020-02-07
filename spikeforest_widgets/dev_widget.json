@@ -1,5 +1,11 @@
 {
     "widget": {
+        "type": "DirectoryView",
+        "props": {
+            "path": "/home/magland/src/spikeforest_recordings/recordings"
+        }
+    },
+    "widget_m": {
         "type": "MultiSort",
         "props": {
         }
@@ -26,7 +32,7 @@
             }
         }
     },
-    "widget_a": {
+    "widget_a2": {
         "type": "Analysis",
         "title": "Analysis",
         "key": "Analysis",

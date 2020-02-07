@@ -1,0 +1,15 @@
+{
+    "apps": [
+        {
+            "name": "forestview",
+            "pyFile": "forestview.py"
+        },
+        {
+            "name": "directoryview",
+            "pyFile": "directoryview.py"
+        }
+    ],
+    "killCode": {
+        "env": "FORESTVIEW_KILL_CODE"
+    }
+}

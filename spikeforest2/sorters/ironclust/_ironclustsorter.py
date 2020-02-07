@@ -42,8 +42,8 @@ class IronClustSorter(BaseSorter):
         detect_threshold=4,  # detection threshold
         prm_template_name='',  # .prm template file name
         freq_min=300,
-        freq_max=8000,
-        merge_thresh=0.99,  # Threshold for automated merging
+        freq_max=6000,
+        merge_thresh=0.985,  # Threshold for automated merging
         pc_per_chan=0,  # Number of principal components per channel
         whiten=False,  # Whether to do channel whitening as part of preprocessing
         filter_type='bandpass',  # none, bandpass, wiener, fftdiff, ndiff

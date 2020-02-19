@@ -20,7 +20,7 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 
 # Install SpyKING CIRCUS
 RUN apt-get update && apt-get install -y libmpich-dev
-RUN pip install pyqt5
+RUN pip install pyqt5==5.13
 RUN apt-get update && apt-get install -y qt5-default
 RUN apt-get update && apt-get install -y libglib2.0-0 libgl1-mesa-glx
 RUN apt-get update && apt-get install -y packagekit-gtk3-module libcanberra-gtk-module libcanberra-gtk3-module

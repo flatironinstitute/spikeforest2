@@ -20,13 +20,14 @@ RUN apt-get install -y locales && locale-gen en_US.UTF-8
 
 # Install SpyKING CIRCUS
 RUN apt-get update && apt-get install -y libmpich-dev
-RUN pip install pyqt5
+RUN pip install pyqt5==5.13
 RUN apt-get update && apt-get install -y qt5-default
 RUN apt-get update && apt-get install -y libglib2.0-0 libgl1-mesa-glx
 RUN apt-get update && apt-get install -y packagekit-gtk3-module libcanberra-gtk-module libcanberra-gtk3-module
-RUN pip install cmake scikit-build
-RUN pip install spyking-circus==0.9.0
+RUN pip install scikit-build
+RUN pip install cmake==3.13.3
+RUN pip install spyking-circus==0.9.2
 
 # python packages
-RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.2
-RUN pip install kachery==0.4.4
+RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.3
+RUN pip install kachery==0.4.8

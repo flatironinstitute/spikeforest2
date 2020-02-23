@@ -1,15 +1,15 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.9.1-w2')
+@hither.function('ironclust', '5.9.1-w3')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://jamesjun/sf-ironclust:5.9.1')
 @hither.local_module('../../../spikeforest2_utils')
 def ironclust(recording_path, sorting_out, 
     detect_threshold=4, freq_min=300, freq_max=0, detect_sign=-1, adjacency_radius=50, whiten=False,
-    adjacency_radius_out=100, merge_thresh=0.97, fft_thresh=8, knn=30, min_count=30, delta_cut=1,    
-    pc_per_chan=6, batch_sec_drift=600, step_sec_drift=20,
-    common_ref_type='trimmean', fGpu=True, clip_pre=0.5, clip_post=1, merge_thresh_cc=.99
+    adjacency_radius_out=100, merge_thresh=0.98, fft_thresh=8, knn=30, min_count=30, delta_cut=1,    
+    pc_per_chan=9, batch_sec_drift=600, step_sec_drift=20,
+    common_ref_type='trimmean', fGpu=True, clip_pre=0.25, clip_post=1, merge_thresh_cc=.8
 ):
 
     from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor

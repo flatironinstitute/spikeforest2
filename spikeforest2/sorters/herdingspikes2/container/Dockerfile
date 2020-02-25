@@ -24,5 +24,5 @@ RUN pip install joblib
 RUN pip install herdingspikes==0.3.7
 
 # python packages
-RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.4
+RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.2 spikesorters==0.2.5
 RUN pip install kachery==0.4.4

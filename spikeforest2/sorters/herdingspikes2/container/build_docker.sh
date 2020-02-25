@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t magland/sf-herdingspikes2:0.3.2 .
+docker build -t magland/sf-herdingspikes2:0.3.7 .

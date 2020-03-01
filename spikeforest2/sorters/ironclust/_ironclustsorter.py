@@ -66,7 +66,7 @@ class IronClustSorter(BaseSorter):
         clip_post=.75, # post-peak clip duration in ms
         merge_thresh_cc=1, #cross-correlogram merging threshold, set to 1 to disable
         nRepeat_merge=3, #number of repeats for merge
-        overlap_merge_thresh=0.95   #knn-overlap merge threshold
+        merge_overlap_thresh=0.95   #knn-overlap merge threshold
     )
 
     _extra_gui_params = [
@@ -101,7 +101,7 @@ class IronClustSorter(BaseSorter):
         {'name': 'clip_post', 'type': 'float', 'value': .75, 'default': .75, 'title': "post-peak clip duration in ms"},
         {'name': 'merge_thresh_cc', 'type': 'float', 'value': 1, 'default': 1, 'title': "cross-correlogram merging threshold, set to 1 to disable"},
         {'name': 'nRepeat_merge', 'type': 'int', 'value': 3, 'default': 3, 'title': "number of repeats for merge"},
-        {'name': 'overlap_merge_thresh', 'type': 'float', 'value': .95, 'default': .95, 'title': "knn-overlap merge threshold"}
+        {'name': 'merge_overlap_thresh', 'type': 'float', 'value': .95, 'default': .95, 'title': "knn-overlap merge threshold"}
     ]
 
     sorter_gui_params = copy.deepcopy(BaseSorter.sorter_gui_params)

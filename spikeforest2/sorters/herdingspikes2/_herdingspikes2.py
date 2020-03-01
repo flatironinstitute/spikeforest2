@@ -4,7 +4,7 @@ import hither
 
 @hither.function('herdingspikes2', '0.3.7-w1')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-herdingspikes2:0.3.7')
+@hither.container(default='docker://magland/sf-herdingspikes2:0.3.2')
 @hither.local_module('../../../spikeforest2_utils')
 def herdingspikes2(
     recording_path,

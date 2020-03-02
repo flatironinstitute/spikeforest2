@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import os
+import argparse
+import hither2 as hi
+
+def main():
+    parser = argparse.ArgumentParser(description='Run a compute resource', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--database', help='Name of the preset configuration for the database', required=True)
+    parser.add_argument('--compute-resource-id', help='The compute resource ID', required=True)
+    parser.add_argument('--kachery', help='Name of the kachery database', required=True)
+
+    args = parser.parse_args()
+
+    slurm_working_dir = 'slurm-working-dir'
+    if not os.path.exists(slurm_working_dir):
+        os.mkdir(slurm_working_dir)
+
+    db = hi.Database.preset(args.database)
+    jc = hi.JobCache(database=db)
+    jh = hi.SlurmJobHandler(
+        working_dir=slurm_working_dir,
+        use_slurm=False
+    )
+    cr = hi.ComputeResource(
+        database=db,
+        compute_resource_id=args.compute_resource_id,
+        kachery=args.kachery,
+        job_handler=jh,
+        job_cache=jc
+    )
+    cr.run()
+
+if __name__ == "__main__":
+    main()

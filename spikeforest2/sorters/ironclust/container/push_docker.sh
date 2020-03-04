@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker push jamesjun/sf-ironclust:5.9.7
+docker push jamesjun/sf-ironclust:5.9.8

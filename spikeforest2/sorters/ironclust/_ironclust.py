@@ -1,7 +1,7 @@
 import random
 import hither
 
-@hither.function('ironclust', '5.9.8-w3')
+@hither.function('ironclust', '5.9.8-w4')
 @hither.output_file('sorting_out')
 @hither.container(default='docker://jamesjun/sf-ironclust:5.9.8')
 @hither.local_module('../../../spikeforest2_utils')
@@ -32,7 +32,7 @@ def ironclust(recording_path, sorting_out,
         adjacency_radius_out=adjacency_radius_out, merge_thresh=merge_thresh, fft_thresh=fft_thresh, knn=knn, min_count=min_count, delta_cut=delta_cut,
         pc_per_chan=pc_per_chan, batch_sec_drift=batch_sec_drift, step_sec_drift=step_sec_drift, 
         common_ref_type=common_ref_type, fGpu=fGpu, clip_pre=clip_pre, clip_post=clip_post, 
-        merge_thresh_cc=merge_thresh_cc, merge_overlap_thresh=merge_thresh_cc
+        merge_thresh_cc=merge_thresh_cc, merge_overlap_thresh=merge_overlap_thresh
     )     
     timer = sorter.run()
     #print('#SF-SORTER-RUNTIME#{:.3f}#'.format(timer))

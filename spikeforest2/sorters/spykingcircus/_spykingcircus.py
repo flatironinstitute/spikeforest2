@@ -3,15 +3,15 @@ import random
 import hither
 
 
-@hither.function('spykingcircus', '0.9.2')
+@hither.function('spykingcircus', '0.9.5')
 @hither.output_file('sorting_out')
-@hither.container(default='docker://magland/sf-spykingcircus:0.9.2')
+@hither.container(default='docker://magland/sf-spykingcircus:0.9.5')
 @hither.local_module('../../../spikeforest2_utils')
 def spykingcircus(
     recording_path,
     sorting_out,
     detect_sign=-1,
-    adjacency_radius=200,
+    adjacency_radius=100,
     detect_threshold=6,
     template_width_ms=3,
     filter=True,

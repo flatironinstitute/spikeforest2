@@ -1,10 +1,10 @@
 {
     "studysets": "sha1://1c9083c986efda306f05bf21e3008e7a02981061/studysets.json",
     "studyset_names": [
-        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
         "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
         "HYBRID_JANELIA",
-        "MANUAL_FRANKLAB"
+        "MANUAL_FRANKLAB", 
     ],
     "spike_sorters": [
         {
@@ -12,7 +12,7 @@
             "processor_name": "herdingspikes2",
             "params": {},
             "studysets": [
-                "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
                 "SYNTH_VISAPY",
                 "HYBRID_JANELIA"
             ]
@@ -22,7 +22,7 @@
             "processor_name": "ironclust",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE", 
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -33,7 +33,7 @@
             "processor_name": "jrclust",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -44,7 +44,7 @@
             "processor_name": "klusta",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE",
                 "MANUAL_FRANKLAB"
             ]
@@ -55,7 +55,7 @@
             "params": {},
             "studysets2": ["PAIRED_BOYDEN"],
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -66,7 +66,7 @@
             "processor_name": "spykingcircus",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -77,7 +77,7 @@
             "processor_name": "tridesclous",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"

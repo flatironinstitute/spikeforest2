@@ -33,7 +33,7 @@
             "processor_name": "jrclust",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -44,7 +44,7 @@
             "processor_name": "klusta",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE",
                 "MANUAL_FRANKLAB"
             ]

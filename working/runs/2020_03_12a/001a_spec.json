@@ -33,7 +33,7 @@
             "processor_name": "jrclust",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"

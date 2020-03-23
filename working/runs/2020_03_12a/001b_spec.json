@@ -1,7 +1,7 @@
 {
     "studysets": "sha1://40f0ec6e8085c42d1801286b2888e98ef626e2ff/studysets.json",
     "studyset_names": [
-        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_MONOTRODE",
+        "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",  "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
         "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",
         "HYBRID_JANELIA",
         "MANUAL_FRANKLAB"
@@ -12,7 +12,7 @@
             "processor_name": "kilosort",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"
@@ -23,7 +23,7 @@
             "processor_name": "kilosort2",
             "params": {},
             "studysets": [
-                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",
+                "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER", "PAIRED_ENGLISH",
                 "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_VISAPY",
                 "HYBRID_JANELIA",
                 "MANUAL_FRANKLAB"

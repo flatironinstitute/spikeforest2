@@ -1,5 +1,5 @@
 {
-    "studysets": "sha1://40f0ec6e8085c42d1801286b2888e98ef626e2ff/studysets.json",
+    "studysets": "sha1://9a32d25a8c670ded9a4a90a40cf1f31d3ad299ad/studysets.json",
     "studyset_names": [
         "PAIRED_BOYDEN", "PAIRED_CRCNS_HC1", "PAIRED_KAMPFF", "PAIRED_MEA64C_YGER",  "PAIRED_ENGLISH", "PAIRED_MONOTRODE",
         "SYNTH_BIONET", "SYNTH_MAGLAND", "SYNTH_MEAREC_NEURONEXUS", "SYNTH_MEAREC_TETRODE", "SYNTH_MONOTRODE", "SYNTH_VISAPY",

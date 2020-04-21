@@ -6,7 +6,7 @@ from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
 
 @hither.function('compute_recording_info', version='0.1.1')
 @hither.output_file('json_out')
-@hither.container(default='docker://magland/spikeforest2:0.1.0')
+@hither.container(default='docker://magland/spikeforest2:0.1.1')
 @hither.local_module('../../spikeforest2_utils')
 def compute_recording_info(recording_path, json_out):
     recording = AutoRecordingExtractor(recording_path)

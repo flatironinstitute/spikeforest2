@@ -212,7 +212,7 @@ def knn_denoise(X, X_reference, *, k, ncomp):
     return X2
 
 @hither.function(name='filter_recording', version='0.1.0')
-@hither.container(default='docker://magland/spikeforest2:0.1.0')
+@hither.container(default='docker://magland/spikeforest2:0.1.1')
 @hither.local_module('../../spikeforest2_utils')
 def filter_recording(recobj, freq_min=300, freq_max=6000, freq_wid=1000):
     from spikeforest2_utils import AutoRecordingExtractor

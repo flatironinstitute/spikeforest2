@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker push magland/sf-spykingcircus:0.9.5
+docker push magland/sf-spykingcircus:0.9.7

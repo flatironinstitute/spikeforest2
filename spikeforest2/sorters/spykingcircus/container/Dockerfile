@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y libglib2.0-0 libgl1-mesa-glx
 RUN apt-get update && apt-get install -y packagekit-gtk3-module libcanberra-gtk-module libcanberra-gtk3-module
 RUN pip install scikit-build
 RUN pip install cmake==3.13.3
-RUN pip install spyking-circus==0.9.2
+RUN pip install spyking-circus==0.9.7
 
 # python packages
 RUN pip install spikeextractors==0.7.1 spiketoolkit==0.5.1 spikesorters==0.2.3

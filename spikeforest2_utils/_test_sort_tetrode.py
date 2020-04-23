@@ -1,5 +1,4 @@
 import numpy as np
-import hither
 
 def test_sort_tetrode(
     sorter_name,
@@ -69,6 +68,7 @@ def test_sort(
 ):
     from spikeforest2 import sorters
     from spikeforest2 import processing
+    import hither
     import kachery as ka
 
     # for now, in this test, don't use gpu for irc

@@ -187,7 +187,7 @@ def main():
 
 @hither.function(name='filter_recording', version='0.1.0')
 @hither.output_file('timeseries_out') # timeseries out
-@hither.container(default='docker://magland/spikeforest2:0.1.0')
+@hither.container(default='docker://magland/spikeforest2:0.1.1')
 @hither.local_module('../../../spikeforest2_utils')
 def filter_recording(recording_directory, timeseries_out):
     from spikeforest2_utils import AutoRecordingExtractor
@@ -317,7 +317,7 @@ def _create_spikesprays(*, rx, sx_true, sx_sorted, neighborhood_size, num_spikes
 @hither.input_file('firings_true')
 @hither.input_file('firings_sorted')
 @hither.output_file('json_out')
-@hither.container(default='docker://magland/spikeforest2:0.1.0')
+@hither.container(default='docker://magland/spikeforest2:0.1.1')
 @hither.local_module('../../../spikeforest2_utils')
 def create_spike_sprays(
     recording_directory, # Recording directory

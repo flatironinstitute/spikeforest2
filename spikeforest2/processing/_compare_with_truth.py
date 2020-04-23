@@ -7,7 +7,7 @@ from spikeforest2_utils import AutoRecordingExtractor
 @hither.input_file('sorting_path')
 @hither.input_file('sorting_true_path')
 @hither.output_file('json_out')
-@hither.container(default='docker://magland/spikeforest2:0.1.0')
+@hither.container(default='docker://magland/spikeforest2:0.1.1')
 @hither.local_module('../../spikeforest2_utils')
 def compare_with_truth(sorting_path, sorting_true_path, json_out):
     from spikeforest2_utils import SortingComparison

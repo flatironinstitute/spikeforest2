@@ -1,5 +1,5 @@
 import json
-import hither
+import hither_sf as hither
 import numpy as np
 from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
 

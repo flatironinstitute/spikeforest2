@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from spikeforest2 import sorters
-import hither
+import hither_sf as hither
 import kachery as ka
 
 recording_path = 'sha1://961f4a641af64dded4821610189f808f0192de4d/SYNTH_MEAREC_TETRODE/synth_mearec_tetrode_noise10_K10_C4/002_synth.json'

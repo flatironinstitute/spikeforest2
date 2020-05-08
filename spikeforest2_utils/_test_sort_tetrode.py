@@ -68,7 +68,7 @@ def test_sort(
 ):
     from spikeforest2 import sorters
     from spikeforest2 import processing
-    import hither
+    import hither_sf as hither
     import kachery as ka
 
     # for now, in this test, don't use gpu for irc

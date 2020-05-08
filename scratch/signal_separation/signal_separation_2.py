@@ -6,7 +6,7 @@ from spikeforest2_utils.autoextractors.mdaextractors.mdaextractors import MdaRec
 from spikeforest2_utils import AutoRecordingExtractor, AutoSortingExtractor
 import kachery as ka
 import numpy as np
-import hither
+import hither_sf as hither
 
 ka.set_config(fr='default_readonly')
 

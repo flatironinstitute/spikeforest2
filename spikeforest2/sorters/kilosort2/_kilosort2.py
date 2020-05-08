@@ -1,5 +1,5 @@
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('kilosort2', '0.1.5-w1')
 @hither.output_file('sorting_out')

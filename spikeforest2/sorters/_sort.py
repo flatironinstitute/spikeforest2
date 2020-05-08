@@ -1,5 +1,5 @@
 import kachery as ka
-import hither
+import hither_sf as hither
 
 def sort(algorithm: str, recording_path: str):
     from spikeforest2 import sorters

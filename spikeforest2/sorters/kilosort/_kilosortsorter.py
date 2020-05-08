@@ -9,7 +9,7 @@ import copy
 
 import spikeextractors as se
 from spikesorters import BaseSorter
-from hither import ShellScript
+from hither_sf import ShellScript
 
 
 def check_if_installed(kilosort_path: Union[str, None]):

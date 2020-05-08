@@ -3,7 +3,7 @@ import time
 import multiprocessing
 from multiprocessing.connection import Connection
 import time
-import hither
+import hither_sf as hither
 
 class ParallelJobHandler:
     def __init__(self, num_workers):

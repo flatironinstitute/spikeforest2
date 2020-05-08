@@ -4,7 +4,7 @@ import shutil
 import json
 import argparse
 import spikeforest_widgets as sw
-import hither
+import hither_sf as hither
 import kachery as ka
 from spikeforest2 import sorters
 

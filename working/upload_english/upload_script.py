@@ -4,7 +4,7 @@
 import numpy as np
 import json
 from spikeforest2_utils import AutoRecordingExtractor, MdaRecordingExtractor
-import hither
+import hither_sf as hither
 import kachery as ka
 import os
 

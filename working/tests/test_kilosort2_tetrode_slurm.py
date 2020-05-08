@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from spikeforest2_utils import test_sort_tetrode
-import hither
+import hither_sf as hither
 
 def main():
     # I force using singularity for kilosort2 because on my computer, when docker tries to use gpu it messes up nvidia-container-cli and I need to restart the computer

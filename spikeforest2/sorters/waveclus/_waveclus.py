@@ -1,5 +1,5 @@
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('waveclus', '2019.09.23-w1')
 @hither.output_file('sorting_out')

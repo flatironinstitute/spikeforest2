@@ -1,5 +1,5 @@
 import kachery as ka
-import hither
+import hither_sf as hither
 import os
 
 def sort(algorithm: str, recording_path: str, sorting_out: str=None, 

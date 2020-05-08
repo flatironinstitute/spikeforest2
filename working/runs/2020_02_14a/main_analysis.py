@@ -6,7 +6,7 @@ from spikeforest2_utils import aggregate_sorting_results
 import numpy as np
 from typing import List, Union, Dict
 import kachery as ka
-import hither
+import hither_sf as hither
 
 def main():
     from spikeforest2 import sorters

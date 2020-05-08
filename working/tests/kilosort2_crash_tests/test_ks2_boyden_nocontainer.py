@@ -3,7 +3,7 @@
 import numpy as np
 from spikeforest2 import sorters
 from spikeforest2 import processing
-import hither
+import hither_sf as hither
 import kachery as ka
 import os
 

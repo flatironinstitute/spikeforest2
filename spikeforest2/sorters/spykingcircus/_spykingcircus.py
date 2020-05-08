@@ -1,6 +1,6 @@
 import os
 import random
-import hither
+import hither_sf as hither
 
 
 @hither.function('spykingcircus', '0.9.7')

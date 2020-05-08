@@ -1,6 +1,6 @@
 import os
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('klusta', '3.0.16-w1')
 @hither.output_file('sorting_out')

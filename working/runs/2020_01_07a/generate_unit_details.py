@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-import hither
+import hither_sf as hither
 import os
 import json
 import random

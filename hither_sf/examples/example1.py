@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import hither
+import hither_sf as hither
 
 @hither.function('hello_hither_scipy', '0.1.0')
 @hither.container(default='docker://jupyter/scipy-notebook:latest')

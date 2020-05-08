@@ -1,7 +1,7 @@
 import os
 import json
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('mountainsort4', '0.3.2-w6')
 @hither.output_file('sorting_out')

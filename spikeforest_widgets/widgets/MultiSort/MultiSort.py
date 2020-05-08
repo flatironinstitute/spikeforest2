@@ -1,4 +1,4 @@
-import hither
+import hither_sf as hither
 from spikeforest2 import sorters
 
 class MultiSort:

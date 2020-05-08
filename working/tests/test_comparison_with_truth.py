@@ -3,7 +3,7 @@
 import numpy as np
 import spikeextractors as se
 from spikeforest2 import processing
-import hither
+import hither_sf as hither
 
 def main():
     samplerate = 30000

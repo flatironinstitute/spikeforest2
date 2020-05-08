@@ -1,5 +1,5 @@
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('ironclust', '5.9.8-w4')
 @hither.output_file('sorting_out')

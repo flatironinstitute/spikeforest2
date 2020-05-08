@@ -3,7 +3,7 @@
 import numpy as np
 from spikeforest2 import sorters
 from spikeforest2 import processing
-import hither
+import hither_sf as hither
 import kachery as ka
 
 recording_path = 'sha1dir://49b1fe491cbb4e0f90bde9cfc31b64f985870528.paired_boyden32c/915_10_1'

@@ -1,6 +1,6 @@
 import os
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('tridesclous', '1.5.0')
 @hither.output_file('sorting_out')

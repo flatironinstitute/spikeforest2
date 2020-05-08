@@ -598,8 +598,8 @@ class _SlurmProcess():
                 import random
                 import traceback
                 import kachery as ka
-                from hither import FileLock
-                from hither import _run_job, _deserialize_runnable_job
+                from hither_sf import FileLock
+                from hither_sf import _run_job, _deserialize_runnable_job
 
                 working_dir = '{working_dir}'
                 num_workers = {num_workers}

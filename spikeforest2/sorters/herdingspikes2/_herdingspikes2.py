@@ -1,6 +1,6 @@
 import os
 import random
-import hither
+import hither_sf as hither
 
 @hither.function('herdingspikes2', '0.3.7-w1')
 @hither.output_file('sorting_out')

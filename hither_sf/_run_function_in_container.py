@@ -97,7 +97,7 @@ def run_function_in_container(*,
             import sys
             import json
             import traceback
-            from hither import ConsoleCapture
+            from hither_sf import ConsoleCapture
 
             def main():
                 _configure_kachery()

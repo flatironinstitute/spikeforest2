@@ -122,6 +122,8 @@ def run_function_in_container(*,
                 except:
                     return
                 kachery_config = json.loads('{kachery_config_json}')
+                # delete newer use_hard_links key
+                kachery_config.pop("use_hard_links", None)
                 ka.set_config(**kachery_config)
 
             if __name__ == "__main__":

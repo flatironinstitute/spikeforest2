@@ -13,7 +13,6 @@ setuptools.setup(
         'bin/sf-sort'
     ],
     install_requires=[
-        'kachery',
         'python-frontmatter',
         'spikeextractors',
         'scipy', 'pandas', 'pymongo'

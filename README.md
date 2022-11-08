@@ -1,4 +1,6 @@
-# SpikeForest (v2)
+⚠️ Despite its name, this repo is older than [flatironinstitute/spikeforest](https://github.com/flatironinstitute/spikeforest). Apologies for that. Please use the spikeforest repo, this one is obsolete.
+
+# OLD SpikeForest (v2)
 
 This project contains the processing pipelines needed to reproduce the benchmarking results presented on the [spikeforest website](https://spikeforest.flatironinstitute.org).
 
